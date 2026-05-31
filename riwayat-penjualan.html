@@ -477,7 +477,11 @@ async function loadRiwayat() {
       riwayat = data;
     console.log("Data Riwayat:", data);
     
-  let tbody = document.getElementById("dataRiwayat");
+let tbody = document.getElementById("dataRiwayat");
+
+tbody.innerHTML = "";
+
+console.log(riwayat);
 
 riwayat.forEach((trx, index) => {
 
