@@ -604,13 +604,18 @@ function exportExcel() {
         nominal: Number(nominal)
       }]);
 
-  if (error) {
+if (error) {
 
-    console.error(error);
-    alert("Gagal menyimpan pengeluaran");
-    return;
+  console.error(error);
 
-  }
+  alert(
+    "Error: " +
+    error.message
+  );
+
+  return;
+
+}
 
   alert("Pengeluaran berhasil disimpan");
 
