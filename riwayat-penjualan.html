@@ -445,10 +445,11 @@
 
     <script>
 
-    let riwayat =
-      JSON.parse(localStorage.getItem("riwayatPenjualan"))
-      || [];
-
+const { data: riwayat, error } =
+  await window.ovanaSupabase
+    .from("penjualan")
+    .select("*")
+    .order("id", { ascending: false });
     let tbody =
       document.getElementById("dataRiwayat");
 
@@ -621,10 +622,10 @@
 
         dataAsli.splice(indexAsli, 1);
 
-        localStorage.setItem(
-          "riwayatPenjualan",
-          JSON.stringify(dataAsli)
-        );
+        await window.ovanaSupabase
+          .from("penjualan")
+          .delete()
+          .eq("id", id);
 
         location.reload();
 
