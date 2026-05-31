@@ -866,13 +866,25 @@ if (file) {
     dataBarang[index].gambar =
       e.target.result;
 
-localStorage.setItem(
-  "barang",
-  JSON.stringify(dataBarang)
-);
-
-tampilkanBarang();
-loadNotifikasi();
+      console.log("ID =", dataBarang[index].id);
+      
+window.ovanaSupabase
+  .from("barang")
+  .update({
+    nama: dataBarang[index].nama,
+    harga_beli: dataBarang[index].modal,
+    harga_jual: dataBarang[index].hargaJual,
+    harga_grosir: dataBarang[index].hargaGrosir,
+    min_grosir: dataBarang[index].minGrosir,
+    stock: dataBarang[index].stock,
+    minimum_stock: dataBarang[index].minimumStock
+  })
+  .eq("id", dataBarang[index].id)
+  .then(() => {
+    loadBarangSupabase();
+    loadNotifikasi();
+    alert("Data berhasil diupdate");
+  });
 
   };
 
