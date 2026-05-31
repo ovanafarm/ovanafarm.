@@ -1035,6 +1035,52 @@ document.getElementById("terendahText").innerText =
 
 document.getElementById("transaksiText").innerText =
   penjualan.length;
+
+  // ======================
+// GRAFIK PENJUALAN
+// ======================
+
+document.querySelector("#revenue-chart").innerHTML = "";
+
+new ApexCharts(
+  document.querySelector("#revenue-chart"),
+  {
+    chart: {
+      type: "bar",
+      height: 300
+    },
+    series: [{
+      name: "Penjualan",
+      data: totalChart
+    }],
+    xaxis: {
+      categories: tanggalChart
+    }
+  }
+).render();
+
+// ======================
+// GRAFIK PROFIT
+// ======================
+
+document.querySelector("#profit-chart").innerHTML = "";
+
+new ApexCharts(
+  document.querySelector("#profit-chart"),
+  {
+    chart: {
+      type: "line",
+      height: 300
+    },
+    series: [{
+      name: "Profit",
+      data: totalProfitPerHari
+    }],
+    xaxis: {
+      categories: tanggalChart
+    }
+  }
+).render();
   
 loadNotifikasi();
 }
