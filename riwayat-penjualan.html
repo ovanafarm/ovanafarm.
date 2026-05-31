@@ -463,18 +463,35 @@ window.ovanaSupabase = client;
         
 async function loadRiwayat() {
 
-  const { data, error } =
-    await window.ovanaSupabase
-      .from("penjualan")
-      .select("*")
-      .order("id", { ascending: false });
+    let tbody =
+  document.getElementById("dataRiwayat");
 
+tbody.innerHTML = `
+<tr>
+  <td colspan="9" class="text-center">
+    <div class="spinner-border spinner-border-sm"></div>
+    Memuat riwayat penjualan...
+  </td>
+</tr>
+`;
+
+    console.time("loadRiwayat");
+    
+  const { data, error } =
+await window.ovanaSupabase
+  .from("penjualan")
+  .select("id,tanggal,total,bayar,kembalian,item")
+  .order("id", { ascending: false });
+
+    console.timeEnd("loadRiwayat");
+    
   if(error){
     console.log(error);
     return;
   }
 
       riwayat = data;
+    
     console.log("Data Riwayat:", data);
     
 let tbody = document.getElementById("dataRiwayat");
