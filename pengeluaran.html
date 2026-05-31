@@ -495,44 +495,57 @@
 
 <script>
 
-let pengeluaran =
-  JSON.parse(localStorage.getItem("pengeluaran"))
-  || [];
+  async function loadPengeluaran() {
 
-let tbody =
-  document.getElementById("dataRiwayat");
+  const { data, error } =
+    await window.ovanaSupabase
+      .from("pengeluaran")
+      .select("*")
+      .order("id", { ascending: false });
 
-pengeluaran.reverse().forEach((trx, index) => {
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-  tbody.innerHTML += `
+  let tbody =
+    document.getElementById("dataRiwayat");
 
-    <tr>
+  tbody.innerHTML = "";
 
-      <td>${index + 1}</td>
+  data.forEach((trx, index) => {
 
-      <td>${trx.tanggal}</td>
+    tbody.innerHTML += `
+      <tr>
 
-      <td>${trx.keterangan}</td>
+        <td>${index + 1}</td>
 
-      <td>
-        Rp ${trx.nominal.toLocaleString("id-ID")}
-      </td>
+        <td>${trx.tanggal}</td>
 
-      <td>
-  <button
-    class="btn btn-danger btn-sm"
-    onclick="hapusItem(${index})">
+        <td>${trx.keterangan}</td>
 
-    <i class="bi bi-trash"></i>
+        <td>
+          Rp ${Number(trx.nominal)
+            .toLocaleString("id-ID")}
+        </td>
 
-  </button>
-</td>
+        <td>
+          <button
+            class="btn btn-danger btn-sm"
+            onclick="hapusItem(${trx.id})">
 
-    </tr>
+            <i class="bi bi-trash"></i>
 
-  `;
+          </button>
+        </td>
 
-});
+      </tr>
+    `;
+
+  });
+
+}
+  
 
 function exportExcel() {
 
@@ -638,20 +651,27 @@ function formatNominal(input) {
 
 }
 
-function hapusItem(index) {
+async function hapusItem(id) {
 
-  if(confirm("Hapus data ini?")) {
+  if (!confirm("Hapus data ini?"))
+    return;
 
-    pengeluaran.splice(index, 1);
+  const { error } =
+    await window.ovanaSupabase
+      .from("pengeluaran")
+      .delete()
+      .eq("id", id);
 
-    localStorage.setItem(
-      "pengeluaran",
-      JSON.stringify(pengeluaran)
-    );
+  if (error) {
 
-    location.reload();
+    console.error(error);
+    alert("Gagal menghapus");
+
+    return;
 
   }
+
+  loadPengeluaran();
 
 }
 
@@ -808,6 +828,7 @@ const client =
   );
 
 window.ovanaSupabase = client;
+  loadPengeluaran();
 </script>
     
 </body>
