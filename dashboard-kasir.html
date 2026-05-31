@@ -863,7 +863,7 @@ function editBarang(index) {
   document.getElementById(`hapusBtn${index}`).classList.remove("d-none");
 }
 
-function saveBarang(index) {
+async function saveBarang(index) {
 
   dataBarang[index].nama =
     document.getElementById(`namaInput${index}`).value;
@@ -887,50 +887,42 @@ dataBarang[index].minimumStock =
   parseInt(document.getElementById(`minStockInput${index}`).value);
 
     console.log(dataBarang[index]);
-    
-  let file =
+
+let file =
   document.getElementById(`gambarInput${index}`).files[0];
 
 if (file) {
 
-  let reader = new FileReader();
+  const fileName =
+    Date.now() + "-" + file.name;
 
-  reader.onload = function(e) {
+  const { error: uploadError } =
+    await window.ovanaSupabase
+      .storage
+      .from("barang")
+      .upload(fileName, file);
 
-    dataBarang[index].gambar =
-      e.target.result;
+  if (uploadError) {
+    console.error(uploadError);
+    alert("Upload gambar gagal");
+    return;
+  }
 
-      console.log("ID =", dataBarang[index].id);
-      
-window.ovanaSupabase
-  .from("barang")
-  .update({
-    nama: dataBarang[index].nama,
-    harga_beli: dataBarang[index].modal,
-    harga_jual: dataBarang[index].hargaJual,
-    harga_grosir: dataBarang[index].hargaGrosir,
-    min_grosir: dataBarang[index].minGrosir,
-    stock: dataBarang[index].stock,
-    minimum_stock: dataBarang[index].minimumStock
-  })
-  .eq("id", dataBarang[index].id)
-  .then(() => {
-    loadBarangSupabase();
-    loadNotifikasi();
-    alert("Data berhasil diupdate");
-  });
+  const { data: publicUrlData } =
+    window.ovanaSupabase
+      .storage
+      .from("barang")
+      .getPublicUrl(fileName);
 
-  };
-
-  reader.readAsDataURL(file);
-
-  return;
+  dataBarang[index].gambar =
+    publicUrlData.publicUrl;
 }
 
 window.ovanaSupabase
   .from("barang")
   .update({
     nama: dataBarang[index].nama,
+    gambar: dataBarang[index].gambar,
     harga_beli: dataBarang[index].modal,
     harga_jual: dataBarang[index].hargaJual,
     harga_grosir: dataBarang[index].hargaGrosir,
