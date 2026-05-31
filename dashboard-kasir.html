@@ -783,19 +783,35 @@ function simpanRestock() {
     (stockLama + qtyMasuk)
   );
 
-  dataBarang[index].stock =
-    stockLama + qtyMasuk;
+dataBarang[index].stock =
+  stockLama + qtyMasuk;
 
-  dataBarang[index].modal =
-    modalBaru;
+dataBarang[index].modal =
+  modalBaru;
 
-  localStorage.setItem(
-    "barang",
-    JSON.stringify(dataBarang)
-  );
+window.ovanaSupabase
+  .from("barang")
+  .update({
+    stock: dataBarang[index].stock,
+    harga_beli: dataBarang[index].modal
+  })
+  .eq("id", dataBarang[index].id)
+  .then(() => {
 
-  tampilkanBarang();
-loadNotifikasi();
+    loadBarangSupabase();
+    loadNotifikasi();
+
+    bootstrap.Modal
+      .getInstance(
+        document.getElementById("modalRestock")
+      )
+      .hide();
+
+    alert("Restock berhasil");
+
+  });
+
+return;
 
   bootstrap.Modal
     .getInstance(
@@ -919,11 +935,6 @@ window.ovanaSupabase
 function updateStock(index, value) {
 
   dataBarang[index].stock = value;
-
-  localStorage.setItem(
-    "barang",
-    JSON.stringify(dataBarang)
-  );
 
 }
 
