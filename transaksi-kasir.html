@@ -808,12 +808,15 @@ ${
     item: JSON.parse(JSON.stringify(keranjang))
 
   };
+      const waktuWIB = new Date().toLocaleString("sv-SE", {
+  timeZone: "Asia/Jakarta"
+});
 
-       const { error } =
+const { error } =
   await window.ovanaSupabase
     .from("penjualan")
     .insert([{
-      tanggal: new Date().toISOString(),
+      tanggal: waktuWIB,
       total: total,
       bayar: bayar,
       kembalian: bayar - total,
