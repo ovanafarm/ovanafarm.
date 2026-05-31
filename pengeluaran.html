@@ -572,54 +572,45 @@ function exportExcel() {
 
 }
 
-function simpanPengeluaran() {
+  async function simpanPengeluaran() {
 
-let inputTanggal =
-  document.getElementById("tanggal").value;
+  let inputTanggal =
+    document.getElementById("tanggal").value;
 
-let tanggal = new Date(inputTanggal)
-  .toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  });
+  let tanggal =
+    new Date(inputTanggal)
+      .toLocaleDateString("id-ID");
 
   let keterangan =
     document.getElementById("keterangan").value;
 
-let nominal =
-  document.getElementById("nominal")
-  .value.replace(/\./g, "");
+  let nominal =
+    document.getElementById("nominal")
+      .value.replace(/\./g, "");
 
-  if(
-    !tanggal ||
-    !keterangan ||
-    !nominal
-  ) {
+  if (!inputTanggal || !keterangan || !nominal) {
 
     alert("Lengkapi data!");
-
     return;
 
   }
 
-  let pengeluaran =
-    JSON.parse(
-      localStorage.getItem("pengeluaran")
-    ) || [];
+  const { error } =
+    await window.ovanaSupabase
+      .from("pengeluaran")
+      .insert([{
+        tanggal: tanggal,
+        keterangan: keterangan,
+        nominal: Number(nominal)
+      }]);
 
-  pengeluaran.push({
+  if (error) {
 
-    tanggal,
-    keterangan,
-    nominal: Number(nominal)
+    console.error(error);
+    alert("Gagal menyimpan pengeluaran");
+    return;
 
-  });
-
-  localStorage.setItem(
-    "pengeluaran",
-    JSON.stringify(pengeluaran)
-  );
+  }
 
   alert("Pengeluaran berhasil disimpan");
 
@@ -796,6 +787,24 @@ window.addEventListener("DOMContentLoaded", function () {
 
 </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+const SUPABASE_URL =
+  "https://dyholzqyltspnpbjkpsn.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_5dQRwThjCNLnL-Zsr6Jbig_bA3OrGf6";
+
+const client =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+window.ovanaSupabase = client;
+</script>
+    
 </body>
   <!--end::Body-->
 </html>
