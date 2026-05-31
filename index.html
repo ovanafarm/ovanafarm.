@@ -1285,10 +1285,25 @@ async function loadDashboard() {
     }
 
   });
-let totalPengeluaran = 0;
+
+  let totalPengeluaran = 0;
+let pengeluaranHariIni = 0;
+
+const hariIni =
+  new Date().toLocaleDateString("id-ID");
 
 pengeluaran.forEach((item) => {
-  totalPengeluaran += Number(item.nominal || 0);
+
+  totalPengeluaran +=
+    Number(item.nominal || 0);
+
+  if (item.tanggal === hariIni) {
+
+    pengeluaranHariIni +=
+      Number(item.nominal || 0);
+
+  }
+
 });
 
 let saldoOvana =
@@ -1296,6 +1311,9 @@ let saldoOvana =
 
 document.getElementById("saldoOvana").innerText =
   "Rp " + saldoOvana.toLocaleString("id-ID");
+
+  document.getElementById("pengeluaranHariIni").innerText =
+  "Rp " + pengeluaranHariIni.toLocaleString("id-ID");
   
   document.getElementById("totalTransaksi").innerText =
     transaksiHariIni;
