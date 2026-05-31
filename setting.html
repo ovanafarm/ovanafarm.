@@ -402,6 +402,18 @@ console.log("Data Setting:", data);
   document.getElementById("namaUser").value =
     data.nama_user || "Admin";
 
+      if (data.logo_toko) {
+
+  document.getElementById(
+    "previewLogoToko"
+  ).src = data.logo_toko;
+
+  document.querySelector(
+    ".brand-image"
+  ).src = data.logo_toko;
+
+}
+      
 }
     
     function loadSetting() {
