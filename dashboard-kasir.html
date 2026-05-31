@@ -456,6 +456,52 @@
 <script>
 let dataBarang = [];
 
+    async function compressImage(file) {
+
+  return new Promise((resolve) => {
+
+    const canvas = document.createElement("canvas");
+    const img = new Image();
+
+    img.onload = () => {
+
+      const maxWidth = 500;
+
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth) {
+        height = height * (maxWidth / width);
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+
+      ctx.drawImage(
+        img,
+        0,
+        0,
+        width,
+        height
+      );
+
+      canvas.toBlob(
+        (blob) => resolve(blob),
+        "image/jpeg",
+        0.6
+      );
+
+    };
+
+    img.src = URL.createObjectURL(file);
+
+  });
+
+}
+    
 async function simpanBarang() {
 
   let nama =
@@ -473,23 +519,27 @@ async function simpanBarang() {
   let minimumStock =
     document.getElementById("minimumStock").value;
 
-  let file =
-    document.getElementById("gambarBarang").files[0];
+let file =
+  document.getElementById("gambarBarang").files[0];
 
-  if (
-    !file ||
-    nama == "" ||
-    hargaBeli == "" ||
-    hargaJual == "" ||
-    stock == "" ||
-    minimumStock == ""
-  ) {
-    alert("Lengkapi data barang!");
-    return;
-  }
+if (
+  !file ||
+  nama == "" ||
+  hargaBeli == "" ||
+  hargaJual == "" ||
+  stock == "" ||
+  minimumStock == ""
+) {
+  alert("Lengkapi data barang!");
+  return;
+}
 
-  const fileName =
-    Date.now() + "-" + file.name;
+const originalName = file.name;
+
+file = await compressImage(file);
+
+const fileName =
+  Date.now() + "-" + originalName;
 
   const { error: uploadError } =
     await window.ovanaSupabase
@@ -827,15 +877,6 @@ window.ovanaSupabase
     alert("Restock berhasil");
 
   });
-
-return;
-
-  bootstrap.Modal
-    .getInstance(
-      document.getElementById("modalRestock")
-    )
-    .hide();
-alert("Restock berhasil");
 }
 
 function editBarang(index) {
@@ -893,10 +934,14 @@ dataBarang[index].minimumStock =
 let file =
   document.getElementById(`gambarInput${index}`).files[0];
 
-if (file) {
+    if (file) {
+
+  const originalName = file.name;
+
+  file = await compressImage(file);
 
   const fileName =
-    Date.now() + "-" + file.name;
+    Date.now() + "-" + originalName;
 
   const { error: uploadError } =
     await window.ovanaSupabase
