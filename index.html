@@ -1357,6 +1357,75 @@ window.ovanaSupabase = client;
 console.log("Supabase Connected");
 </script>
 
+                <script>
+
+async function loadDashboard() {
+
+  const { data: penjualan, error } =
+    await window.ovanaSupabase
+      .from("penjualan")
+      .select("*");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const hariIni =
+    new Date().toLocaleDateString("id-ID");
+
+  let transaksiHariIni = 0;
+  let pendapatanHariIni = 0;
+  let totalProfit = 0;
+  let totalPenjualan = 0;
+
+  penjualan.forEach((trx) => {
+
+    totalPenjualan += Number(trx.total || 0);
+
+    const tanggalTrx =
+      new Date(trx.tanggal)
+        .toLocaleDateString("id-ID");
+
+    if (tanggalTrx === hariIni) {
+
+      transaksiHariIni++;
+      pendapatanHariIni += Number(trx.total || 0);
+
+    }
+
+    if (trx.item) {
+
+      trx.item.forEach((i) => {
+
+        totalProfit +=
+          ((i.harga || 0) - (i.modal || 0))
+          * (i.qty || 0);
+
+      });
+
+    }
+
+  });
+
+  document.getElementById("totalTransaksi").innerText =
+    transaksiHariIni;
+
+  document.getElementById("pendapatanHariIni").innerText =
+    "Rp " + pendapatanHariIni.toLocaleString("id-ID");
+
+  document.getElementById("profitText").innerText =
+    "Rp " + totalProfit.toLocaleString("id-ID");
+
+  document.getElementById("totalPenjualanText").innerText =
+    "Rp " + totalPenjualan.toLocaleString("id-ID");
+
+}
+
+loadDashboard();
+
+</script>
+                
 <!--end::Script-->
 
             <!--end::Script-->
