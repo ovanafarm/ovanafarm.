@@ -488,7 +488,7 @@ riwayat.forEach((trx, index) => {
   tbody.innerHTML += `
     <tr>
       <td>${index + 1}</td>
-      <td>${trx.tanggal || "-"}</td>
+      <td>${new Date(trx.tanggal).toLocaleString("id-ID")}</td>
       <td>Rp ${(trx.total || 0).toLocaleString("id-ID")}</td>
       <td>Rp ${(trx.bayar || 0).toLocaleString("id-ID")}</td>
       <td>Rp ${(trx.kembalian || 0).toLocaleString("id-ID")}</td>
