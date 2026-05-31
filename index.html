@@ -1103,6 +1103,15 @@ function loadNotifikasi() {
     Number(localStorage.getItem("targetPenjualan"))
     || 1000000;
 
+  let totalHariIni = Number(
+  document.getElementById("pendapatanHariIni")
+    .innerText
+    .replace("Rp", "")
+    .replace(/\./g, "")
+    .replace(/,/g, "")
+    .trim()
+) || 0;
+  
   if (totalHariIni < targetPenjualan) {
 
     notifikasi.push(
@@ -1168,8 +1177,6 @@ notifikasi.forEach((item) => {
     html;
 
 }
-
-loadNotifikasi();
 
 </script>
 
@@ -1323,7 +1330,7 @@ document.getElementById("saldoOvana").innerText =
 
   document.getElementById("totalPenjualanText").innerText =
     "Rp " + totalPenjualan.toLocaleString("id-ID");
-
+loadNotifikasi();
 }
 
 loadDashboard();
