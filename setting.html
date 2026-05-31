@@ -413,6 +413,21 @@ console.log("Data Setting:", data);
   ).src = data.logo_toko;
 
 }
+      if (data.foto_user) {
+
+  document.getElementById(
+    "previewFotoUser"
+  ).src = data.foto_user;
+
+  document.getElementById(
+    "navbarUserPhoto"
+  ).src = data.foto_user;
+
+  document.getElementById(
+    "dropdownUserPhoto"
+  ).src = data.foto_user;
+
+}
     document.getElementById(
   "sidebarNamaToko"
 ).innerText =
@@ -490,6 +505,38 @@ if (logoToko) {
 const fotoUser =
   document.getElementById("fotoUserInput").files[0];
 
+      let fotoUserUrl = null;
+
+if (fotoUser) {
+
+  const fotoFileName =
+    "user-" + Date.now() + "-" + fotoUser.name;
+
+  const { error: fotoUploadError } =
+    await window.ovanaSupabase
+      .storage
+      .from("setting")
+      .upload(fotoFileName, fotoUser);
+
+  if (fotoUploadError) {
+
+    console.error(fotoUploadError);
+    alert("Upload foto user gagal");
+    return;
+
+  }
+
+  const { data: fotoPublicUrl } =
+    window.ovanaSupabase
+      .storage
+      .from("setting")
+      .getPublicUrl(fotoFileName);
+
+  fotoUserUrl =
+    fotoPublicUrl.publicUrl;
+
+}
+      
       let logoTokoUrl = null;
 
 if (file) {
@@ -527,10 +574,21 @@ if (file) {
     logoTokoUrl
   );
   }
+      const logoLama =
+  document.getElementById(
+    "previewLogoToko"
+  ).src;
+      
+      const fotoUserLama =
+  document.getElementById(
+    "previewFotoUser"
+  ).src;
+      
 const { data, error } =
   
       await window.ovanaSupabase
   .from("setting")
+  
   .update({
     nama_toko:
       document.getElementById("namaToko").value,
@@ -550,11 +608,14 @@ const { data, error } =
     target_profit:
       document.getElementById("targetProfit").value,
 
-    nama_user:
-      document.getElementById("namaUser").value,
+nama_user:
+  document.getElementById("namaUser").value,
 
-    logo_toko:
-      logoTokoUrl
+foto_user:
+  fotoUserUrl || fotoUserLama,
+
+logo_toko:
+  logoTokoUrl || logoLama
   })
   .eq("id", 1);
 
