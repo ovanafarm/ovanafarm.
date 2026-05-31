@@ -562,10 +562,12 @@ dataBarang.sort((a, b) => {
 <img
   src="${barang.gambar}"
   width="70"
+  height="70"
   id="gambarPreview${index}"
-  style="cursor:pointer"
+  loading="lazy"
+  style="cursor:pointer; object-fit:cover"
   onclick="document.getElementById('gambarInput${index}').click()">
-
+  
   <input
     type="file"
     id="gambarInput${index}"
