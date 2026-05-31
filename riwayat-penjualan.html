@@ -494,7 +494,18 @@ riwayat.forEach((trx, index) => {
       <td>Rp ${(trx.kembalian || 0).toLocaleString("id-ID")}</td>
       <td>${trx.item ? trx.item.length : 0}</td>
       <td>${trx.item ? trx.item.reduce((a,b)=>a+(b.qty||0),0) : 0}</td>
-      <td>-</td>
+      <td>
+Rp ${
+  trx.item
+    ? trx.item.reduce((total, i) => {
+        return total + (
+          ((i.harga || 0) - (i.modal || 0))
+          * (i.qty || 0)
+        );
+      }, 0).toLocaleString("id-ID")
+    : "0"
+}
+</td>
       <td>
         <button
           class="btn btn-danger btn-sm"
