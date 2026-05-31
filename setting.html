@@ -347,7 +347,63 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
   <script src="./js/adminlte.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<script>
+
+const SUPABASE_URL =
+  "https://dyholzqyltspnpbjkpsn.supabase.co";
+
+const SUPABASE_KEY =
+  "PASTE_ANON_KEY_KAMU";
+
+window.ovanaSupabase =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+</script>
+  
   <script>
+
+    async function loadSettingSupabase() {
+
+  const { data, error } =
+    await window.ovanaSupabase
+      .from("setting")
+      .select("*")
+      .eq("id", 1)
+      .single();
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  document.getElementById("namaToko").value =
+    data.nama_toko || "";
+
+  document.getElementById("alamatToko").value =
+    data.alamat_toko || "";
+
+  document.getElementById("nomorToko").value =
+    data.nomor_toko || "";
+
+  document.getElementById("saldoAwal").value =
+    data.saldo_awal || 0;
+
+  document.getElementById("targetPenjualan").value =
+    data.target_penjualan || 0;
+
+  document.getElementById("targetProfit").value =
+    data.target_profit || 0;
+
+  document.getElementById("namaUser").value =
+    data.nama_user || "Admin";
+
+}
+    
     function loadSetting() {
       document.getElementById("namaToko").value =
         localStorage.getItem("namaToko") || "Ovana Farm";
@@ -507,7 +563,7 @@ document.getElementById(
 
 });
     
-    loadSetting();
+    loadSettingSupabase();
   </script>
 
   <script>
