@@ -800,35 +800,36 @@ loadNotifikasi();
 
 <script>
 
-window.addEventListener("DOMContentLoaded", function () {
+window.addEventListener("DOMContentLoaded", async function () {
 
-  const namaUser =
-    localStorage.getItem("namaUser");
+  const { data } =
+    await window.ovanaSupabase
+      .from("setting")
+      .select("nama_user, foto_user")
+      .eq("id", 1)
+      .single();
 
-  const fotoUser =
-    localStorage.getItem("fotoUser");
+  if (!data) return;
 
-  if (namaUser) {
+  document.getElementById(
+    "navbarUserName"
+  ).innerText =
+    data.nama_user || "Admin";
 
-    document.getElementById(
-      "navbarUserName"
-    ).innerText = namaUser;
+  document.getElementById(
+    "dropdownUserName"
+  ).innerText =
+    data.nama_user || "Admin";
 
-    document.getElementById(
-      "dropdownUserName"
-    ).innerText = namaUser;
-
-  }
-
-  if (fotoUser) {
+  if (data.foto_user) {
 
     document.getElementById(
       "navbarUserPhoto"
-    ).src = fotoUser;
+    ).src = data.foto_user;
 
     document.getElementById(
       "dropdownUserPhoto"
-    ).src = fotoUser;
+    ).src = data.foto_user;
 
   }
 
