@@ -252,9 +252,22 @@
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">Logo Toko</label>
-                    <input type="file" id="logoTokoInput" class="form-control" accept="image/*">
-                  </div>
+  <label class="form-label">Logo Toko</label>
+
+  <input
+    type="file"
+    id="logoTokoInput"
+    class="form-control"
+    accept="image/*">
+
+  <img
+    id="previewLogoToko"
+    src="./assets/img/AdminLTELogo.png"
+    class="mt-3"
+    width="120"
+    height="120"
+    style="object-fit:contain;">
+</div>
 
                   <div class="mb-3">
   <label class="form-label">Nama User</label>
@@ -267,11 +280,20 @@
 
 <div class="mb-3">
   <label class="form-label">Foto Profil User</label>
+
   <input
     type="file"
     id="fotoUserInput"
     class="form-control"
     accept="image/*">
+
+  <img
+    id="previewFotoUser"
+    src="./assets/img/user2-160x160.jpg"
+    class="rounded-circle mt-3"
+    width="120"
+    height="120"
+    style="object-fit:cover;">
 </div>
                 </div>
               </div>
@@ -348,15 +370,35 @@
         document.getElementById("namaUser").value =
       localStorage.getItem("namaUser") || "Admin";
 
+      const fotoUser =
+  localStorage.getItem("fotoUser");
+
+if (fotoUser) {
+
+  document.getElementById(
+    "previewFotoUser"
+  ).src = fotoUser;
+
+}
+      
       const namaToko = localStorage.getItem("namaToko");
       if (namaToko) {
         document.getElementById("sidebarNamaToko").innerText = namaToko;
       }
 
-      const logoToko = localStorage.getItem("logoToko");
-      if (logoToko) {
-        document.querySelector(".brand-image").src = logoToko;
-      }
+     const logoToko = localStorage.getItem("logoToko");
+
+if (logoToko) {
+
+  document.querySelector(
+    ".brand-image"
+  ).src = logoToko;
+
+  document.getElementById(
+    "previewLogoToko"
+  ).src = logoToko;
+
+}
     }
 
     function simpanSetting() {
@@ -421,7 +463,50 @@ if (file) {
         document.getElementById("namaToko").value || "Ovana Farm";
     }
 
+document.getElementById(
+  "fotoUserInput"
+).addEventListener("change", function() {
 
+  const file = this.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+
+    document.getElementById(
+      "previewFotoUser"
+    ).src = e.target.result;
+
+  };
+
+  reader.readAsDataURL(file);
+
+});
+
+document.getElementById(
+  "logoTokoInput"
+).addEventListener("change", function() {
+
+  const file = this.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+
+    document.getElementById(
+      "previewLogoToko"
+    ).src = e.target.result;
+
+  };
+
+  reader.readAsDataURL(file);
+
+});
+    
     loadSetting();
   </script>
 
