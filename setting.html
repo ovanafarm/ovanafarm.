@@ -373,6 +373,9 @@ window.ovanaSupabase =
       .eq("id", 1)
       .single();
 
+      console.log("Error:", error);
+console.log("Data Setting:", data);
+      
   if (error) {
     console.error(error);
     return;
