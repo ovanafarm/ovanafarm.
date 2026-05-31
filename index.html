@@ -1032,133 +1032,6 @@
           </script>
 
           <script>
-
-          // Ambil riwayat transaksi
-          let riwayat =
-            JSON.parse(localStorage.getItem("riwayatPenjualan"))
-            || [];
-
-    // ======================
-    // TRANSAKSI HARI INI
-    // ======================
-
-    let jumlahTransaksiHariIni = 0;
-
-    let today =
-      new Date().toLocaleDateString("id-ID");
-
-    riwayat.forEach((trx) => {
-
-      if (trx.tanggal == today) {
-
-        jumlahTransaksiHariIni++;
-
-      }
-
-    });
-
-    document.getElementById(
-      "totalTransaksi"
-    ).innerText =
-      jumlahTransaksiHariIni;
-          // ======================
-          // PENDAPATAN HARI INI
-          // ======================
-
-          let totalHariIni = 0;
-
-          today =
-            new Date().toLocaleDateString("id-ID", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric"
-            });
-
-          riwayat.forEach((trx) => {
-
-            let tanggalTrx = trx.tanggal;
-
-                if (
-                  tanggalTrx ==
-                  today
-                  ||
-                  tanggalTrx ==
-                  new Date().toLocaleDateString("id-ID")
-                ) 
-            {
-
-              totalHariIni += Number(trx.total);
-
-            }
-
-          });
-
-          document.getElementById(
-            "pendapatanHariIni"
-          ).innerText =
-            "Rp " +
-            totalHariIni.toLocaleString("id-ID");
-
-
-          // ======================
-          // SALDO OVANA
-          // ======================
-
-  // Total Penjualan
-  let totalPenjualan = 0;
-
-  riwayat.forEach((trx) => {
-    totalPenjualan += Number(trx.total || 0);
-  });
-
-          let dataPengeluaran =
-            JSON.parse(localStorage.getItem("pengeluaran"))
-            || [];
-
-  // Total Pengeluaran
-  let totalPengeluaran = 0;
-
-  dataPengeluaran.forEach((item) => {
-    totalPengeluaran += Number(item.nominal || 0);
-  });
-
-  // Saldo Asli
-  let saldoAwal =
-    Number(localStorage.getItem("saldoAwal")) || 0;
-
-  let totalSaldo =
-    saldoAwal + totalPenjualan - totalPengeluaran;
-
-          // Tampilkan saldo
-          document.getElementById(
-            "saldoOvana"
-          ).innerText =
-            "Rp " +
-            totalSaldo.toLocaleString("id-ID");
-
-            // ======================
-          // PENGELUARAN HARI INI
-          // ======================
-
-          let pengeluaranHariIni = 0;
-
-          dataPengeluaran.forEach((item) => {
-
-            let tanggalPengeluaran = item.tanggal;
-
-            if (tanggalPengeluaran == today) {
-
-              pengeluaranHariIni += Number(item.nominal);
-
-            }
-
-          });
-
-          document.getElementById(
-            "pengeluaranHariIni"
-          ).innerText =
-            "Rp " +
-            pengeluaranHariIni.toLocaleString("id-ID");
             
           </script>
 
@@ -1366,6 +1239,11 @@ async function loadDashboard() {
       .from("penjualan")
       .select("*");
 
+  const { data: pengeluaran } =
+  await window.ovanaSupabase
+    .from("pengeluaran")
+    .select("*");
+  
   if (error) {
     console.error(error);
     return;
@@ -1407,7 +1285,18 @@ async function loadDashboard() {
     }
 
   });
+let totalPengeluaran = 0;
 
+pengeluaran.forEach((item) => {
+  totalPengeluaran += Number(item.nominal || 0);
+});
+
+let saldoOvana =
+  totalPenjualan - totalPengeluaran;
+
+document.getElementById("saldoOvana").innerText =
+  "Rp " + saldoOvana.toLocaleString("id-ID");
+  
   document.getElementById("totalTransaksi").innerText =
     transaksiHariIni;
 
