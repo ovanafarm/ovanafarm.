@@ -1167,6 +1167,15 @@ window.ovanaSupabase = client;
 
 async function loadBarangSupabase() {
 
+    document.getElementById("tabelBarang").innerHTML = `
+<tr>
+  <td colspan="9" class="text-center">
+    <div class="spinner-border spinner-border-sm"></div>
+    Memuat data barang...
+  </td>
+</tr>
+`;
+    
   const { data, error } =
     await window.ovanaSupabase
       .from("barang")
