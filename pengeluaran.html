@@ -152,7 +152,8 @@
               <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                 <img
   id="navbarUserPhoto"
-  src="./assets/img/user2-160x160.jpg"
+  src=""
+  style="opacity:0"
   class="user-image rounded-circle shadow"
   alt="User Image"
 />
@@ -167,7 +168,8 @@
                 <li class="user-header text-bg-primary">
 <img
   id="dropdownUserPhoto"
-  src="./assets/img/user2-160x160.jpg"
+  src=""
+  style="opacity:0"
   class="rounded-circle shadow"
   alt="User Image"
 />
@@ -797,17 +799,24 @@ window.addEventListener("DOMContentLoaded", function () {
 
   }
 
-  if (fotoUser) {
+if (fotoUser) {
 
-    document.getElementById(
-      "navbarUserPhoto"
-    ).src = fotoUser;
+  document.getElementById(
+    "navbarUserPhoto"
+  ).src = fotoUser;
 
-    document.getElementById(
-      "dropdownUserPhoto"
-    ).src = fotoUser;
+  document.getElementById(
+    "dropdownUserPhoto"
+  ).src = fotoUser;
 
-  }
+  document.getElementById(
+  "navbarUserPhoto"
+).style.opacity = "1";
+
+document.getElementById(
+  "dropdownUserPhoto"
+).style.opacity = "1";
+}
 
 });
 
