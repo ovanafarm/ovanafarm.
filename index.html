@@ -1042,22 +1042,45 @@ document.getElementById("transaksiText").innerText =
 
 document.querySelector("#revenue-chart").innerHTML = "";
 
-new ApexCharts(
+document.querySelector("#revenue-chart").innerHTML = "";
+
+const salesChart = new ApexCharts(
   document.querySelector("#revenue-chart"),
   {
-    chart: {
-      type: "bar",
-      height: 300
-    },
     series: [{
       name: "Penjualan",
       data: totalChart
     }],
+    chart: {
+      type: "area",
+      height: 300,
+      toolbar: {
+        show: false
+      }
+    },
+    stroke: {
+      curve: "smooth",
+      width: 3
+    },
+    dataLabels: {
+      enabled: false
+    },
+    fill: {
+      type: "gradient"
+    },
     xaxis: {
       categories: tanggalChart
+    },
+    tooltip: {
+      y: {
+        formatter: (val) =>
+          "Rp " + val.toLocaleString("id-ID")
+      }
     }
   }
-).render();
+);
+
+salesChart.render();
 
 // ======================
 // GRAFIK PROFIT
@@ -1065,22 +1088,43 @@ new ApexCharts(
 
 document.querySelector("#profit-chart").innerHTML = "";
 
-new ApexCharts(
+const profitChart = new ApexCharts(
   document.querySelector("#profit-chart"),
   {
-    chart: {
-      type: "line",
-      height: 300
-    },
     series: [{
       name: "Profit",
       data: totalProfitPerHari
     }],
+    chart: {
+      type: "area",
+      height: 300,
+      toolbar: {
+        show: false
+      }
+    },
+    stroke: {
+      curve: "smooth",
+      width: 3
+    },
+    dataLabels: {
+      enabled: false
+    },
+    fill: {
+      type: "gradient"
+    },
     xaxis: {
       categories: tanggalChart
+    },
+    tooltip: {
+      y: {
+        formatter: (val) =>
+          "Rp " + val.toLocaleString("id-ID")
+      }
     }
   }
-).render();
+);
+
+profitChart.render();
   
 loadNotifikasi();
 }
