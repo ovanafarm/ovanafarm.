@@ -443,6 +443,20 @@
           });
         </script>
 
+          <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://dyholzqyltspnpbjkpsn.supabase.co";
+const SUPABASE_KEY = "PASTE_KEY_YANG_SAMA_DARI_DASHBOARD";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+window.ovanaSupabase = client;
+</script>
+          
     <script>
 
          let riwayat = [];
