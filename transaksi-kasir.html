@@ -826,6 +826,26 @@ if (error) {
   return;
 }
 
+       // update stok barang di Supabase
+for (const item of keranjang) {
+
+  const barangDb = dataBarang.find(
+    b => b.nama === item.nama
+  );
+
+  if (barangDb) {
+
+    await window.ovanaSupabase
+      .from("barang")
+      .update({
+        stock: barangDb.stock
+      })
+      .eq("id", barangDb.id);
+
+  }
+
+}
+       
        keranjang = [];
 
     localStorage.setItem(
