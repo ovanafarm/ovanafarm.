@@ -454,8 +454,7 @@
 </div>
 
 <script>
-let dataBarang =
-  JSON.parse(localStorage.getItem("barang")) || [];
+let dataBarang = [];
 
   function simpanBarang() {
 
@@ -1123,6 +1122,38 @@ const client = window.supabase.createClient(
 
 window.ovanaSupabase = client;
 
+    <script>
+async function loadBarangSupabase() {
+
+  const { data, error } =
+    await window.ovanaSupabase
+      .from("barang")
+      .select("*")
+      .order("id", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  dataBarang = data.map(item => ({
+    id: item.id,
+    gambar: item.gambar,
+    nama: item.nama,
+    modal: item.harga_beli,
+    hargaJual: item.harga_jual,
+    hargaGrosir: item.harga_grosir,
+    minGrosir: item.min_grosir,
+    stock: item.stock,
+    minimumStock: item.minimum_stock
+  }));
+
+  tampilkanBarang();
+}
+
+loadBarangSupabase();
+</script>
+          
 console.log("Dashboard Kasir Supabase Connected");
 </script>
           
