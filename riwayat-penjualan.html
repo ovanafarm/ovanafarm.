@@ -445,101 +445,37 @@
 
     <script>
 
-const { data: riwayat, error } =
-  await window.ovanaSupabase
-    .from("penjualan")
-    .select("*")
-    .order("id", { ascending: false });
-    let tbody =
-      document.getElementById("dataRiwayat");
+         let riwayat = [];
+        
+async function loadRiwayat() {
 
-    riwayat.reverse().forEach((trx, index) => {
+  const { data, error } =
+    await window.ovanaSupabase
+      .from("penjualan")
+      .select("*")
+      .order("id", { ascending: false });
 
-      tbody.innerHTML += `
+  if(error){
+    console.log(error);
+    return;
+  }
 
-        <tr>
+      riwayat = data;
+    console.log("Data Riwayat:", data);
+    
+  let tbody = document.getElementById("dataRiwayat");
 
-          <td>${index + 1}</td>
+  riwayat.forEach((trx, index) => {
 
-          <td>
-            ${trx.tanggal}
-            <br>
-            <small>${trx.jam}</small>
-          </td>
+    tbody.innerHTML += `
+      ...
+    `;
 
-          <td>
-            Rp ${trx.total.toLocaleString("id-ID")}
-          </td>
+  });
 
-          <td>
-            Rp ${trx.bayar.toLocaleString("id-ID")}
-          </td>
-
-          <td>
-            Rp ${trx.kembalian.toLocaleString("id-ID")}
-          </td>
-
-    <td>
-      ${trx.item
-        ? trx.item.map(i =>
-            i.nama
-          ).join("<br>")
-        : "-"
-      }
-    </td>
-
-    <td>
-      ${trx.item
-        ? trx.item.map(i =>
-            i.qty
-          ).join("<br>")
-        : "-"
-      }
-    </td>
-
-    <td>
-
-    Rp ${
-      trx.item
-        ? trx.item.reduce((total, i) => {
-
-    let harga =
-      i.harga || 0;
-
-    let modal =
-      i.modal || 0;
-
-    let qty =
-      i.qty || 0;
-
-    let profit =
-      (harga - modal) * qty;
-
-            return total + profit;
-
-          }, 0).toLocaleString("id-ID")
-        : "0"
-    }
-
-    </td>
-
-    <td class="text-center">
-
-      <button
-        class="btn btn-danger btn-sm"
-        onclick="hapusTransaksi(${index})">
-
-        <i class="bi bi-trash"></i>
-
-      </button>
-
-    </td>
-
-        </tr>
-
-      `;
-
-    });
+}
+        
+loadRiwayat();
 
     function exportExcel() {
 
@@ -608,31 +544,19 @@ const { data: riwayat, error } =
 
     }
 
-    function hapusTransaksi(index) {
+async function hapusTransaksi(id) {
 
-      if(confirm("Hapus transaksi ini?")) {
+  if (confirm("Hapus transaksi ini?")) {
 
-        // karena tabel dibalik pakai reverse()
-        let dataAsli =
-          JSON.parse(localStorage.getItem("riwayatPenjualan"))
-          || [];
+    await window.ovanaSupabase
+      .from("penjualan")
+      .delete()
+      .eq("id", id);
 
-        let indexAsli =
-          dataAsli.length - 1 - index;
+    location.reload();
 
-        dataAsli.splice(indexAsli, 1);
-
-        await window.ovanaSupabase
-          .from("penjualan")
-          .delete()
-          .eq("id", id);
-
-        location.reload();
-
-      }
-
-    }
-
+  }
+}
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
