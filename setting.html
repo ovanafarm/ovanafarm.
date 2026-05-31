@@ -457,7 +457,7 @@ if (logoToko) {
 }
     }
 
-    function simpanSetting() {
+    async function simpanSetting() {
       localStorage.setItem("namaToko", document.getElementById("namaToko").value);
       localStorage.setItem("alamatToko", document.getElementById("alamatToko").value);
       localStorage.setItem("nomorToko", document.getElementById("nomorToko").value);
@@ -468,6 +468,31 @@ if (logoToko) {
   "namaUser",
   document.getElementById("namaUser").value
 );
+      await window.ovanaSupabase
+  .from("setting")
+  .update({
+    nama_toko:
+      document.getElementById("namaToko").value,
+
+    alamat_toko:
+      document.getElementById("alamatToko").value,
+
+    nomor_toko:
+      document.getElementById("nomorToko").value,
+
+    saldo_awal:
+      document.getElementById("saldoAwal").value,
+
+    target_penjualan:
+      document.getElementById("targetPenjualan").value,
+
+    target_profit:
+      document.getElementById("targetProfit").value,
+
+    nama_user:
+      document.getElementById("namaUser").value
+  })
+  .eq("id", 1);
       const file = document.getElementById("logoTokoInput").files[0];
 const fotoUser =
   document.getElementById("fotoUserInput").files[0];
