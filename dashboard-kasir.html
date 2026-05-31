@@ -547,6 +547,8 @@ function tampilkanBarang() {
 
   let tabel = document.getElementById("tabelBarang");
 
+    let html = "";
+    
   tabel.innerHTML = "";
 
 dataBarang.sort((a, b) => {
@@ -563,7 +565,7 @@ dataBarang.sort((a, b) => {
 
   dataBarang.forEach((barang, index) => {
 
-    tabel.innerHTML += `
+    html += `
 <tr class="${
   barang.stock <= barang.minimumStock
     ? 'table-danger'
@@ -735,7 +737,7 @@ dataBarang.sort((a, b) => {
       </tr>
     `;
   });
-
+tabel.innerHTML = html;
 }
 
 function hapusBarang(index) {
@@ -1174,20 +1176,34 @@ window.ovanaSupabase = client;
 
 async function loadBarangSupabase() {
 
-    document.getElementById("tabelBarang").innerHTML = `
-<tr>
-  <td colspan="9" class="text-center">
-    <div class="spinner-border spinner-border-sm"></div>
-    Memuat data barang...
-  </td>
-</tr>
-`;
-    
+  console.time("loadBarang");
+
+  document.getElementById("tabelBarang").innerHTML = `
+  <tr>
+    <td colspan="9" class="text-center">
+      <div class="spinner-border spinner-border-sm"></div>
+      Memuat data barang...
+    </td>
+  </tr>
+  `;
+
   const { data, error } =
     await window.ovanaSupabase
       .from("barang")
-      .select("*")
+      .select(`
+        id,
+        gambar,
+        nama,
+        harga_beli,
+        harga_jual,
+        harga_grosir,
+        min_grosir,
+        stock,
+        minimum_stock
+      `)
       .order("id", { ascending: false });
+
+  console.timeEnd("loadBarang");
 
   if (error) {
     console.error(error);
