@@ -668,374 +668,6 @@
                   // IT'S ALL JUST JUNK FOR DEMO
                   // ++++++++++++++++++++++++++++++++++++++++++
 
-          // ===============================
-          // GRAFIK PENJUALAN HARIAN
-          // ===============================
-
-          // Ambil data riwayat
-          let dataChart =
-            JSON.parse(localStorage.getItem("riwayatPenjualan"))
-            || [];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          // Object penampung
-          let penjualanPerHari = {};
-          let totalProfitChart = 0;
-
-          let hariIni =
-            new Date().toLocaleDateString("id-ID");
-
-          // Loop data
-          dataChart.forEach((trx) => {
-
-            let tanggal = trx.tanggal;
-
-            // total penjualan per hari
-            if (!penjualanPerHari[tanggal]) {
-
-              penjualanPerHari[tanggal] = 0;
-
-            }
-
-            penjualanPerHari[tanggal] +=
-              Number(trx.total || 0);
-
-            // total profit hari ini
-    if (
-      tanggal === hariIni ||
-      tanggal === new Date().toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric"
-      })
-    ) {
-
-    if (trx.item) {
-
-      trx.item.forEach((i) => {
-
-        let harga =
-          Number(i.harga || 0);
-
-        let modal =
-          Number(i.modal || 0);
-
-        let qty =
-          Number(i.qty || 0);
-
-        totalProfitChart +=
-          (harga - modal) * qty;
-
-      });
-
-    }
-    }
-
-          });
-
-          // tampilkan total profit
-    document.getElementById("profitText").innerText =
-      "Rp " + totalProfitChart.toLocaleString("id-ID");
-            Object.keys(penjualanPerHari);
-
-            // ===============================
-    // PROFIT PER HARI
-    // ===============================
-
-    let profitPerHari = {};
-
-    dataChart.forEach((trx) => {
-
-      let tanggal = trx.tanggal;
-
-      if (!profitPerHari[tanggal]) {
-
-        profitPerHari[tanggal] = 0;
-
-      }
-
-      if (trx.item) {
-
-        trx.item.forEach((i) => {
-
-          let harga =
-            Number(i.harga || 0);
-
-          let modal =
-            Number(i.modal || 0);
-
-          let qty =
-            Number(i.qty || 0);
-
-          let profit =
-            (harga - modal) * qty;
-
-          profitPerHari[tanggal] += profit;
-
-        });
-
-      }
-
-    });
-
-    let totalProfitPerHari =
-      Object.values(profitPerHari);
-
-            let tanggalChart =
-            Object.keys(penjualanPerHari);
-
-          // Ambil total penjualan
-          let totalChart =
-            Object.values(penjualanPerHari);
-
-          // ===============================
-          // APEX CHART
-          // ===============================
-
-          let targetPenjualan =
-    Number(localStorage.getItem("targetPenjualan")) || 1000000;
-
-  let targetProfit =
-    Number(localStorage.getItem("targetProfit")) || 100000;
-
-          const sales_chart_options = {
-
-    series: [
-
-      {
-        name: "Penjualan",
-        data: totalChart,
-      },
-
-  {
-    name: "Target Penjualan",
-    data: tanggalChart.map(() => targetPenjualan),
-  },
-
-    ],
-
-            chart: {
-              height: 300,
-              type: "area",
-              toolbar: {
-                show: false,
-              },
-            },
-
-            colors: ["#0d6efd","#ff0000"],
-
-            markers: {
-            size: [5, 0],
-          },
-
-            dataLabels: {
-              enabled: false,
-            },
-
-          stroke: {
-            curve: "smooth",
-            width: [4, 2],
-            dashArray: [0, 8],
-          },
-
-          xaxis: {
-            categories: tanggalChart,
-          },
-
-    yaxis: {
-      labels: {
-        formatter: function (value) {
-          return "Rp " + value.toLocaleString("id-ID");
-        }
-      }
-    },
-          annotations: {
-            yaxis: [
-              {
-                y: targetPenjualan,
-                borderColor: "#ff0000",
-                strokeDashArray: 6,
-                label: {
-                  borderColor: "#ff0000",
-                  style: {
-                    color: "#fff",
-                    background: "#ff0000",
-                  },
-                  text: "Target Harian Rp " + targetPenjualan.toLocaleString("id-ID"),
-                },
-              },
-            ],
-          },
-          };
-
-          const sales_chart =
-            new ApexCharts(
-              document.querySelector("#revenue-chart"),
-              sales_chart_options
-            );
-
-          sales_chart.render();
-
-          // ===============================
-    // GRAFIK PROFIT
-    // ===============================
-
-    const profit_chart_options = {
-
-    series: [
-
-      {
-        name: "Profit",
-        data: totalProfitPerHari,
-      },
-
-  {
-    name: "Target Profit",
-    data: tanggalChart.map(() => targetProfit),
-  },
-
-    ],
-
-      chart: {
-        height: 300,
-        type: "area",
-        toolbar: {
-          show: false,
-        },
-      },
-
-    colors: ["#198754", "#ff0000"],
-
-      dataLabels: {
-        enabled: false,
-      },
-
-    stroke: {
-      curve: "smooth",
-      width: [4, 2],
-      dashArray: [0, 8],
-    },
-
-    markers: {
-      size: [5, 0],
-    },
-      xaxis: {
-        categories: tanggalChart,
-      },
-
-    yaxis: {
-      labels: {
-        formatter: function (value) {
-          return "Rp " + value.toLocaleString("id-ID");
-        }
-      }
-    },
-    annotations: {
-      yaxis: [
-        {
-          y: targetProfit,
-          borderColor: "#ff0000",
-          strokeDashArray: 6,
-          label: {
-            borderColor: "#ff0000",
-            style: {
-              color: "#fff",
-              background: "#ff0000",
-            },
-            text: "Target Profit Rp " + targetProfit.toLocaleString("id-ID"),
-          },
-        },
-      ],
-    },  
-    };
-
-    const profit_chart =
-      new ApexCharts(
-        document.querySelector("#profit-chart"),
-        profit_chart_options
-      );
-
-    profit_chart.render();
-
-          
-
-          // ===============================
-          // STATISTIK PENJUALAN
-          // ===============================
-
-          // Total Penjualan
-          let totalSemua =
-            totalChart.reduce((a, b) => a + b, 0);
-
-          // Rata-rata
-    let rataRata =
-      totalChart.length > 0
-      ? totalSemua / totalChart.length
-      : 0;    
-
-          // Tertinggi
-    let tertinggi =
-      totalChart.length > 0
-      ? Math.max(...totalChart)
-      : 0;
-          // Terendah
-    let terendah =
-      totalChart.length > 0
-      ? Math.min(...totalChart)
-      : 0;
-          // Total transaksi
-          let totalTransaksi =
-            dataChart.length;
-
-          // Tampilkan
-          document.getElementById(
-            "totalPenjualanText"
-          ).innerText =
-            "Rp " +
-            totalSemua.toLocaleString("id-ID");
-
-          document.getElementById(
-            "rataRataText"
-          ).innerText =
-            "Rp " +
-            Math.round(rataRata).toLocaleString("id-ID");
-
-          document.getElementById(
-            "tertinggiText"
-          ).innerText =
-            "Rp " +
-            tertinggi.toLocaleString("id-ID");
-
-          document.getElementById(
-            "terendahText"
-          ).innerText =
-            "Rp " +
-            terendah.toLocaleString("id-ID");
-
-          document.getElementById(
-            "transaksiText"
-          ).innerText =
-            totalTransaksi;
-
-          </script>
-
-          <script>
-            
-          </script>
-
-  <script>
   window.addEventListener("DOMContentLoaded", function () {
     const namaToko = localStorage.getItem("namaToko");
     const logoToko = localStorage.getItem("logoToko");
@@ -1071,6 +703,8 @@ function logout() {
 
 <script>
 
+  let totalProfitChart = 0;
+  
 function loadNotifikasi() {
 
   let notifikasi = [];
@@ -1246,6 +880,55 @@ async function loadDashboard() {
       .from("penjualan")
       .select("*");
 
+  // ======================
+// DATA GRAFIK SUPABASE
+// ======================
+
+let penjualanPerHari = {};
+let profitPerHari = {};
+
+penjualan.forEach((trx) => {
+
+  const tanggal =
+    new Date(trx.tanggal)
+      .toLocaleDateString("id-ID");
+
+  if (!penjualanPerHari[tanggal]) {
+    penjualanPerHari[tanggal] = 0;
+  }
+
+  if (!profitPerHari[tanggal]) {
+    profitPerHari[tanggal] = 0;
+  }
+
+  penjualanPerHari[tanggal] +=
+    Number(trx.total || 0);
+
+  if (trx.item) {
+
+    trx.item.forEach((i) => {
+
+      const profit =
+        ((i.harga || 0) - (i.modal || 0))
+        * (i.qty || 0);
+
+      profitPerHari[tanggal] += profit;
+
+    });
+
+  }
+
+});
+
+let tanggalChart =
+  Object.keys(penjualanPerHari);
+
+let totalChart =
+  Object.values(penjualanPerHari);
+
+let totalProfitPerHari =
+  Object.values(profitPerHari);
+  
   const { data: pengeluaran } =
   await window.ovanaSupabase
     .from("pengeluaran")
@@ -1325,11 +1008,34 @@ document.getElementById("saldoOvana").innerText =
   document.getElementById("pendapatanHariIni").innerText =
     "Rp " + pendapatanHariIni.toLocaleString("id-ID");
 
-  document.getElementById("profitText").innerText =
-    "Rp " + totalProfit.toLocaleString("id-ID");
+document.getElementById("profitText").innerText =
+  "Rp " + totalProfit.toLocaleString("id-ID");
 
-  document.getElementById("totalPenjualanText").innerText =
-    "Rp " + totalPenjualan.toLocaleString("id-ID");
+// SIMPAN KE VARIABEL GLOBAL UNTUK NOTIFIKASI
+totalProfitChart = totalProfit;
+
+document.getElementById("totalPenjualanText").innerText =
+  "Rp " + totalPenjualan.toLocaleString("id-ID");
+
+  document.getElementById("rataRataText").innerText =
+  "Rp " +
+  Math.round(
+    totalPenjualan / (tanggalChart.length || 1)
+  ).toLocaleString("id-ID");
+
+document.getElementById("tertinggiText").innerText =
+  "Rp " +
+  Math.max(...totalChart, 0).toLocaleString("id-ID");
+
+document.getElementById("terendahText").innerText =
+  "Rp " +
+  (totalChart.length
+    ? Math.min(...totalChart)
+    : 0).toLocaleString("id-ID");
+
+document.getElementById("transaksiText").innerText =
+  penjualan.length;
+  
 loadNotifikasi();
 }
 
