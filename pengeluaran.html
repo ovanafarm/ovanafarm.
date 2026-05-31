@@ -546,25 +546,26 @@
 
 }
   
+async function exportExcel() {
 
-function exportExcel() {
+  const { data, error } =
+    await window.ovanaSupabase
+      .from("pengeluaran")
+      .select("*")
+      .order("id", { ascending: false });
+
+  if (error) {
+    alert("Gagal mengambil data");
+    return;
+  }
 
   let dataExport =
-    pengeluaran.map((trx, index) => {
-
-    return {
-
+    data.map((trx, index) => ({
       No: index + 1,
-
       Tanggal: trx.tanggal,
-
       Keterangan: trx.keterangan,
-
       Nominal: trx.nominal
-
-    };
-
-  });
+    }));
 
   let worksheet =
     XLSX.utils.json_to_sheet(dataExport);
@@ -584,7 +585,7 @@ function exportExcel() {
   );
 
 }
-
+  
   async function simpanPengeluaran() {
 
   let inputTanggal =
