@@ -479,13 +479,29 @@ async function loadRiwayat() {
     
   let tbody = document.getElementById("dataRiwayat");
 
-  riwayat.forEach((trx, index) => {
+riwayat.forEach((trx, index) => {
 
-    tbody.innerHTML += `
-      ...
-    `;
+  tbody.innerHTML += `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${trx.tanggal || "-"}</td>
+      <td>Rp ${(trx.total || 0).toLocaleString("id-ID")}</td>
+      <td>Rp ${(trx.bayar || 0).toLocaleString("id-ID")}</td>
+      <td>Rp ${(trx.kembalian || 0).toLocaleString("id-ID")}</td>
+      <td>${trx.item ? trx.item.length : 0}</td>
+      <td>${trx.item ? trx.item.reduce((a,b)=>a+(b.qty||0),0) : 0}</td>
+      <td>-</td>
+      <td>
+        <button
+          class="btn btn-danger btn-sm"
+          onclick="hapusTransaksi(${trx.id})">
+          Hapus
+        </button>
+      </td>
+    </tr>
+  `;
 
-  });
+});
 
 }
         
