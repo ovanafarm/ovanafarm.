@@ -742,7 +742,7 @@ ${
   tampilkanBarangKasir();
   tampilKeranjang();
 
-  function checkout() {
+ async function checkout() {
 
     if (keranjang.length == 0) {
 
@@ -788,10 +788,6 @@ ${
 
     alert("Transaksi berhasil!");
 
-  let riwayat =
-    JSON.parse(localStorage.getItem("riwayatPenjualan"))
-    || [];
-
   let transaksiBaru = {
 
     no:
@@ -813,14 +809,24 @@ ${
 
   };
 
-  riwayat.push(transaksiBaru);
+       const { error } =
+  await window.ovanaSupabase
+    .from("penjualan")
+    .insert([{
+      tanggal: new Date().toISOString(),
+      total: total,
+      bayar: bayar,
+      kembalian: bayar - total,
+      item: keranjang
+    }]);
 
-  localStorage.setItem(
-    "riwayatPenjualan",
-    JSON.stringify(riwayat)
-  );
+if (error) {
+  console.error(error);
+  alert("Gagal simpan transaksi!");
+  return;
+}
 
-    keranjang = [];
+       keranjang = [];
 
     localStorage.setItem(
       "keranjang",
