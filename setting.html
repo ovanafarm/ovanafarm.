@@ -413,7 +413,10 @@ console.log("Data Setting:", data);
   ).src = data.logo_toko;
 
 }
-      
+    document.getElementById(
+  "sidebarNamaToko"
+).innerText =
+  data.nama_toko || "Ovana Farm";  
 }
     
     function loadSetting() {
