@@ -725,15 +725,18 @@ dataBarang.sort((a, b) => {
 
 function hapusBarang(index) {
 
-  dataBarang.splice(index, 1);
+  window.ovanaSupabase
+    .from("barang")
+    .delete()
+    .eq("id", dataBarang[index].id)
+    .then(() => {
 
-  localStorage.setItem(
-    "barang",
-    JSON.stringify(dataBarang)
-  );
+      loadBarangSupabase();
+      loadNotifikasi();
 
-  tampilkanBarang();
-  loadNotifikasi();
+      alert("Barang berhasil dihapus");
+
+    });
 
 }
 
@@ -1046,10 +1049,6 @@ function logout() {
 <script>
 
 function loadNotifikasi() {
-
-  let dataBarang =
-    JSON.parse(localStorage.getItem("barang"))
-    || [];
 
   let notifikasi = [];
 
