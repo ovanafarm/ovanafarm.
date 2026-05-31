@@ -428,9 +428,9 @@
 
   }
 
-  let dataBarang = JSON.parse(localStorage.getItem("barang")) || [];
-  let keranjang =
-    JSON.parse(localStorage.getItem("keranjang")) || [];
+let dataBarang = [];
+let keranjang = [];
+          
   let daftar = document.getElementById("daftarBarangKasir");
 
   function tampilkanBarangKasir() {
@@ -966,5 +966,48 @@ window.addEventListener("DOMContentLoaded", function () {
 
 </script>
 
+              <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://dyholzqyltspnpbjkpsn.supabase.co";
+const SUPABASE_KEY = "KEY_KAMU";
+
+window.ovanaSupabase =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+async function loadBarangSupabase() {
+
+  const { data, error } =
+    await window.ovanaSupabase
+      .from("barang")
+      .select("*")
+      .order("id", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  dataBarang = data.map(item => ({
+    id: item.id,
+    gambar: item.gambar,
+    nama: item.nama,
+    modal: item.harga_beli,
+    hargaJual: item.harga_jual,
+    hargaGrosir: item.harga_grosir,
+    minGrosir: item.min_grosir,
+    stock: item.stock,
+    minimumStock: item.minimum_stock
+  }));
+
+  tampilkanBarangKasir();
+}
+
+loadBarangSupabase();
+</script>
+              
   </body>
   </html>
