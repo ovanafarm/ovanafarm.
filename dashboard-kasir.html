@@ -505,16 +505,25 @@ if (
   minimumStock: parseInt(minimumStock)
 };
 
-dataBarang.push(barang);
-
-localStorage.setItem(
-  "barang",
-  JSON.stringify(dataBarang)
-);
-
-tampilkanBarang();
-loadNotifikasi();
-
+window.ovanaSupabase
+  .from("barang")
+  .insert([
+    {
+      nama: barang.nama,
+      gambar: barang.gambar,
+      harga_beli: barang.modal,
+      harga_jual: barang.hargaJual,
+      harga_grosir: barang.hargaGrosir,
+      min_grosir: barang.minGrosir,
+      stock: barang.stock,
+      minimum_stock: barang.minimumStock
+    }
+  ])
+  .then(() => {
+    loadBarangSupabase();
+    loadNotifikasi();
+    alert("Barang berhasil disimpan");
+});
     };
 
     reader.readAsDataURL(file);
