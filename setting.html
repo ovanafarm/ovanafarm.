@@ -501,6 +501,44 @@ console.log("Update Data:", data);
 const fotoUser =
   document.getElementById("fotoUserInput").files[0];
 
+      let logoTokoUrl = null;
+
+if (file) {
+
+  const fileName =
+    "logo-" + Date.now() + "-" + file.name;
+
+  const { error: uploadError } =
+    await window.ovanaSupabase
+      .storage
+      .from("setting")
+      .upload(fileName, file);
+
+  if (uploadError) {
+
+    console.error(uploadError);
+    alert("Upload logo gagal");
+
+    return;
+
+  }
+
+  const { data: publicUrlData } =
+    window.ovanaSupabase
+      .storage
+      .from("setting")
+      .getPublicUrl(fileName);
+
+  logoTokoUrl =
+    publicUrlData.publicUrl;
+
+  console.log(
+    "Logo URL:",
+    logoTokoUrl
+  );
+
+}
+      
 if (fotoUser) {
 
   const readerUser = new FileReader();
