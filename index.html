@@ -944,6 +944,19 @@ let totalProfitPerHari =
   await window.ovanaSupabase
     .from("pengeluaran")
     .select("*");
+
+  const { data: setting } =
+  await window.ovanaSupabase
+    .from("setting")
+    .select("target_penjualan, target_profit")
+    .eq("id", 1)
+    .single();
+
+const targetPenjualan =
+  Number(setting?.target_penjualan || 0);
+
+const targetProfit =
+  Number(setting?.target_profit || 0);
   
   if (error) {
     console.error(error);
@@ -1060,6 +1073,20 @@ const salesChart = new ApexCharts(
       name: "Penjualan",
       data: totalChart
     }],
+
+    annotations: {
+  yaxis: [{
+    y: targetPenjualan,
+    borderColor: "#dc3545",
+    label: {
+      text: "Target Penjualan",
+      style: {
+        color: "#fff",
+        background: "#dc3545"
+      }
+    }
+  }]
+},
     chart: {
       type: "area",
       height: 300,
@@ -1104,7 +1131,20 @@ const profitChart = new ApexCharts(
       name: "Profit",
       data: totalProfitPerHari
     }],
-    chart: {
+    annotations: {
+  yaxis: [{
+    y: targetProfit,
+    borderColor: "#198754",
+    label: {
+      text: "Target Profit",
+      style: {
+        color: "#fff",
+        background: "#198754"
+      }
+    }
+  }]
+},
+      chart: {
       type: "area",
       height: 300,
       toolbar: {
