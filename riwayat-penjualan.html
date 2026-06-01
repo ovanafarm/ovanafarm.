@@ -547,6 +547,10 @@ await window.ovanaSupabase
     
     console.log("Data Riwayat:", data);
 
+    if(data?.length){
+  console.log("Item pertama:", data[0].item);
+}
+    
 tbody.innerHTML = "";
 
 console.log(riwayat);
@@ -570,7 +574,15 @@ ${new Date(trx.tanggal).toLocaleString("id-ID", {
       <td>Rp ${(trx.total || 0).toLocaleString("id-ID")}</td>
       <td>Rp ${(trx.bayar || 0).toLocaleString("id-ID")}</td>
       <td>Rp ${(trx.kembalian || 0).toLocaleString("id-ID")}</td>
-      <td>${trx.item ? trx.item.length : 0}</td>
+    <td>
+  ${
+    trx.item
+      ? trx.item.map(i =>
+          `${i.nama} (${i.qty})`
+        ).join("<br>")
+      : "-"
+  }
+</td>
       <td>${trx.item ? trx.item.reduce((a,b)=>a+(b.qty||0),0) : 0}</td>
       <td>
 Rp ${
