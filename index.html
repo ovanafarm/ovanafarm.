@@ -3,7 +3,17 @@
     <!--begin::Head-->
     <head>
       
-      <style>
+  <style>
+
+.sidebar-wrapper nav {
+  height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-menu {
+  flex: 1;
+}
 
 @media (max-width: 768px){
 
@@ -15,26 +25,25 @@
     font-size: 0.85rem;
   }
 
-.small-box h3{
-  font-size: 1.5rem !important;
-  margin: 0 0 10px 0;
-}
+  .small-box h3{
+    font-size: 1.5rem !important;
+    margin: 0 0 10px 0;
+  }
 
-.small-box p{
-  font-size: 0.9rem;
-  margin: 0;
-}
+  .small-box p{
+    font-size: 0.9rem;
+    margin: 0;
+  }
 
-.small-box{
-  margin-bottom: 10px;
-}
-  .sidebar-wrapper{
-    overflow-y: auto !important;
-    height: calc(100vh - 60px);
+  .small-box{
+    margin-bottom: 10px;
   }
 
 }
-      </style>
+
+</style>
+
+
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
                 <title>Dashboard Ovana Farm</title>
 
@@ -302,7 +311,7 @@
           </a>
         </li>
 
-<li class="nav-item">
+<li class="nav-item mt-auto">
   <a href="./setting.html" class="nav-link">
     <i class="nav-icon bi bi-gear-fill"></i>
     <p>Setting</p>
