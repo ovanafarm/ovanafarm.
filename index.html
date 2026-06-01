@@ -1096,15 +1096,13 @@ const salesChart = new ApexCharts(
   document.querySelector("#revenue-chart"),
   {
 
-    series: [
+   series: [
   {
     name: "Penjualan",
-    type: "area",
     data: totalChart
   },
   {
     name: "Target",
-    type: "line",
     data: tanggalChart.map(
       () => targetPenjualan
     )
@@ -1122,7 +1120,7 @@ legend: {
 },
     
     chart: {
-      type: "area",
+      type: "line",
       height: 300,
       toolbar: {
         show: false
@@ -1131,8 +1129,8 @@ legend: {
 
 stroke: {
   curve: "smooth",
-  width: [4, 2],
-  dashArray: [0, 10]
+  width: [4, 1],
+  dashArray: [0, 6]
 },
 
     markers: {
@@ -1143,16 +1141,7 @@ stroke: {
       enabled: false
     },
 
-fill: {
-  type: ["gradient", "solid"],
-  gradient: {
-    shadeIntensity: 1,
-    opacityFrom: 0.6,
-    opacityTo: 0.1,
-    stops: [0, 100]
-  }
-},
-          
+       
     yaxis: {
   max: Math.max(
     targetPenjualan,
@@ -1201,8 +1190,8 @@ const profitChart = new ApexCharts(
   }]
 },
 
-    chart: {
-  type: "area",
+chart: {
+  type: "line",
   height: window.innerWidth < 768 ? 220 : 300,
   toolbar: {
     show: false
@@ -1211,17 +1200,13 @@ const profitChart = new ApexCharts(
     
     stroke: {
       curve: "smooth",
-      width: 3
+      width: 4
     },
    
     
     
    dataLabels: {
   enabled: false
-},
-
-fill: {
-  type: "gradient"
 },
 
 yaxis: {
