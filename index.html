@@ -1152,16 +1152,23 @@ stroke: {
 },
 
 yaxis: {
+  min: 0,
+
   max: Math.max(
     targetPenjualan,
     ...totalChart,
     0
   ) * 1.1,
 
+  tickAmount: 5,
+
   labels: {
     formatter: function(val) {
       return "Rp " + Number(val)
         .toLocaleString("id-ID");
+    },
+    style: {
+      fontSize: "11px"
     }
   }
 },
