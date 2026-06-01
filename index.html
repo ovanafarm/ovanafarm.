@@ -687,7 +687,7 @@ function logout() {
 
   let totalProfitChart = 0;
   
-function loadNotifikasi() {
+async function loadNotifikasi() {
 
   let notifikasi = [];
 
@@ -695,13 +695,32 @@ function loadNotifikasi() {
   // STOK MENIPIS
   // =====================
 
-  let barang =
-    JSON.parse(localStorage.getItem("barang"))
-    || [];
+const { data: barang, error } =
+  await window.ovanaSupabase
+    .from("barang")
+    .select("*");
+
+  const { data: setting } =
+  await window.ovanaSupabase
+    .from("setting")
+    .select("target_penjualan, target_profit")
+    .eq("id", 1)
+    .single();
+
+let targetPenjualan =
+  Number(setting?.target_penjualan || 1000000);
+
+let targetProfit =
+  Number(setting?.target_profit || 100000);
+
+if (error) {
+  console.error(error);
+  return;
+}
 
   barang.forEach((item) => {
 
-    if (item.stock <= item.minimumStock) {
+    if (item.stock <= item.minimum_stock) {
 
       notifikasi.push(
         `⚠ ${item.nama} stok tersisa ${item.stock}`
@@ -714,10 +733,6 @@ function loadNotifikasi() {
   // =====================
   // TARGET PENJUALAN
   // =====================
-
-  let targetPenjualan =
-    Number(localStorage.getItem("targetPenjualan"))
-    || 1000000;
 
   let totalHariIni = Number(
   document.getElementById("pendapatanHariIni")
@@ -739,10 +754,6 @@ function loadNotifikasi() {
   // =====================
   // TARGET PROFIT
   // =====================
-
-  let targetProfit =
-    Number(localStorage.getItem("targetProfit"))
-    || 100000;
 
   if (totalProfitChart < targetProfit) {
 
