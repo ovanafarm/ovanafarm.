@@ -683,24 +683,7 @@ async function hapusItem(id) {
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
-window.addEventListener("DOMContentLoaded", function () {
-  const namaToko = localStorage.getItem("namaToko");
-  const logoToko = localStorage.getItem("logoToko");
-
-  if (namaToko) {
-    const brandText = document.querySelector(".brand-text");
-    if (brandText) {
-      brandText.innerText = namaToko;
-    }
-  }
-
-  if (logoToko) {
-    const brandImage = document.querySelector(".brand-image");
-    if (brandImage) {
-      brandImage.src = logoToko;
-    }
-  }
-});
+  
 </script>
 
 <script>
@@ -779,47 +762,6 @@ loadNotifikasi();
 
 <script>
 
-window.addEventListener("DOMContentLoaded", function () {
-
-  const namaUser =
-    localStorage.getItem("namaUser");
-
-  const fotoUser =
-    localStorage.getItem("fotoUser");
-
-  if (namaUser) {
-
-    document.getElementById(
-      "navbarUserName"
-    ).innerText = namaUser;
-
-    document.getElementById(
-      "dropdownUserName"
-    ).innerText = namaUser;
-
-  }
-
-if (fotoUser) {
-
-  document.getElementById(
-    "navbarUserPhoto"
-  ).src = fotoUser;
-
-  document.getElementById(
-    "dropdownUserPhoto"
-  ).src = fotoUser;
-
-  document.getElementById(
-  "navbarUserPhoto"
-).style.opacity = "1";
-
-document.getElementById(
-  "dropdownUserPhoto"
-).style.opacity = "1";
-}
-
-});
-
 </script>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -838,7 +780,64 @@ const client =
   );
 
 window.ovanaSupabase = client;
-  loadPengeluaran();
+
+// LOGO & NAMA TOKO
+window.addEventListener("DOMContentLoaded", async function () {
+
+  const { data } =
+    await window.ovanaSupabase
+      .from("setting")
+      .select("nama_toko, logo_toko")
+      .eq("id", 1)
+      .single();
+
+  if (!data) return;
+
+  document.querySelector(".brand-text").innerText =
+    data.nama_toko || "Ovana Farm";
+
+  if (data.logo_toko) {
+    document.querySelector(".brand-image").src =
+      data.logo_toko;
+  }
+
+});
+
+// FOTO & NAMA USER
+window.addEventListener("DOMContentLoaded", async function () {
+
+  const { data } =
+    await window.ovanaSupabase
+      .from("setting")
+      .select("nama_user, foto_user")
+      .eq("id", 1)
+      .single();
+
+  if (!data) return;
+
+  document.getElementById("navbarUserName").innerText =
+    data.nama_user || "Admin";
+
+  document.getElementById("dropdownUserName").innerText =
+    data.nama_user || "Admin";
+
+  if (data.foto_user) {
+
+    document.getElementById("navbarUserPhoto").src =
+      data.foto_user;
+
+    document.getElementById("dropdownUserPhoto").src =
+      data.foto_user;
+
+    document.getElementById("navbarUserPhoto").style.opacity = "1";
+    document.getElementById("dropdownUserPhoto").style.opacity = "1";
+
+  }
+
+});
+
+loadPengeluaran();
+  
 </script>
     
 </body>
