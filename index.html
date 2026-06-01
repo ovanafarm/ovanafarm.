@@ -1181,55 +1181,59 @@ document.querySelector("#profit-chart").innerHTML = "";
 const profitChart = new ApexCharts(
   document.querySelector("#profit-chart"),
   {
-    series: [{
-      name: "Profit",
-      data: totalProfitPerHari
-    }],
-    annotations: {
-  yaxis: [{
-    y: targetProfit,
-    borderColor: "#198754",
-    label: {
-      text: "Target Profit",
-      style: {
-        color: "#fff",
-        background: "#198754"
-      }
-    }
-  }]
-},
+    series: [
+  {
+    name: "Profit",
+    data: totalProfitPerHari
+  },
+  {
+    name: "Target Profit",
+    data: tanggalChart.map(
+      () => targetProfit
+    )
+  }
+],
 
+    colors: [
+  "#198754",
+  "#dc3545"
+],
+
+legend: {
+  show: true,
+  position: "top"
+},
+    
 chart: {
-  type: "line",
+  type: "area",
   height: window.innerWidth < 768 ? 220 : 300,
   toolbar: {
     show: false
   }
 },
     
-    stroke: {
-      curve: "smooth",
-      width: 4
-    },
-   
-    
+stroke: {
+  curve: "smooth",
+  width: [4, 1],
+  dashArray: [0, 6]
+},
+
+    markers: {
+  size: [4, 0]
+},
     
 dataLabels: {
   enabled: false
 },
 
 fill: {
-  type: "gradient",
+  type: ["gradient", "gradient"],
   gradient: {
     shadeIntensity: 1,
     opacityFrom: 0.35,
     opacityTo: 0.05,
     stops: [0, 100]
   }
-},
-
-yaxis: {
-  forceNiceScale: true
 },
 
 yaxis: {
