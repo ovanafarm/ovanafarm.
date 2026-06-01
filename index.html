@@ -957,6 +957,11 @@ const targetPenjualan =
 
 const targetProfit =
   Number(setting?.target_profit || 0);
+
+  console.log("Target Penjualan:", targetPenjualan);
+console.log("Target Profit:", targetProfit);
+console.log("Total Chart:", totalChart);
+console.log("Total Profit Per Hari:", totalProfitPerHari);
   
   if (error) {
     console.error(error);
@@ -1104,6 +1109,13 @@ const salesChart = new ApexCharts(
     fill: {
       type: "gradient"
     },
+    yaxis: {
+  max: Math.max(
+    targetPenjualan,
+    ...totalChart,
+    0
+  ) * 1.1
+},
     xaxis: {
       categories: tanggalChart
     },
@@ -1155,15 +1167,29 @@ const profitChart = new ApexCharts(
       curve: "smooth",
       width: 3
     },
-    dataLabels: {
-      enabled: false
-    },
-    fill: {
-      type: "gradient"
-    },
-    xaxis: {
-      categories: tanggalChart
-    },
+   
+    
+    
+   dataLabels: {
+  enabled: false
+},
+
+fill: {
+  type: "gradient"
+},
+
+yaxis: {
+  max: Math.max(
+    targetProfit,
+    ...totalProfitPerHari,
+    0
+  ) * 1.1
+},
+
+xaxis: {
+  categories: tanggalChart
+},
+  
     tooltip: {
       y: {
         formatter: (val) =>
