@@ -79,6 +79,15 @@
   margin-top: auto;
 }
 
+    .table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table td,
+.table th {
+  white-space: nowrap;
+}
 </style>
 
 </head>
@@ -403,9 +412,11 @@
       <h3 class="card-title">Daftar Barang</h3>
     </div>
 
-    <div class="card-body">
+ <div class="card-body">
 
-      <table class="table table-bordered text-center align-middle">
+  <div class="table-responsive">
+
+    <table class="table table-bordered text-center align-middle">
 
         <thead>
           <tr>
@@ -430,6 +441,7 @@
     </div>
 
   </div>
+        
 
                   </div>
                 </div>
