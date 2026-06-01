@@ -600,7 +600,6 @@ const fileName =
   }
 
   loadBarangSupabase();
-  loadNotifikasi();
 
   alert("Barang berhasil disimpan");
 }
@@ -811,7 +810,6 @@ function hapusBarang(index) {
     .then(() => {
 
       loadBarangSupabase();
-      loadNotifikasi();
 
       alert("Barang berhasil dihapus");
 
@@ -878,7 +876,6 @@ window.ovanaSupabase
   .then(() => {
 
     loadBarangSupabase();
-    loadNotifikasi();
 
     bootstrap.Modal
       .getInstance(
@@ -992,7 +989,6 @@ window.ovanaSupabase
   .eq("id", dataBarang[index].id)
   .then(() => {
     loadBarangSupabase();
-    loadNotifikasi();
     alert("Data berhasil diupdate");
   });
 
@@ -1289,6 +1285,7 @@ async function loadBarangSupabase() {
   }));
 
   tampilkanBarang();
+    loadNotifikasi();
 }
 
 loadBarangSupabase();  
