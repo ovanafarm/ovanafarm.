@@ -1120,7 +1120,7 @@ legend: {
 },
     
     chart: {
-      type: "line",
+      type: "area",
       height: 300,
       toolbar: {
         show: false
@@ -1141,7 +1141,16 @@ stroke: {
       enabled: false
     },
 
-       
+     fill: {
+  type: ["gradient", "solid"],
+  gradient: {
+    shadeIntensity: 1,
+    opacityFrom: 0.5,
+    opacityTo: 0.05,
+    stops: [0, 100]
+  }
+},
+    
     yaxis: {
   max: Math.max(
     targetPenjualan,
