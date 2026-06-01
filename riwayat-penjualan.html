@@ -578,7 +578,7 @@ ${new Date(trx.tanggal).toLocaleString("id-ID", {
   ${
     trx.item
       ? trx.item.map(i =>
-          `${i.nama} (${i.qty})`
+          ${i.nama}
         ).join("<br>")
       : "-"
   }
