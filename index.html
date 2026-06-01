@@ -5,16 +5,6 @@
       
       <style>
 
-.sidebar-wrapper nav {
-  height: calc(100vh - 80px);
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar-menu {
-  flex: 1;
-}
-
 @media (max-width: 768px){
 
   .card-body h4{
@@ -38,6 +28,10 @@
 .small-box{
   margin-bottom: 10px;
 }
+  .sidebar-wrapper{
+    overflow-y: auto !important;
+    height: calc(100vh - 60px);
+  }
 
 }
       </style>
@@ -308,7 +302,7 @@
           </a>
         </li>
 
-<li class="nav-item mt-auto">
+<li class="nav-item">
   <a href="./setting.html" class="nav-link">
     <i class="nav-icon bi bi-gear-fill"></i>
     <p>Setting</p>
