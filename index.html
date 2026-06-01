@@ -1156,7 +1156,14 @@ yaxis: {
     targetPenjualan,
     ...totalChart,
     0
-  ) * 1.1
+  ) * 1.1,
+
+  labels: {
+    formatter: function(val) {
+      return "Rp " + Number(val)
+        .toLocaleString("id-ID");
+    }
+  }
 },
     xaxis: {
       categories: tanggalChart
@@ -1237,7 +1244,14 @@ fill: {
 },
 
 yaxis: {
-  forceNiceScale: true
+  forceNiceScale: true,
+
+  labels: {
+    formatter: function(val) {
+      return "Rp " + Number(val)
+        .toLocaleString("id-ID");
+    }
+  }
 },
 
 xaxis: {
