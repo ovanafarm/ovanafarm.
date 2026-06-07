@@ -801,19 +801,36 @@ dataBarang.sort((a, b) => {
 tabel.innerHTML = html;
 }
 
-function hapusBarang(index) {
+async function hapusBarang(index) {
 
-  window.ovanaSupabase
-    .from("barang")
-    .delete()
-    .eq("id", dataBarang[index].id)
-    .then(() => {
+  if (!confirm("Pindahkan ke Trash?"))
+    return;
 
-      loadBarangSupabase();
+  const barang =
+    dataBarang[index];
 
-      alert("Barang berhasil dihapus");
+  await simpanKeTrash(
+    "barang",
+    barang.id,
+    barang
+  );
 
-    });
+  const { error } =
+    await window.ovanaSupabase
+      .from("barang")
+      .delete()
+      .eq("id", barang.id);
+
+  if (error) {
+
+    alert("Gagal menghapus");
+    return;
+
+  }
+
+  alert("Barang masuk Trash");
+
+  loadBarangSupabase();
 
 }
 
@@ -1291,6 +1308,24 @@ async function loadBarangSupabase() {
 loadBarangSupabase();  
 console.log("Dashboard Kasir Supabase Connected");
 </script>
+
+          async function simpanKeTrash(
+  source,
+  originalId,
+  data
+){
+
+  return await window.ovanaSupabase
+    .from("trash")
+    .insert([
+      {
+        source: source,
+        original_id: originalId,
+        data_json: data
+      }
+    ]);
+
+}
           
     </body>
     </html>
