@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trash - Ovana Farm</title>
+</head>
+<body>
+
+<h2>Trash</h2>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Nama</th>
+            <th>Tanggal Hapus</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody id="trashTable"></tbody>
+</table>
+
+<script>
+let trash = JSON.parse(localStorage.getItem("ovanaTrash")) || [];
+
+function loadTrash() {
+
+    const tbody = document.getElementById("trashTable");
+
+    tbody.innerHTML = "";
+
+    trash.forEach(item => {
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${item.name}</td>
+            <td>${item.deletedAt}</td>
+            <td>
+                <button onclick="restoreItem('${item.id}')">
+                    Restore
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+}
+
+loadTrash();
+</script>
+
+</body>
+</html>
