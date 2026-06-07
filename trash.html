@@ -131,9 +131,59 @@ loadTrash();
 
 async function restoreItem(id){
 
-  alert(
-    "Fitur restore akan dibuat berikutnya"
-  );
+  const { data:item, error } =
+    await window.ovanaSupabase
+      .from("trash")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  let dataRestore =
+    item.data_json;
+
+  delete dataRestore.id;
+
+  // BARANG
+  if(item.source === "barang"){
+
+    await window.ovanaSupabase
+      .from("barang")
+      .insert([dataRestore]);
+
+  }
+
+  // PENJUALAN
+  else if(item.source === "penjualan"){
+
+    await window.ovanaSupabase
+      .from("penjualan")
+      .insert([dataRestore]);
+
+  }
+
+  // PENGELUARAN
+  else if(item.source === "pengeluaran"){
+
+    await window.ovanaSupabase
+      .from("pengeluaran")
+      .insert([dataRestore]);
+
+  }
+
+  // hapus dari trash
+  await window.ovanaSupabase
+    .from("trash")
+    .delete()
+    .eq("id", id);
+
+  alert("Data berhasil direstore");
+
+  loadTrash();
 
 }
     
