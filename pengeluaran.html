@@ -663,23 +663,26 @@ function formatNominal(input) {
 
 async function hapusItem(id) {
 
-  if (!confirm("Hapus data ini?"))
+  if (!confirm("Pindahkan ke Trash?"))
     return;
 
-  const { error } =
+  const { data:item } =
     await window.ovanaSupabase
       .from("pengeluaran")
-      .delete()
-      .eq("id", id);
+      .select("*")
+      .eq("id", id)
+      .single();
 
-  if (error) {
+  await simpanKeTrash(
+    "pengeluaran",
+    item.id,
+    item
+  );
 
-    console.error(error);
-    alert("Gagal menghapus");
-
-    return;
-
-  }
+  await window.ovanaSupabase
+    .from("pengeluaran")
+    .delete()
+    .eq("id", id);
 
   loadPengeluaran();
 
@@ -844,6 +847,20 @@ window.addEventListener("DOMContentLoaded", async function () {
 });
 
 loadPengeluaran();
+
+  async function simpanKeTrash(
+  source,
+  originalId,
+  data
+){
+  return await window.ovanaSupabase
+    .from("trash")
+    .insert([{
+      source,
+      original_id: originalId,
+      data_json: data
+    }]);
+}
   
 </script>
     
