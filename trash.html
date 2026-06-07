@@ -5,20 +5,51 @@
 </head>
 <body>
 
-<h2>Trash</h2>
+<div class="card">
 
-<table border="1">
+  <div class="card-header">
+
+    <h3 class="card-title">
+      🗑️ Trash
+      <span id="jumlahTrash"
+            class="badge bg-danger ms-2">
+        0
+      </span>
+    </h3>
+
+  </div>
+
+    <div class="card-body">
+
+  <div class="mb-3">
+
+    <input
+      type="text"
+      id="searchTrash"
+      class="form-control"
+      placeholder="Cari data..."
+      onkeyup="loadTrash()">
+
+  </div>
+
+  <table class="table table-bordered table-striped">
+
     <thead>
-        <tr>
-          <th>Data</th>
-          <th>Tanggal Hapus</th>
-          <th>Aksi</th>
-        </tr>
-        
+      <tr>
+        <th>Jenis</th>
+        <th>Data</th>
+        <th>Tanggal Hapus</th>
+        <th>Aksi</th>
+      </tr>
     </thead>
-    <tbody id="trashTable"></tbody>
-</table>
 
+    <tbody id="trashTable"></tbody>
+
+  </table>
+
+</div>
+
+</div>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <script>
@@ -53,10 +84,20 @@ async function loadTrash() {
 
   tbody.innerHTML = "";
 
-  data.forEach(item => {
+document.getElementById(
+  "jumlahTrash"
+).innerText = data.length;
 
-    let namaData = "-";
+const keyword =
+  document
+    .getElementById("searchTrash")
+    .value
+    .toLowerCase();
 
+data.forEach(item => {
+
+  let namaData = "-";
+      
     if(item.source === "barang"){
       namaData =
         item.data_json.nama || "-";
@@ -73,41 +114,68 @@ async function loadTrash() {
         " Item";
     }
 
-    tbody.innerHTML += `
-      <tr>
+      let badge = "";
 
-        <td>
-          ${item.source}
-          <br>
-          <small>${namaData}</small>
-        </td>
+if(item.source === "barang"){
+  badge =
+    '<span class="badge bg-success">Barang</span>';
+}
 
-        <td>
-          ${new Date(
-            item.deleted_at
-          ).toLocaleString("id-ID")}
-        </td>
+if(item.source === "penjualan"){
+  badge =
+    '<span class="badge bg-primary">Penjualan</span>';
+}
 
-        <td>
+if(item.source === "pengeluaran"){
+  badge =
+    '<span class="badge bg-warning text-dark">Pengeluaran</span>';
+}
 
-          <button
-            onclick="restoreItem(${item.id})">
+      if(
+  keyword &&
+  !namaData
+    .toLowerCase()
+    .includes(keyword)
+){
+  return;
+}
 
-            ♻️ Restore
+      tbody.innerHTML += `
+<tr>
 
-          </button>
+  <td>${badge}</td>
 
-          <button
-            onclick="hapusPermanen(${item.id})">
+  <td>${namaData}</td>
 
-            ❌ Hapus
+  <td>
+    ${new Date(
+      item.deleted_at
+    ).toLocaleString("id-ID")}
+  </td>
 
-          </button>
+  <td>
 
-        </td>
+    <button
+      class="btn btn-success btn-sm"
+      onclick="restoreItem(${item.id})">
 
-      </tr>
-    `;
+      ♻️
+
+    </button>
+
+    <button
+      class="btn btn-danger btn-sm"
+      onclick="hapusPermanen(${item.id})">
+
+      ❌
+
+    </button>
+
+  </td>
+
+</tr>
+`;
+      
 
   });
 
