@@ -688,17 +688,27 @@ loadRiwayat();
 
 async function hapusTransaksi(id) {
 
-  if (confirm("Hapus transaksi ini?")) {
+  if (!confirm("Pindahkan ke Trash?"))
+    return;
 
-    await window.ovanaSupabase
-      .from("penjualan")
-      .delete()
-      .eq("id", id);
+  const trx =
+    riwayat.find(x => x.id === id);
 
-    location.reload();
+  await simpanKeTrash(
+    "penjualan",
+    trx.id,
+    trx
+  );
 
-  }
+  await window.ovanaSupabase
+    .from("penjualan")
+    .delete()
+    .eq("id", id);
+
+  location.reload();
+
 }
+        
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
@@ -774,6 +784,20 @@ async function hapusTransaksi(id) {
 
 </script>
 
+          async function simpanKeTrash(
+  source,
+  originalId,
+  data
+){
+  return await window.ovanaSupabase
+    .from("trash")
+    .insert([{
+      source,
+      original_id: originalId,
+      data_json: data
+    }]);
+}
+          
       </body>
 
       <!--end::Body-->
