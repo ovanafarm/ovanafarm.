@@ -10,40 +10,133 @@
 <table border="1">
     <thead>
         <tr>
-            <th>Nama</th>
-            <th>Tanggal Hapus</th>
-            <th>Aksi</th>
+          <th>Data</th>
+          <th>Tanggal Hapus</th>
+          <th>Aksi</th>
         </tr>
+        
     </thead>
     <tbody id="trashTable"></tbody>
 </table>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
 <script>
-let trash = JSON.parse(localStorage.getItem("ovanaTrash")) || [];
 
-function loadTrash() {
+const SUPABASE_URL =
+"https://dyholzqyltspnpbjkpsn.supabase.co";
 
-    const tbody = document.getElementById("trashTable");
+const SUPABASE_KEY =
+"sb_publishable_5dQRwThjCNLnL-Zsr6Jbig_bA3OrGf6";
 
-    tbody.innerHTML = "";
+window.ovanaSupabase =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-    trash.forEach(item => {
+async function loadTrash() {
 
-        tbody.innerHTML += `
-        <tr>
-            <td>${item.name}</td>
-            <td>${item.deletedAt}</td>
-            <td>
-                <button onclick="restoreItem('${item.id}')">
-                    Restore
-                </button>
-            </td>
-        </tr>
-        `;
-    });
+  const { data, error } =
+    await window.ovanaSupabase
+      .from("trash")
+      .select("*")
+      .order("id", { ascending: false });
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  const tbody =
+    document.getElementById("trashTable");
+
+  tbody.innerHTML = "";
+
+  data.forEach(item => {
+
+    let namaData = "-";
+
+    if(item.source === "barang"){
+      namaData =
+        item.data_json.nama || "-";
+    }
+
+    if(item.source === "pengeluaran"){
+      namaData =
+        item.data_json.keterangan || "-";
+    }
+
+    if(item.source === "penjualan"){
+      namaData =
+        (item.data_json.item || []).length +
+        " Item";
+    }
+
+    tbody.innerHTML += `
+      <tr>
+
+        <td>
+          ${item.source}
+          <br>
+          <small>${namaData}</small>
+        </td>
+
+        <td>
+          ${new Date(
+            item.deleted_at
+          ).toLocaleString("id-ID")}
+        </td>
+
+        <td>
+
+          <button
+            onclick="restoreItem(${item.id})">
+
+            ♻️ Restore
+
+          </button>
+
+          <button
+            onclick="hapusPermanen(${item.id})">
+
+            ❌ Hapus
+
+          </button>
+
+        </td>
+
+      </tr>
+    `;
+
+  });
+
 }
 
 loadTrash();
+
+    async function hapusPermanen(id){
+
+  if(!confirm("Hapus permanen?"))
+    return;
+
+  await window.ovanaSupabase
+    .from("trash")
+    .delete()
+    .eq("id", id);
+
+  loadTrash();
+
+}
+
+async function restoreItem(id){
+
+  alert(
+    "Fitur restore akan dibuat berikutnya"
+  );
+
+}
+    
 </script>
 
 </body>
