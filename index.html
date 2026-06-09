@@ -1287,7 +1287,21 @@ profitChart.render();
 loadNotifikasi();
 }
 
-loadDashboard();
+window.addEventListener("load", () => {
+
+  if (window.innerWidth < 768) {
+
+    setTimeout(() => {
+      loadDashboard();
+    }, 500);
+
+  } else {
+
+    loadDashboard();
+
+  }
+
+});
 
 </script>
                 
