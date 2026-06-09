@@ -71,7 +71,12 @@
     />
 
     <style>
-
+    .app-sidebar,
+.sidebar-wrapper {
+  will-change: transform;
+  transform: translateZ(0);
+}
+      
 .sidebar-wrapper nav {
   height: calc(100vh - 80px);
   display: flex;
