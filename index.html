@@ -5,6 +5,12 @@
       
   <style>
 
+    .app-sidebar,
+.sidebar-wrapper {
+  will-change: transform;
+  transform: translateZ(0);
+}
+    
 .sidebar-wrapper nav {
   height: calc(100vh - 80px);
   display: flex;
@@ -1290,15 +1296,9 @@ loadNotifikasi();
 window.addEventListener("load", () => {
 
   if (window.innerWidth < 768) {
-
-    setTimeout(() => {
-      loadDashboard();
-    }, 500);
-
+    setTimeout(loadDashboard, 1500);
   } else {
-
     loadDashboard();
-
   }
 
 });
