@@ -433,6 +433,29 @@
 
   }
 
+  function parseQty(value) {
+
+    return parseFloat(value);
+
+  }
+
+  function formatQty(value) {
+
+    const qty = parseFloat(value || 0);
+
+    return qty.toLocaleString("id-ID", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 3
+    });
+
+  }
+
+  function hitungTotalItem(item) {
+
+    item.total = Math.round(item.qty * item.harga);
+
+  }
+
   function formatInputUang(input) {
 
     let angka = input.value.replace(/\D/g, "");
@@ -483,7 +506,7 @@ let keranjang = [];
               </h5>
 
               <p>Rp ${formatRupiah(parseInt(barang.hargaJual))}</p>
-              <p>Stock : ${barang.stock}</p>
+              <p>Stock : ${formatQty(barang.stock)} ${barang.satuan || "pcs"}</p>
 
               <button 
                 class="btn btn-primary w-100"
@@ -503,7 +526,7 @@ let keranjang = [];
 
   }
 
-  function tambahKeranjang(index) {
+  function tambahKeranjang(index, qtyInput = null) {
 
     let barang = dataBarang[index];
 
@@ -512,7 +535,47 @@ let keranjang = [];
       return;
     }
 
-    barang.stock--;
+    let satuan = barang.satuan || "pcs";
+    let qtyTambah = qtyInput;
+
+    if (qtyTambah === null) {
+
+      qtyTambah = prompt(
+        `Masukkan qty ${barang.nama} (${satuan})`,
+        satuan === "kg" ? "0.5" : "1"
+      );
+
+    }
+
+    if (qtyTambah === null) return;
+
+    qtyTambah = parseQty(qtyTambah);
+
+    if (
+      Number.isNaN(qtyTambah) ||
+      qtyTambah <= 0
+    ) {
+      alert("Qty tidak valid!");
+      return;
+    }
+
+    if (
+      satuan === "pcs" &&
+      !Number.isInteger(qtyTambah)
+    ) {
+      alert("Qty pcs harus angka bulat!");
+      return;
+    }
+
+    if (qtyTambah > barang.stock) {
+      alert(
+        `Stock tidak cukup! Stock tersedia ${formatQty(barang.stock)} ${satuan}`
+      );
+      return;
+    }
+
+    barang.stock =
+      parseQty((barang.stock - qtyTambah).toFixed(3));
 
     let item = keranjang.find(
       x => x.nama == barang.nama
@@ -520,7 +583,8 @@ let keranjang = [];
 
   if (item) {
 
-    item.qty++;
+    item.qty =
+      parseQty((item.qty + qtyTambah).toFixed(3));
 
   if (item.grosir) {
 
@@ -532,8 +596,7 @@ let keranjang = [];
 
   }
 
-  item.total =
-    item.qty * item.harga;
+  hitungTotalItem(item);
 
   item.modal =
     parseInt(barang.modal);
@@ -542,19 +605,20 @@ let keranjang = [];
 
   keranjang.push({
     nama: barang.nama,
-    qty: 1,
+    qty: qtyTambah,
+    satuan: satuan,
 
     harga: parseInt(barang.hargaJual || 0),
     hargaNormal: parseInt(barang.hargaJual || 0),
 
     hargaGrosir: parseInt(barang.hargaGrosir || 0),
-    minGrosir: parseInt(barang.minGrosir || 0),
+    minGrosir: parseQty(barang.minGrosir || 0),
 
     modal: parseInt(barang.modal || 0),
 
     grosir: false,
 
-    total: parseInt(barang.hargaJual || 0)
+    total: Math.round(qtyTambah * parseInt(barang.hargaJual || 0))
   });
 
     }
@@ -582,12 +646,19 @@ let keranjang = [];
 
     if (item) {
 
-      item.qty--;
+      let qtyKurang =
+        item.satuan === "kg"
+          ? item.qty
+          : 1;
+
+      item.qty =
+        parseQty((item.qty - qtyKurang).toFixed(3));
 
       let barang =
         dataBarang.find(x => x.nama == nama);
 
-      barang.stock++;
+      barang.stock =
+        parseQty((barang.stock + qtyKurang).toFixed(3));
 
       if (item.grosir) {
 
@@ -599,8 +670,7 @@ let keranjang = [];
 
   }
 
-  item.total =
-    item.qty * item.harga;
+  hitungTotalItem(item);
 
       if (item.qty <= 0) {
 
@@ -648,7 +718,7 @@ let keranjang = [];
   </button>
 
   <span class="mx-2 fw-bold">
-    ${item.qty}
+    ${formatQty(item.qty)} ${item.satuan || "pcs"}
   </span>
 
   <button
@@ -732,8 +802,7 @@ ${
       ? item.hargaGrosir
       : item.hargaNormal;
 
-    item.total =
-      item.qty * item.harga;
+    hitungTotalItem(item);
 
   localStorage.setItem(
     "barang",
@@ -907,7 +976,7 @@ function loadNotifikasi() {
     if (item.stock <= item.minimumStock) {
 
       notifikasi.push(
-        `⚠ ${item.nama} stok tersisa ${item.stock}`
+        `${item.nama} stok tersisa ${formatQty(item.stock)} ${item.satuan || "pcs"}`
       );
 
     }
@@ -938,7 +1007,7 @@ function loadNotifikasi() {
 
     html = `
       <a href="#" class="dropdown-item">
-        Tidak ada notifikasi 🎉
+        Tidak ada notifikasi
       </a>
     `;
 
@@ -1040,9 +1109,10 @@ async function loadBarangSupabase() {
     modal: item.harga_beli,
     hargaJual: item.harga_jual,
     hargaGrosir: item.harga_grosir,
-    minGrosir: item.min_grosir,
-    stock: item.stock,
-    minimumStock: item.minimum_stock
+    minGrosir: parseQty(item.min_grosir || 0),
+    satuan: item.satuan || "pcs",
+    stock: parseQty(item.stock || 0),
+    minimumStock: parseQty(item.minimum_stock || 0)
   }));
 
   tampilkanBarangKasir();
