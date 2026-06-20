@@ -279,6 +279,13 @@
               </a>
             </li>
 
+          <li class="nav-item">
+              <a href="./stock-record.html" class="nav-link">
+                <i class="nav-icon bi bi-clipboard-data"></i>
+                <p>Stock Record</p>
+              </a>
+            </li>
+
 <li class="nav-item setting-menu-bottom">
   <a href="./setting.html" class="nav-link">
     
@@ -527,6 +534,48 @@ function formatQty(value, satuan = "pcs") {
   return String(Math.round(qty));
 }
 
+function cloneData(data) {
+  return JSON.parse(JSON.stringify(data || null));
+}
+
+async function getCurrentUserName() {
+  try {
+    const { data } =
+      await window.ovanaSupabase
+        .from("setting")
+        .select("nama_user")
+        .eq("id", 1)
+        .single();
+
+    return data?.nama_user || "Admin";
+  } catch (error) {
+    return "Admin";
+  }
+}
+
+async function simpanStockLog(action, barangId, namaBarang, beforeData, afterData, catatan = "") {
+  const userName = await getCurrentUserName();
+
+  const { error } =
+    await window.ovanaSupabase
+      .from("stock_logs")
+      .insert([
+        {
+          action: action,
+          barang_id: barangId,
+          nama_barang: namaBarang,
+          before_data: beforeData,
+          after_data: afterData,
+          catatan: catatan,
+          user_name: userName
+        }
+      ]);
+
+  if (error) {
+    console.error("Gagal simpan stock log", error);
+  }
+}
+
     async function compressImage(file) {
 
   return new Promise((resolve) => {
@@ -649,31 +698,42 @@ const fileName =
   const gambarUrl =
     publicUrlData.publicUrl;
 
-  const { error } =
+  const barangBaru = {
+    nama: nama,
+    gambar: gambarUrl,
+    harga_beli: parseInt(hargaBeli),
+    harga_jual: parseInt(hargaJual),
+    harga_grosir: parseInt(
+      document.getElementById("hargaGrosir").value || 0
+    ),
+    min_grosir: parseQty(
+      document.getElementById("minGrosir").value || 0
+    ),
+    satuan: satuan,
+    stock: stockQty,
+    minimum_stock: minimumStockQty
+  };
+
+  const { data: insertedBarang, error } =
     await window.ovanaSupabase
       .from("barang")
-      .insert([
-        {
-          nama: nama,
-          gambar: gambarUrl,
-          harga_beli: parseInt(hargaBeli),
-          harga_jual: parseInt(hargaJual),
-          harga_grosir: parseInt(
-            document.getElementById("hargaGrosir").value || 0
-          ),
-          min_grosir: parseQty(
-            document.getElementById("minGrosir").value || 0
-          ),
-          satuan: satuan,
-          stock: stockQty,
-          minimum_stock: minimumStockQty
-        }
-      ]);
+      .insert([barangBaru])
+      .select("*")
+      .single();
 
   if (error) {
     console.error(error);
     return;
   }
+
+  await simpanStockLog(
+    "CREATE",
+    insertedBarang.id,
+    insertedBarang.nama,
+    null,
+    insertedBarang,
+    "Barang baru dibuat"
+  );
 
   loadBarangSupabase();
 
@@ -906,6 +966,8 @@ async function hapusBarang(index) {
   const barang =
     dataBarang[index];
 
+  const beforeData = cloneData(barang);
+
   await simpanKeTrash(
     "barang",
     barang.id,
@@ -924,6 +986,15 @@ async function hapusBarang(index) {
     return;
 
   }
+
+  await simpanStockLog(
+    "DELETE_TO_TRASH",
+    barang.id,
+    barang.nama,
+    beforeData,
+    null,
+    "Barang dipindahkan ke trash"
+  );
 
   alert("Barang masuk Trash");
 
@@ -944,7 +1015,7 @@ function restockBarang(index) {
 
 }
 
-function simpanRestock() {
+async function simpanRestock() {
 
   let index = parseInt(
     document.getElementById("restockIndex").value
@@ -963,6 +1034,8 @@ function simpanRestock() {
     return;
   }
 
+  const beforeData = cloneData(dataBarang[index]);
+
   let stockLama = dataBarang[index].stock;
   let modalLama = dataBarang[index].modal;
 
@@ -980,14 +1053,29 @@ dataBarang[index].stock =
 dataBarang[index].modal =
   modalBaru;
 
-window.ovanaSupabase
-  .from("barang")
-  .update({
-    stock: dataBarang[index].stock,
-    harga_beli: dataBarang[index].modal
-  })
-  .eq("id", dataBarang[index].id)
-  .then(() => {
+const { error } =
+  await window.ovanaSupabase
+    .from("barang")
+    .update({
+      stock: dataBarang[index].stock,
+      harga_beli: dataBarang[index].modal
+    })
+    .eq("id", dataBarang[index].id);
+
+  if (error) {
+    console.error(error);
+    alert("Restock gagal");
+    return;
+  }
+
+  await simpanStockLog(
+    "RESTOCK",
+    dataBarang[index].id,
+    dataBarang[index].nama,
+    beforeData,
+    cloneData(dataBarang[index]),
+    `Restock ${formatQty(qtyMasuk, dataBarang[index].satuan || "pcs")} ${dataBarang[index].satuan || "pcs"}`
+  );
 
     loadBarangSupabase();
 
@@ -999,7 +1087,6 @@ window.ovanaSupabase
 
     alert("Restock berhasil");
 
-  });
 }
 
 function editBarang(index) {
@@ -1032,6 +1119,8 @@ function editBarang(index) {
 }
 
 async function saveBarang(index) {
+
+  const beforeData = cloneData(dataBarang[index]);
 
   dataBarang[index].nama =
     document.getElementById(`namaInput${index}`).value;
@@ -1104,24 +1193,39 @@ let file =
     publicUrlData.publicUrl;
 }
 
-window.ovanaSupabase
-  .from("barang")
-  .update({
-    nama: dataBarang[index].nama,
-    gambar: dataBarang[index].gambar,
-    harga_beli: dataBarang[index].modal,
-    harga_jual: dataBarang[index].hargaJual,
-    harga_grosir: dataBarang[index].hargaGrosir,
-    min_grosir: dataBarang[index].minGrosir,
-    satuan: dataBarang[index].satuan,
-    stock: dataBarang[index].stock,
-    minimum_stock: dataBarang[index].minimumStock
-  })
-  .eq("id", dataBarang[index].id)
-  .then(() => {
-    loadBarangSupabase();
-    alert("Data berhasil diupdate");
-  });
+const { error } =
+  await window.ovanaSupabase
+    .from("barang")
+    .update({
+      nama: dataBarang[index].nama,
+      gambar: dataBarang[index].gambar,
+      harga_beli: dataBarang[index].modal,
+      harga_jual: dataBarang[index].hargaJual,
+      harga_grosir: dataBarang[index].hargaGrosir,
+      min_grosir: dataBarang[index].minGrosir,
+      satuan: dataBarang[index].satuan,
+      stock: dataBarang[index].stock,
+      minimum_stock: dataBarang[index].minimumStock
+    })
+    .eq("id", dataBarang[index].id);
+
+  if (error) {
+    console.error(error);
+    alert("Data gagal diupdate");
+    return;
+  }
+
+  await simpanStockLog(
+    "EDIT",
+    dataBarang[index].id,
+    dataBarang[index].nama,
+    beforeData,
+    cloneData(dataBarang[index]),
+    "Data barang diedit dari management stock"
+  );
+
+  loadBarangSupabase();
+  alert("Data berhasil diupdate");
 
 }
 
