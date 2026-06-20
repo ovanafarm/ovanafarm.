@@ -1,6 +1,6 @@
       <!doctype html>
       <html lang="en">
-        <!--begin::Head--> 
+        <!--begin::Head-->
         <head>
           <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
           <title>Dashboard Ovana Farm</title>
@@ -62,8 +62,6 @@
           <link rel="stylesheet" href="./css/adminlte.css" />
           <!--end::Required Plugin(AdminLTE)-->
 
-
-              
           <style>
 
                     .app-sidebar,
@@ -105,23 +103,6 @@
     opacity: 1;
   }
 
-                @media (max-width:768px){
-
-  .cart-float{
-    position:fixed;
-    bottom:20px;
-    left:10px;
-    right:10px;
-    z-index:1055;
-    height:55px;
-    font-weight:bold;
-  }
-
-  .app-main{
-    padding-bottom:90px;
-  }
-
-}
   </style>
 
         </head>
@@ -387,7 +368,7 @@
     </div>
 
     <!-- Keranjang -->
-    <div class="col-lg-4 d-none d-lg-block">
+    <div class="col-lg-4">
 
       <div class="card">
 
@@ -948,7 +929,7 @@ ${
 
       alert("Keranjang kosong!");
       return;
-
+          
     }
 
   let bayar =
@@ -1313,14 +1294,5 @@ loadBarangSupabase();
   </div>
 </div>
 
-              <button
-  class="btn btn-success cart-float d-lg-none"
-  data-bs-toggle="offcanvas"
-  data-bs-target="#cartOffcanvas">
-
-  🛒 Total Rp <span id="mobileTotal">0</span>
-
-</button>
-              
   </body>
   </html>	
