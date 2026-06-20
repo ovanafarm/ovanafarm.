@@ -435,18 +435,40 @@
 
   function parseQty(value) {
 
-    return parseFloat(value);
+    const normalized =
+      String(value || "")
+        .trim()
+        .replace(",", ".");
+
+    const qty = parseFloat(normalized);
+
+    if (Number.isNaN(qty)) return NaN;
+
+    return Math.round(qty * 1000) / 1000;
 
   }
 
-  function formatQty(value) {
+  function qtyToMili(value) {
 
-    const qty = parseFloat(value || 0);
+    return Math.round(parseQty(value) * 1000);
 
-    return qty.toLocaleString("id-ID", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 3
-    });
+  }
+
+  function miliToQty(value) {
+
+    return value / 1000;
+
+  }
+
+  function formatQty(value, satuan = "pcs") {
+
+    const qty = parseQty(value || 0);
+
+    if (satuan === "kg") {
+      return qty.toFixed(3);
+    }
+
+    return String(Math.round(qty));
 
   }
 
@@ -506,7 +528,7 @@ let keranjang = [];
               </h5>
 
               <p>Rp ${formatRupiah(parseInt(barang.hargaJual))}</p>
-              <p>Stock : ${formatQty(barang.stock)} ${barang.satuan || "pcs"}</p>
+              <p>Stock : ${formatQty(barang.stock, barang.satuan || "pcs")} ${barang.satuan || "pcs"}</p>
 
               <button 
                 class="btn btn-primary w-100"
@@ -569,13 +591,13 @@ let keranjang = [];
 
     if (qtyTambah > barang.stock) {
       alert(
-        `Stock tidak cukup! Stock tersedia ${formatQty(barang.stock)} ${satuan}`
+        `Stock tidak cukup! Stock tersedia ${formatQty(barang.stock, satuan)} ${satuan}`
       );
       return;
     }
 
     barang.stock =
-      parseQty((barang.stock - qtyTambah).toFixed(3));
+      miliToQty(qtyToMili(barang.stock) - qtyToMili(qtyTambah));
 
     let item = keranjang.find(
       x => x.nama == barang.nama
@@ -584,7 +606,7 @@ let keranjang = [];
   if (item) {
 
     item.qty =
-      parseQty((item.qty + qtyTambah).toFixed(3));
+      miliToQty(qtyToMili(item.qty) + qtyToMili(qtyTambah));
 
   if (item.grosir) {
 
@@ -652,13 +674,13 @@ let keranjang = [];
           : 1;
 
       item.qty =
-        parseQty((item.qty - qtyKurang).toFixed(3));
+        miliToQty(qtyToMili(item.qty) - qtyToMili(qtyKurang));
 
       let barang =
         dataBarang.find(x => x.nama == nama);
 
       barang.stock =
-        parseQty((barang.stock + qtyKurang).toFixed(3));
+        miliToQty(qtyToMili(barang.stock) + qtyToMili(qtyKurang));
 
       if (item.grosir) {
 
@@ -718,7 +740,7 @@ let keranjang = [];
   </button>
 
   <span class="mx-2 fw-bold">
-    ${formatQty(item.qty)} ${item.satuan || "pcs"}
+    ${formatQty(item.qty, item.satuan || "pcs")} ${item.satuan || "pcs"}
   </span>
 
   <button
@@ -976,7 +998,7 @@ function loadNotifikasi() {
     if (item.stock <= item.minimumStock) {
 
       notifikasi.push(
-        `${item.nama} stok tersisa ${formatQty(item.stock)} ${item.satuan || "pcs"}`
+        `${item.nama} stok tersisa ${formatQty(item.stock, item.satuan || "pcs")} ${item.satuan || "pcs"}`
       );
 
     }
