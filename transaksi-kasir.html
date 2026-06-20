@@ -945,7 +945,7 @@ for (const item of keranjang) {
     await window.ovanaSupabase
       .from("barang")
       .update({
-        stock: barangDb.stock
+        stock: parseQty(barangDb.stock)
       })
       .eq("id", barangDb.id);
 
@@ -1112,6 +1112,9 @@ window.addEventListener("DOMContentLoaded", async function () {
 });
       
 async function loadBarangSupabase() {
+
+  keranjang = [];
+  localStorage.removeItem("keranjang");
 
   const { data, error } =
     await window.ovanaSupabase
