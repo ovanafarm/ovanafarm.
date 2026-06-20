@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stock Record - Ovana Farm</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <style>
+      body { background: #f5f6f8; }
+      .app-shell { min-height: 100vh; display: grid; grid-template-columns: 230px 1fr; }
+      .sidebar { background: #2f363d; color: #fff; padding: 18px 14px; }
+      .brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; margin-bottom: 28px; }
+      .brand img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+      .nav-link { color: rgba(255,255,255,.78); border-radius: 6px; margin-bottom: 4px; }
+      .nav-link:hover, .nav-link.active { color: #fff; background: rgba(255,255,255,.12); }
+      .content { padding: 24px; }
+      .toolbar { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+      .muted-small { color: #6c757d; font-size: 13px; }
+      .diff-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 8px 10px; min-width: 170px; }
+      .badge-action { letter-spacing: .2px; }
+      @media (max-width: 900px) {
+        .app-shell { grid-template-columns: 1fr; }
+        .sidebar { display: none; }
+        .toolbar { align-items: stretch; flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="./index.html">
+          <img class="brand-image" src="./assets/img/AdminLTELogo.png" alt="Logo">
+          <span class="brand-text">Ovana Farm</span>
+        </a>
+
+        <nav class="nav flex-column">
+          <a class="nav-link" href="./index.html"><i class="bi bi-speedometer me-2"></i>Laporan Penjualan</a>
+          <a class="nav-link" href="./dashboard-kasir.html"><i class="bi bi-box-seam me-2"></i>Management Stock</a>
+          <a class="nav-link" href="./transaksi-kasir.html"><i class="bi bi-cart-fill me-2"></i>Kasir</a>
+          <a class="nav-link" href="./riwayat-penjualan.html"><i class="bi bi-clock-history me-2"></i>Riwayat Penjualan</a>
+          <a class="nav-link" href="./pengeluaran.html"><i class="bi bi-cash-stack me-2"></i>Pengeluaran</a>
+          <a class="nav-link" href="./trash.html"><i class="bi bi-trash me-2"></i>Trash</a>
+          <a class="nav-link active" href="./stock-record.html"><i class="bi bi-clipboard-data me-2"></i>Stock Record</a>
+          <a class="nav-link" href="./setting.html"><i class="bi bi-gear-fill me-2"></i>Setting</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <div class="toolbar">
+          <div>
+            <h3 class="mb-1">Stock Record</h3>
+            <div class="muted-small">Jejak perubahan barang dari management stock dan trash.</div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <select id="filterAction" class="form-select" onchange="tampilkanLogs()">
+              <option value="">Semua action</option>
+              <option value="CREATE">CREATE</option>
+              <option value="EDIT">EDIT</option>
+              <option value="RESTOCK">RESTOCK</option>
+              <option value="DELETE_TO_TRASH">DELETE_TO_TRASH</option>
+              <option value="RESTORE_FROM_TRASH">RESTORE_FROM_TRASH</option>
+            </select>
+            <input
+              type="text"
+              id="searchLog"
+              class="form-control"
+              placeholder="Cari barang/user..."
+              oninput="tampilkanLogs()">
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Waktu</th>
+                    <th>Action</th>
+                    <th>Barang</th>
+                    <th>Stock</th>
+                    <th>User</th>
+                    <th>Catatan</th>
+                  </tr>
+                </thead>
+                <tbody id="tabelLogs">
+                  <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                      Memuat stock record...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+      const SUPABASE_URL = "https://dyholzqyltspnpbjkpsn.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_5dQRwThjCNLnL-Zsr6Jbig_bA3OrGf6";
+
+      window.ovanaSupabase =
+        window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      let stockLogs = [];
+
+      function parseQty(value) {
+        const qty = parseFloat(String(value || "0").replace(",", "."));
+        if (Number.isNaN(qty)) return 0;
+        return Math.round(qty * 1000) / 1000;
+      }
+
+      function formatQty(value, satuan = "pcs") {
+        const qty = parseQty(value);
+        return satuan === "kg" ? qty.toFixed(3) : String(Math.round(qty));
+      }
+
+      function getStockInfo(data) {
+        if (!data) return "-";
+
+        const satuan = data.satuan || "pcs";
+        const stock = data.stock ?? 0;
+
+        return `${formatQty(stock, satuan)} ${satuan}`;
+      }
+
+      function getBadge(action) {
+        const map = {
+          CREATE: "text-bg-primary",
+          EDIT: "text-bg-warning",
+          RESTOCK: "text-bg-success",
+          DELETE_TO_TRASH: "text-bg-danger",
+          RESTORE_FROM_TRASH: "text-bg-info"
+        };
+
+        return map[action] || "text-bg-secondary";
+      }
+
+      function tampilkanLogs() {
+        const tbody = document.getElementById("tabelLogs");
+        const keyword = document.getElementById("searchLog").value.toLowerCase();
+        const actionFilter = document.getElementById("filterAction").value;
+
+        const filtered = stockLogs.filter((log) => {
+          const matchAction = !actionFilter || log.action === actionFilter;
+          const matchKeyword =
+            (log.nama_barang || "").toLowerCase().includes(keyword) ||
+            (log.user_name || "").toLowerCase().includes(keyword);
+
+          return matchAction && matchKeyword;
+        });
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                Belum ada record
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map((log) => {
+          const beforeStock = getStockInfo(log.before_data);
+          const afterStock = getStockInfo(log.after_data);
+          const waktu = log.created_at
+            ? new Date(log.created_at).toLocaleString("id-ID")
+            : "-";
+
+          return `
+            <tr>
+              <td>
+                <div class="fw-semibold">${waktu}</div>
+                <div class="muted-small">Log #${log.id}</div>
+              </td>
+              <td>
+                <span class="badge badge-action ${getBadge(log.action)}">
+                  ${log.action}
+                </span>
+              </td>
+              <td>
+                <div class="fw-semibold">${log.nama_barang || "-"}</div>
+                <div class="muted-small">Barang ID: ${log.barang_id || "-"}</div>
+              </td>
+              <td>
+                <div class="diff-box">
+                  <div class="muted-small">Sebelum: ${beforeStock}</div>
+                  <div>Sesudah: <strong>${afterStock}</strong></div>
+                </div>
+              </td>
+              <td>${log.user_name || "-"}</td>
+              <td>${log.catatan || "-"}</td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      async function loadLogs() {
+        const { data, error } =
+          await window.ovanaSupabase
+            .from("stock_logs")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(300);
+
+        if (error) {
+          console.error(error);
+          alert("Gagal memuat stock record");
+          return;
+        }
+
+        stockLogs = data || [];
+        tampilkanLogs();
+      }
+
+      loadLogs();
+    </script>
+  </body>
+</html>
