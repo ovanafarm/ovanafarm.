@@ -76,8 +76,31 @@
     flex-direction: column;
   }
 
-  .sidebar-menu {
+    .sidebar-menu {
     flex: 1;
+  }
+
+  .qty-modal-summary {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 12px;
+  }
+
+  .qty-modal-summary .label {
+    color: #6c757d;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .qty-modal-summary .value {
+    color: #212529;
+    font-weight: 600;
+  }
+
+  #qtyModalInput::placeholder {
+    color: #adb5bd;
+    opacity: 1;
   }
 
   </style>
@@ -488,8 +511,55 @@
 
 let dataBarang = [];
 let keranjang = [];
+let qtyModalIndex = null;
           
   let daftar = document.getElementById("daftarBarangKasir");
+
+  function bukaModalQty(index) {
+
+    const barang = dataBarang[index];
+
+    if (!barang) return;
+
+    if (barang.stock <= 0) {
+      alert("Stock habis!");
+      return;
+    }
+
+    qtyModalIndex = index;
+
+    const satuan = barang.satuan || "pcs";
+    const input = document.getElementById("qtyModalInput");
+
+    document.getElementById("qtyModalNama").innerText =
+      barang.nama;
+
+    document.getElementById("qtyModalSatuan").innerText =
+      satuan;
+
+    document.getElementById("qtyModalStock").innerText =
+      `${formatQty(barang.stock, satuan)} ${satuan}`;
+
+    input.value = "";
+    input.step = satuan === "kg" ? "0.001" : "1";
+    input.placeholder = satuan === "kg" ? "Contoh: 0.500" : "Contoh: 1";
+
+    new bootstrap.Modal(
+      document.getElementById("modalQtyBarang")
+    ).show();
+
+    setTimeout(() => input.focus(), 250);
+
+  }
+
+  function simpanQtyModal() {
+
+    const input =
+      document.getElementById("qtyModalInput");
+
+    tambahKeranjang(qtyModalIndex, input.value);
+
+  }
 
   function tampilkanBarangKasir() {
 
@@ -532,7 +602,7 @@ let keranjang = [];
 
               <button 
                 class="btn btn-primary w-100"
-                onclick="tambahKeranjang(${index})">
+                onclick="bukaModalQty(${index})">
                 Tambah
               </button>
 
@@ -559,15 +629,6 @@ let keranjang = [];
 
     let satuan = barang.satuan || "pcs";
     let qtyTambah = qtyInput;
-
-    if (qtyTambah === null) {
-
-      qtyTambah = prompt(
-        `Masukkan qty ${barang.nama} (${satuan})`,
-        satuan === "kg" ? "0.5" : "1"
-      );
-
-    }
 
     if (qtyTambah === null) return;
 
@@ -658,6 +719,15 @@ let keranjang = [];
     tampilkanBarangKasir();
     tampilKeranjang();
 
+    const qtyModal =
+      bootstrap.Modal.getInstance(
+        document.getElementById("modalQtyBarang")
+      );
+
+    if (qtyModal) {
+      qtyModal.hide();
+    }
+
   }
 
   function kurangKeranjang(nama) {
@@ -745,7 +815,7 @@ let keranjang = [];
 
   <button
     class="btn btn-success btn-sm"
-    onclick="tambahKeranjang(${dataBarang.findIndex(x => x.nama == item.nama)})">
+    onclick="bukaModalQty(${dataBarang.findIndex(x => x.nama == item.nama)})">
     +
   </button>
 
@@ -1145,6 +1215,77 @@ async function loadBarangSupabase() {
 
 loadBarangSupabase();
 </script>
-              
+
+<div class="modal fade" id="modalQtyBarang" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Tambah ke Keranjang</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal">
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="qty-modal-summary mb-3">
+          <div class="label">Barang</div>
+          <div class="value" id="qtyModalNama">-</div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <div class="qty-modal-summary">
+              <div class="label">Satuan</div>
+              <div class="value" id="qtyModalSatuan">-</div>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <div class="qty-modal-summary">
+              <div class="label">Stock tersedia</div>
+              <div class="value" id="qtyModalStock">-</div>
+            </div>
+          </div>
+        </div>
+
+        <label for="qtyModalInput" class="form-label">
+          Qty
+        </label>
+
+        <input
+          type="number"
+          min="0"
+          step="0.001"
+          id="qtyModalInput"
+          class="form-control form-control-lg"
+          placeholder="Contoh: 0.500"
+          onkeydown="if (event.key === 'Enter') simpanQtyModal()">
+
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal">
+          Batal
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="simpanQtyModal()">
+          Tambah
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
   </body>
   </html>
