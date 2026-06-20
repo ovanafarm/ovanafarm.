@@ -497,16 +497,34 @@
 let dataBarang = [];
 
 function parseQty(value) {
-  return parseFloat(value);
+  const normalized =
+    String(value || "")
+      .trim()
+      .replace(",", ".");
+
+  const qty = parseFloat(normalized);
+
+  if (Number.isNaN(qty)) return NaN;
+
+  return Math.round(qty * 1000) / 1000;
 }
 
-function formatQty(value) {
-  const qty = parseFloat(value || 0);
+function qtyToMili(value) {
+  return Math.round(parseQty(value) * 1000);
+}
 
-  return qty.toLocaleString("id-ID", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 3
-  });
+function miliToQty(value) {
+  return value / 1000;
+}
+
+function formatQty(value, satuan = "pcs") {
+  const qty = parseQty(value || 0);
+
+  if (satuan === "kg") {
+    return qty.toFixed(3);
+  }
+
+  return String(Math.round(qty));
 }
 
     async function compressImage(file) {
@@ -768,7 +786,7 @@ dataBarang.sort((a, b) => {
 <td>
 
   <span id="minGrosirText${index}">
-    ${formatQty(barang.minGrosir || 0)} ${barang.satuan || 'pcs'}
+    ${formatQty(barang.minGrosir || 0, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}
   </span>
 
   <input
@@ -799,7 +817,7 @@ dataBarang.sort((a, b) => {
 <td>
 
 <span id="stockText${index}">
-  ${formatQty(barang.stock)} ${barang.satuan || 'pcs'}
+  ${formatQty(barang.stock, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}
 
   ${
     barang.stock <= barang.minimumStock
@@ -822,7 +840,7 @@ dataBarang.sort((a, b) => {
 <td>
 
   <span id="minStockText${index}">
-    ${formatQty(barang.minimumStock || 0)} ${barang.satuan || 'pcs'}
+    ${formatQty(barang.minimumStock || 0, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}
   </span>
 
   <input
@@ -957,7 +975,7 @@ function simpanRestock() {
   );
 
 dataBarang[index].stock =
-  stockLama + qtyMasuk;
+  miliToQty(qtyToMili(stockLama) + qtyToMili(qtyMasuk));
 
 dataBarang[index].modal =
   modalBaru;
@@ -1225,7 +1243,7 @@ function loadNotifikasi() {
     if (barang.stock <= barang.minimumStock) {
 
       notifikasi.push(
-        `${barang.nama} stok tersisa ${formatQty(barang.stock)} ${barang.satuan || 'pcs'}`
+        `${barang.nama} stok tersisa ${formatQty(barang.stock, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}`
       );
 
     }
@@ -1396,10 +1414,10 @@ async function loadBarangSupabase() {
     modal: item.harga_beli,
     hargaJual: item.harga_jual,
     hargaGrosir: item.harga_grosir,
-    minGrosir: item.min_grosir,
+    minGrosir: parseQty(item.min_grosir || 0),
     satuan: item.satuan || "pcs",
-    stock: item.stock,
-    minimumStock: item.minimum_stock
+    stock: parseQty(item.stock || 0),
+    minimumStock: parseQty(item.minimum_stock || 0)
   }));
 
   tampilkanBarang();
