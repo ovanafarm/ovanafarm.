@@ -1205,7 +1205,7 @@ async function loadBarangSupabase() {
     modal: item.harga_beli,
     hargaJual: item.harga_jual,
     hargaGrosir: item.harga_grosir,
-    minGrosir: parseQty(item.min_grosir || 0),
+    minGrosir: parseQty(item.min_grosir ?? 0),
     satuan: item.satuan || "pcs",
     stock: parseQty(item.stock || 0),
     minimumStock: parseQty(item.minimum_stock || 0)
