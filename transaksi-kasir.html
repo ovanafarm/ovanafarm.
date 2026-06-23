@@ -1208,7 +1208,7 @@ async function loadBarangSupabase() {
     minGrosir: parseQty(item.min_grosir ?? 0),
     satuan: item.satuan || "pcs",
     stock: parseQty(item.stock || 0),
-    minimumStock: parseQty(item.minimum_stock || 0)
+    minimumStock: parseQty(item.minimum_stock ?? 0)
   }));
 
   tampilkanBarangKasir();
