@@ -463,20 +463,14 @@
 
   }
 
-  function parseQty(value) {
-
-    const normalized =
-      String(value || "")
-        .trim()
-        .replace(",", ".");
-
-    const qty = parseFloat(normalized);
-
-    if (Number.isNaN(qty)) return NaN;
-
-    return Math.round(qty * 1000) / 1000;
-
-  }
+// BARU — null/undefined/0 aman
+function parseQty(value) {
+  if (value === null || value === undefined || value === "") return 0;
+  const normalized = String(value).trim().replace(",", ".");
+  const qty = parseFloat(normalized);
+  if (Number.isNaN(qty)) return 0; // fallback ke 0, bukan NaN
+  return Math.round(qty * 1000) / 1000;
+}          
 
   function qtyToMili(value) {
 
@@ -579,11 +573,11 @@ let qtyModalIndex = null;
     .value
     .toLowerCase();
 
-    dataBarang.forEach((barang, index) => {
-
-    if (
-      barang.nama.toLowerCase().includes(keyword)
-    ) {
+dataBarang.forEach((barang, index) => {
+  if (
+    barang.nama.toLowerCase().includes(keyword) &&
+    barang.stock > 0  // ← tambahan ini
+  ) {
 
       daftar.innerHTML += `
       
