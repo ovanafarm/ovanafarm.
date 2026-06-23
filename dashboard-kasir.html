@@ -158,6 +158,7 @@
       <select id="satuanBarang" class="form-select">
         <option value="pcs">pcs</option>
         <option value="kg">kg</option>
+        <option value="pack">pack</option>
       </select>
     </div>
     <div class="mb-3"><label>Stock</label><input type="number" step="0.001" min="0" id="stockBarang" class="form-control" placeholder="Contoh: 10 atau 14.534"></div>
@@ -233,9 +234,9 @@ function miliToQty(value) {
 }
 
 function formatQty(value, satuan = "pcs") {
-  // FIX: pakai ?? bukan || supaya nilai 0 tidak jadi "" lalu NaN
   const qty = parseQty(value ?? 0);
   if (satuan === "kg") return qty.toFixed(3);
+  // pcs dan pack sama-sama bilangan bulat
   return String(Math.round(qty));
 }
 
@@ -383,6 +384,7 @@ function tampilkanBarang() {
   <select id="satuanInput${index}" class="form-select d-none">
     <option value="pcs" ${(barang.satuan || 'pcs') === 'pcs' ? 'selected' : ''}>pcs</option>
     <option value="kg" ${(barang.satuan || 'pcs') === 'kg' ? 'selected' : ''}>kg</option>
+    <option value="pack" ${(barang.satuan || 'pcs') === 'pack' ? 'selected' : ''}>pack</option>
   </select>
 </td>
 <td>
