@@ -185,7 +185,7 @@
         <table class="table table-bordered text-center align-middle">
           <thead>
             <tr>
-              <th>Gambar</th><th>Nama Barang</th><th>Harga Beli</th><th>Harga Jual</th>
+              <th>No</th><th>Gambar</th><th>Nama Barang</th><th>Harga Beli</th><th>Harga Jual</th>
               <th>Harga Grosir</th><th>Min Qty</th><th>Satuan</th><th>Stock</th><th>Min Stock</th><th>Action</th>
             </tr>
           </thead>
@@ -345,15 +345,16 @@ function tampilkanBarang() {
   const filtered = dataBarang.filter(b => b.nama.toLowerCase().includes(keyword));
 
   if (filtered.length === 0) {
-    tabel.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-3">Tidak ada barang ditemukan</td></tr>`;
+    tabel.innerHTML = `<tr><td colspan="11" class="text-center text-muted py-3">Tidak ada barang ditemukan</td></tr>`;
     return;
   }
 
   // Pakai filtered tapi tetap pakai index asli dari dataBarang supaya edit/hapus/restock tetap benar
-  filtered.forEach((barang) => {
+ filtered.forEach((barang, nomor) => {
     const index = dataBarang.indexOf(barang);
     html += `
 <tr class="${barang.stock <= barang.minimumStock ? 'table-danger' : ''}">
+<td>${nomor + 1}</td>
 <td>
   <img src="${barang.gambar}" width="70" height="70" id="gambarPreview${index}" loading="lazy" style="cursor:pointer; object-fit:cover" onclick="document.getElementById('gambarInput${index}').click()">
   <input type="file" id="gambarInput${index}" class="form-control d-none mt-2" onchange="previewGambar(event, ${index})">
@@ -626,7 +627,7 @@ async function loadBarangSupabase() {
   console.time("loadBarang");
 
   document.getElementById("tabelBarang").innerHTML = `
-  <tr><td colspan="10" class="text-center">
+  <tr><td colspan="11" class="text-center">
     <div class="spinner-border spinner-border-sm"></div> Memuat data barang...
   </td></tr>`;
 
