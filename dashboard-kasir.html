@@ -155,11 +155,14 @@
     <div class="mb-3"><label>Harga Grosir</label><input type="number" id="hargaGrosir" class="form-control" placeholder="Contoh: 28000"></div>
     <div class="mb-3">
       <label>Satuan</label>
-      <select id="satuanBarang" class="form-select">
-        <option value="pcs">pcs</option>
-        <option value="kg">kg</option>
-        <option value="pack">pack</option>
-      </select>
+
+        <select id="satuanBarang" class="form-select">
+  <option value="pcs">pcs</option>
+  <option value="kg">kg</option>
+  <option value="pack">pack</option>
+  <option value="rcg">rcg</option>
+</select>
+        
     </div>
     <div class="mb-3"><label>Stock</label><input type="number" step="0.001" min="0" id="stockBarang" class="form-control" placeholder="Contoh: 10 atau 14.534"></div>
     <div class="mb-3"><label>Minimum Stock</label><input type="number" step="0.001" min="0" id="minimumStock" class="form-control" placeholder="Contoh: 2 atau 0.5"></div>
@@ -383,9 +386,10 @@ function tampilkanBarang() {
 <td>
   <span id="satuanText${index}">${barang.satuan || 'pcs'}</span>
   <select id="satuanInput${index}" class="form-select d-none">
-    <option value="pcs" ${(barang.satuan || 'pcs') === 'pcs' ? 'selected' : ''}>pcs</option>
-    <option value="kg" ${(barang.satuan || 'pcs') === 'kg' ? 'selected' : ''}>kg</option>
-    <option value="pack" ${(barang.satuan || 'pcs') === 'pack' ? 'selected' : ''}>pack</option>
+<option value="pcs" ${(barang.satuan || 'pcs') === 'pcs' ? 'selected' : ''}>pcs</option>
+<option value="kg" ${(barang.satuan || 'pcs') === 'kg' ? 'selected' : ''}>kg</option>
+<option value="pack" ${(barang.satuan || 'pcs') === 'pack' ? 'selected' : ''}>pack</option>
+<option value="rcg" ${(barang.satuan || 'pcs') === 'rcg' ? 'selected' : ''}>rcg</option>s
   </select>
 </td>
 <td>
