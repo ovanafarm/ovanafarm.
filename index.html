@@ -11,79 +11,107 @@
       body { background: #f5f6f8; margin: 0; }
 
       /* ── Sidebar ── */
-      .app-shell { min-height: 100vh; display: grid; grid-template-columns: 230px 1fr; grid-template-rows: auto 1fr auto; }
-      .sidebar { background: #2f363d; color: #fff; padding: 18px 14px; grid-row: 1 / -1; display: flex; flex-direction: column; }
+      .sidebar {
+        width: 230px; background: #2f363d; color: #fff;
+        padding: 18px 14px; position: fixed; top: 0; left: 0;
+        height: 100vh; display: flex; flex-direction: column;
+        z-index: 1040; transition: transform .25s ease;
+        overflow-y: auto;
+      }
+      .sidebar.collapsed { transform: translateX(-230px); }
       .brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; margin-bottom: 28px; }
       .brand img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
       .brand span { font-size: 16px; font-weight: 500; }
       .sidebar .nav-link { color: rgba(255,255,255,.78); border-radius: 6px; margin-bottom: 4px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
       .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background: rgba(255,255,255,.12); }
       .sidebar .nav-link i { font-size: 16px; }
-      .sidebar-bottom { margin-top: auto; }
+      .sidebar-bottom { margin-top: auto; padding-top: 16px; }
+
+      /* Overlay for mobile */
+      .sidebar-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,.4); z-index: 1039;
+      }
+      .sidebar-overlay.show { display: block; }
+
+      /* ── Main wrapper ── */
+      .main-wrapper { margin-left: 230px; display: flex; flex-direction: column; min-height: 100vh; transition: margin .25s ease; }
+      .main-wrapper.expanded { margin-left: 0; }
 
       /* ── Topbar ── */
-      .topbar { background: #fff; border-bottom: 1px solid #e9ecef; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; grid-column: 2; }
-      .topbar-title { font-size: 20px; font-weight: 600; color: #212529; }
-      .topbar-right { display: flex; align-items: center; gap: 16px; }
-      .topbar-right .dropdown-toggle::after { display: none; }
+      .topbar { background: #fff; border-bottom: 1px solid #e9ecef; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+      .topbar-left { display: flex; align-items: center; gap: 12px; }
+      .topbar-title { font-size: 18px; font-weight: 600; color: #212529; }
+      .topbar-right { display: flex; align-items: center; gap: 12px; }
+      .hamburger { background: none; border: none; font-size: 22px; cursor: pointer; color: #495057; padding: 2px 6px; display: none; }
       .user-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
 
       /* ── Content ── */
-      .content { padding: 24px; grid-column: 2; }
+      .content { padding: 20px; flex: 1; }
 
       /* ── Small Box ── */
-      .small-box { border-radius: 10px; padding: 20px; color: #fff; position: relative; overflow: hidden; margin-bottom: 16px; }
-      .small-box p { margin: 0 0 4px; font-size: 14px; opacity: .9; }
-      .small-box h3 { margin: 0 0 12px; font-size: 1.6rem; font-weight: 700; }
-      .small-box-footer { display: block; background: rgba(0,0,0,.15); margin: -20px; margin-top: 12px; padding: 8px 20px; color: #fff; text-decoration: none; font-size: 13px; }
+      .small-box { border-radius: 10px; padding: 18px; color: #fff; position: relative; overflow: hidden; margin-bottom: 16px; }
+      .small-box p { margin: 0 0 4px; font-size: 13px; opacity: .9; }
+      .small-box h3 { margin: 0 0 10px; font-size: 1.5rem; font-weight: 700; }
+      .small-box-footer { display: block; background: rgba(0,0,0,.15); margin: -18px; margin-top: 10px; padding: 7px 18px; color: #fff; text-decoration: none; font-size: 13px; }
       .small-box-footer:hover { background: rgba(0,0,0,.25); color: #fff; }
-      .small-box-icon { position: absolute; right: 16px; top: 16px; width: 56px; height: 56px; opacity: .25; }
+      .small-box-icon { position: absolute; right: 14px; top: 14px; width: 52px; height: 52px; opacity: .25; }
       .bg-primary-box { background: #0d6efd; }
       .bg-success-box { background: #198754; }
       .bg-warning-box { background: #ffc107; }
       .bg-danger-box  { background: #dc3545; }
 
       /* ── Footer ── */
-      .app-footer { background: #fff; border-top: 1px solid #e9ecef; padding: 12px 24px; font-size: 13px; color: #6c757d; grid-column: 2; }
+      .app-footer { background: #fff; border-top: 1px solid #e9ecef; padding: 10px 20px; font-size: 13px; color: #6c757d; }
 
-      /* ── Responsive ── */
+      /* ── Mobile ── */
       @media (max-width: 900px) {
-        .app-shell { grid-template-columns: 1fr; }
-        .sidebar { display: none; }
-        .topbar, .content, .app-footer { grid-column: 1; }
-        .small-box h3 { font-size: 1.3rem; }
+        .sidebar { transform: translateX(-230px); }
+        .sidebar.open { transform: translateX(0); }
+        .main-wrapper { margin-left: 0; }
+        .hamburger { display: block; }
+        .small-box h3 { font-size: 1.2rem; }
+        .topbar-title { font-size: 16px; }
       }
     </style>
   </head>
   <body>
-    <div class="app-shell">
 
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <a class="brand" href="./index.html">
-          <img class="brand-image" src="./assets/img/AdminLTELogo.png" alt="Logo">
-          <span class="brand-text">Ovana Farm</span>
-        </a>
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="./index.html">
+        <img class="brand-image" src="./assets/img/AdminLTELogo.png" alt="Logo">
+        <span class="brand-text">Ovana Farm</span>
+      </a>
+      <nav class="nav flex-column">
+        <a class="nav-link active" href="./index.html"><i class="bi bi-speedometer"></i>Laporan Penjualan</a>
+        <a class="nav-link" href="./dashboard-kasir.html"><i class="bi bi-box-seam"></i>Management Stock</a>
+        <a class="nav-link" href="./transaksi-kasir.html"><i class="bi bi-cart-fill"></i>Kasir</a>
+        <a class="nav-link" href="./riwayat-penjualan.html"><i class="bi bi-clock-history"></i>Riwayat Penjualan</a>
+        <a class="nav-link" href="./pengeluaran.html"><i class="bi bi-cash-stack"></i>Pengeluaran</a>
+        <a class="nav-link" href="./trash.html"><i class="bi bi-trash"></i>Trash</a>
+        <a class="nav-link" href="./stock-record.html"><i class="bi bi-clipboard-data"></i>Stock Record</a>
+      </nav>
+      <div class="sidebar-bottom">
         <nav class="nav flex-column">
-          <a class="nav-link active" href="./index.html"><i class="bi bi-speedometer"></i>Laporan Penjualan</a>
-          <a class="nav-link" href="./dashboard-kasir.html"><i class="bi bi-box-seam"></i>Management Stock</a>
-          <a class="nav-link" href="./transaksi-kasir.html"><i class="bi bi-cart-fill"></i>Kasir</a>
-          <a class="nav-link" href="./riwayat-penjualan.html"><i class="bi bi-clock-history"></i>Riwayat Penjualan</a>
-          <a class="nav-link" href="./pengeluaran.html"><i class="bi bi-cash-stack"></i>Pengeluaran</a>
-          <a class="nav-link" href="./trash.html"><i class="bi bi-trash"></i>Trash</a>
-          <a class="nav-link" href="./stock-record.html"><i class="bi bi-clipboard-data"></i>Stock Record</a>
+          <a class="nav-link" href="./setting.html"><i class="bi bi-gear-fill"></i>Setting</a>
+          <a class="nav-link" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i>Logout</a>
         </nav>
-        <div class="sidebar-bottom">
-          <nav class="nav flex-column">
-            <a class="nav-link" href="./setting.html"><i class="bi bi-gear-fill"></i>Setting</a>
-            <a class="nav-link" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i>Logout</a>
-          </nav>
-        </div>
-      </aside>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-wrapper" id="mainWrapper">
 
       <!-- Topbar -->
       <div class="topbar">
-        <span class="topbar-title">Laporan Penjualan</span>
+        <div class="topbar-left">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+          <span class="topbar-title">Laporan Penjualan</span>
+        </div>
         <div class="topbar-right">
           <!-- Notifikasi -->
           <div class="dropdown">
@@ -101,6 +129,7 @@
             <a href="#" class="d-flex align-items-center gap-2 text-decoration-none text-dark" data-bs-toggle="dropdown">
               <img id="navbarUserPhoto" src="./assets/img/user2-160x160.jpg" class="user-avatar" alt="">
               <span id="navbarUserName" class="d-none d-md-inline fw-semibold"></span>
+              <i class="bi bi-three-dots-vertical text-secondary"></i>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="./setting.html"><i class="bi bi-gear me-2"></i>Setting</a></li>
@@ -112,7 +141,7 @@
       </div>
 
       <!-- Content -->
-      <main class="content">
+      <div class="content">
         <!-- Small Boxes -->
         <div class="row">
           <div class="col-lg-3 col-6">
@@ -171,32 +200,32 @@
             <div class="row text-center">
               <div class="col-6 col-md-2 mb-3">
                 <div class="text-muted small">Total Penjualan</div>
-                <div id="totalPenjualanText" class="fw-bold text-primary fs-5">Rp 0</div>
+                <div id="totalPenjualanText" class="fw-bold text-primary fs-6">Rp 0</div>
               </div>
               <div class="col-6 col-md-2 mb-3">
                 <div class="text-muted small">Rata-rata per Hari</div>
-                <div id="rataRataText" class="fw-bold text-success fs-5">Rp 0</div>
+                <div id="rataRataText" class="fw-bold text-success fs-6">Rp 0</div>
               </div>
               <div class="col-6 col-md-2 mb-3">
                 <div class="text-muted small">Total Profit</div>
-                <div id="profitText" class="fw-bold text-success fs-5">Rp 0</div>
+                <div id="profitText" class="fw-bold text-success fs-6">Rp 0</div>
               </div>
               <div class="col-6 col-md-2 mb-3">
                 <div class="text-muted small">Penjualan Tertinggi</div>
-                <div id="tertinggiText" class="fw-bold text-warning fs-5">Rp 0</div>
+                <div id="tertinggiText" class="fw-bold text-warning fs-6">Rp 0</div>
               </div>
               <div class="col-6 col-md-2 mb-3">
                 <div class="text-muted small">Penjualan Terendah</div>
-                <div id="terendahText" class="fw-bold text-danger fs-5">Rp 0</div>
+                <div id="terendahText" class="fw-bold text-danger fs-6">Rp 0</div>
               </div>
               <div class="col-6 col-md-2 mb-3">
                 <div class="text-muted small">Total Transaksi</div>
-                <div id="transaksiText" class="fw-bold fs-5">0</div>
+                <div id="transaksiText" class="fw-bold fs-6">0</div>
               </div>
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       <footer class="app-footer">
         <strong>Ovana Farm</strong> &mdash; When Fresh Meets Daily Needs
@@ -210,6 +239,17 @@
     <script>
       if (localStorage.getItem("isLogin") !== "true") window.location.href = "./login.html";
       function logout() { localStorage.removeItem("isLogin"); window.location.href = "./login.html"; }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("show");
+      }
+      function closeSidebar() {
+        document.getElementById("sidebar").classList.remove("open");
+        document.getElementById("sidebarOverlay").classList.remove("show");
+      }
     </script>
 
     <script>
@@ -234,15 +274,12 @@
         const { data: setting } = await window.ovanaSupabase.from("setting").select("target_penjualan, target_profit").eq("id", 1).single();
         const targetPenjualan = Number(setting?.target_penjualan || 1000000);
         const targetProfit = Number(setting?.target_profit || 100000);
-
         barang?.forEach((item) => {
           if (item.stock <= item.minimum_stock) notifikasi.push({ text: `⚠ ${item.nama} stok tersisa ${item.stock}`, link: "./dashboard-kasir.html", danger: true });
         });
-
         const totalHariIni = parseInt(document.getElementById("pendapatanHariIni").innerText.replace(/[^0-9]/g, "")) || 0;
         if (totalHariIni < targetPenjualan) notifikasi.push({ text: `🎯 Sisa target penjualan Rp ${(targetPenjualan - totalHariIni).toLocaleString("id-ID")}`, link: "#" });
         if (totalProfitChart < targetProfit) notifikasi.push({ text: `💰 Sisa target profit Rp ${(targetProfit - totalProfitChart).toLocaleString("id-ID")}`, link: "#" });
-
         document.getElementById("jumlahNotifikasi").innerText = notifikasi.length;
         document.getElementById("judulNotifikasi").innerText = notifikasi.length + " Notifikasi";
         document.getElementById("listNotifikasi").innerHTML = notifikasi.length === 0
@@ -269,8 +306,7 @@
           if (tgl === hariIni) { transaksiHariIni++; pendapatanHariIni += Number(trx.total || 0); }
           trx.item?.forEach((i) => {
             const p = ((i.harga || 0) - (i.modal || 0)) * (i.qty || 0);
-            profitPerHari[tgl] += p;
-            totalProfit += p;
+            profitPerHari[tgl] += p; totalProfit += p;
           });
         });
 
@@ -299,13 +335,12 @@
         new ApexCharts(document.querySelector("#revenue-chart"), {
           series: [{ name: "Penjualan", data: totalChart }, { name: "Target", data: tanggalChart.map(() => targetPenjualan) }],
           colors: ["#0d6efd", "#dc3545"],
-          chart: { type: "area", height: 300, toolbar: { show: false } },
+          chart: { type: "area", height: 260, toolbar: { show: false } },
           stroke: { curve: "smooth", width: [4, 1], dashArray: [0, 6] },
-          markers: { size: [4, 0] },
-          dataLabels: { enabled: false },
+          markers: { size: [4, 0] }, dataLabels: { enabled: false },
           fill: { type: ["gradient", "gradient"], gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05, stops: [0, 100] } },
           legend: { show: true, position: "bottom" },
-          yaxis: { min: 0, max: Math.max(targetPenjualan, ...totalChart, 0) * 1.1, tickAmount: 5, labels: { formatter: v => "Rp " + Number(v).toLocaleString("id-ID"), style: { fontSize: "11px" } } },
+          yaxis: { min: 0, max: Math.max(targetPenjualan, ...totalChart, 0) * 1.1, tickAmount: 5, labels: { formatter: v => "Rp " + Number(v).toLocaleString("id-ID"), style: { fontSize: "10px" } } },
           xaxis: { categories: tanggalChart },
           tooltip: { y: { formatter: v => "Rp " + v.toLocaleString("id-ID") } }
         }).render();
@@ -313,10 +348,9 @@
         new ApexCharts(document.querySelector("#profit-chart"), {
           series: [{ name: "Profit", data: totalProfitPerHari }, { name: "Target Profit", data: tanggalChart.map(() => targetProfit) }],
           colors: ["#198754", "#dc3545"],
-          chart: { type: "area", height: 300, toolbar: { show: false } },
+          chart: { type: "area", height: 260, toolbar: { show: false } },
           stroke: { curve: "smooth", width: [4, 1], dashArray: [0, 6] },
-          markers: { size: [4, 0] },
-          dataLabels: { enabled: false },
+          markers: { size: [4, 0] }, dataLabels: { enabled: false },
           fill: { type: ["gradient", "gradient"], gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05, stops: [0, 100] } },
           legend: { show: true, position: "bottom" },
           yaxis: { forceNiceScale: true, labels: { formatter: v => "Rp " + Number(v).toLocaleString("id-ID") } },
