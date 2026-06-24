@@ -237,7 +237,8 @@
                     <h5 class="mt-3">${barang.nama}</h5>
                     <p>Rp ${formatRupiah(parseInt(barang.hargaJual))}</p>
                     <p>Stock : ${formatQty(barang.stock, barang.satuan || "pcs")} ${barang.satuan || "pcs"}</p>
-                    <button class="btn btn-primary w-100" onclick="bukaModalQty(${index})">Tambah</button>
+${barang.minGrosir > 0 ? `<p class="text-success small mb-1"><i class="bi bi-tag-fill"></i> Min Grosir: Beli ${formatQty(barang.minGrosir, barang.satuan || "pcs")} ${barang.satuan || "pcs"}</p>` : ""}
+<button class="btn btn-primary w-100" onclick="bukaModalQty(${index})">Tambah</button>
                   </div>
                 </div>
               </div>`;
