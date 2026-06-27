@@ -4,71 +4,239 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Laporan Penjualan - Ovana Farm</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css" integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous">
-<style>
-  body, * { font-family: "Source Sans 3", "Source Sans Pro", sans-serif !important; }
-</style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css">
     <style>
-      body { background: #f5f6f8; margin: 0; }
+      :root {
+        --app-bg: #f6f7f9;
+        --sidebar-bg: #242b31;
+        --sidebar-hover: rgba(255, 255, 255, .11);
+        --line: #e7eaee;
+        --text: #1f2933;
+      }
 
-      /* ── Sidebar ── */
+      * { box-sizing: border-box; }
+      body {
+        background: var(--app-bg);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
+      }
+
       .sidebar {
-        width: 230px; background: #2f363d; color: #fff;
-        padding: 18px 14px; position: fixed; top: 0; left: 0;
-        height: 100vh; display: flex; flex-direction: column;
-        z-index: 1040; transition: transform .25s ease;
+        width: 230px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        padding: 18px 14px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        z-index: 1040;
+        transition: transform .2s ease;
         overflow-y: auto;
       }
+
       .sidebar.collapsed { transform: translateX(-230px); }
-      .brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; margin-bottom: 28px; }
-      .brand img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
-      .brand span { font-size: 16px; font-weight: 500; }
-      .sidebar .nav-link { color: rgba(255,255,255,.78); border-radius: 6px; margin-bottom: 4px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; }
-      .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background: rgba(255,255,255,.12); }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+        text-decoration: none;
+        margin-bottom: 28px;
+      }
+
+      .brand-logo {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 38px;
+        background: linear-gradient(135deg, #3f8f5f, #f4b942);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
+        color: #fff;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 0;
+        overflow: hidden;
+      }
+
+      .brand-logo img,
+      .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .brand-text {
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .sidebar .nav-link {
+        color: rgba(255, 255, 255, .78);
+        border-radius: 6px;
+        margin-bottom: 4px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #fff;
+        background: var(--sidebar-hover);
+      }
+
       .sidebar .nav-link i { font-size: 16px; }
       .sidebar-bottom { margin-top: auto; padding-top: 16px; }
 
-      /* Overlay for mobile */
       .sidebar-overlay {
-        display: none; position: fixed; inset: 0;
-        background: rgba(0,0,0,.4); z-index: 1039;
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .4);
+        z-index: 1039;
       }
+
       .sidebar-overlay.show { display: block; }
 
-      /* ── Main wrapper ── */
-      .main-wrapper { margin-left: 230px; display: flex; flex-direction: column; min-height: 100vh; transition: margin .25s ease; }
+      .main-wrapper {
+        margin-left: 230px;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        transition: margin .2s ease;
+      }
+
       .main-wrapper.expanded { margin-left: 0; }
 
-      /* ── Topbar ── */
-      .topbar { background: #fff; border-bottom: 1px solid #e9ecef; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-      .topbar-left { display: flex; align-items: center; gap: 12px; }
-      .topbar-title { font-size: 18px; font-weight: 600; color: #212529; }
-      .topbar-right { display: flex; align-items: center; gap: 12px; }
-      .hamburger { background: none; border: none; font-size: 22px; cursor: pointer; color: #495057; padding: 2px 6px; display: none; }
-      .user-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
+      .topbar {
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
 
-      /* ── Content ── */
+      .topbar-left,
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .topbar-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #20262d;
+      }
+
+      .hamburger {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #495057;
+        padding: 2px 6px;
+        display: none;
+      }
+
+      .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background: #eef1f4;
+        color: #607080;
+        font-size: 15px;
+      }
+
       .content { padding: 20px; flex: 1; }
 
-      /* ── Small Box ── */
-      .small-box { border-radius: 10px; padding: 18px; color: #fff; position: relative; overflow: hidden; margin-bottom: 16px; }
-      .small-box p { margin: 0 0 4px; font-size: 13px; opacity: .9; }
-      .small-box h3 { margin: 0 0 10px; font-size: 1.5rem; font-weight: 700; }
-      .small-box-footer { display: block; background: rgba(0,0,0,.15); margin: -18px; margin-top: 10px; padding: 7px 18px; color: #fff; text-decoration: none; font-size: 13px; }
-      .small-box-footer:hover { background: rgba(0,0,0,.25); color: #fff; }
-      .small-box-icon { position: absolute; right: 14px; top: 14px; width: 52px; height: 52px; opacity: .25; }
+      .small-box {
+        border-radius: 10px;
+        padding: 18px;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 16px;
+      }
+
+      .small-box p {
+        margin: 0 0 4px;
+        font-size: 13px;
+        opacity: .9;
+      }
+
+      .small-box h3 {
+        margin: 0 0 10px;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .small-box-footer {
+        display: block;
+        background: rgba(0, 0, 0, .15);
+        margin: -18px;
+        margin-top: 10px;
+        padding: 7px 18px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 13px;
+      }
+
+      .small-box-footer:hover {
+        background: rgba(0, 0, 0, .25);
+        color: #fff;
+      }
+
+      .small-box-icon {
+        position: absolute;
+        right: 14px;
+        top: 14px;
+        width: 52px;
+        height: 52px;
+        opacity: .25;
+      }
+
       .bg-primary-box { background: #0d6efd; }
       .bg-success-box { background: #198754; }
       .bg-warning-box { background: #ffc107; }
       .bg-danger-box  { background: #dc3545; }
 
-      /* ── Footer ── */
-      .app-footer { background: #fff; border-top: 1px solid #e9ecef; padding: 10px 20px; font-size: 13px; color: #6c757d; }
+      .card {
+        border-color: var(--line);
+        border-radius: 8px;
+      }
 
-      /* ── Mobile ── */
+      .card-header {
+        background: #fff;
+        border-bottom-color: var(--line);
+      }
+
+      .app-footer {
+        background: #fff;
+        border-top: 1px solid var(--line);
+        padding: 10px 20px;
+        font-size: 13px;
+        color: #6c757d;
+      }
+
       @media (max-width: 900px) {
         .sidebar { transform: translateX(-230px); }
         .sidebar.open { transform: translateX(0); }
@@ -80,14 +248,11 @@
     </style>
   </head>
   <body>
-
-    <!-- Sidebar Overlay (mobile) -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="./index.html">
-        <img class="brand-image" src="./assets/img/AdminLTELogo.png" alt="Logo">
+        <span class="brand-logo" id="brandLogo" aria-label="Logo Ovana Farm">O</span>
         <span class="brand-text">Ovana Farm</span>
       </a>
       <nav class="nav flex-column">
@@ -107,19 +272,15 @@
       </div>
     </aside>
 
-    <!-- Main -->
     <div class="main-wrapper" id="mainWrapper">
-
-      <!-- Topbar -->
       <div class="topbar">
         <div class="topbar-left">
-          <button class="hamburger" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+          <button class="hamburger" onclick="toggleSidebar()" aria-label="Buka menu"><i class="bi bi-list"></i></button>
           <span class="topbar-title">Laporan Penjualan</span>
         </div>
         <div class="topbar-right">
-          <!-- Notifikasi -->
           <div class="dropdown">
-            <a href="#" class="text-secondary position-relative" data-bs-toggle="dropdown">
+            <a href="#" class="text-secondary position-relative" data-bs-toggle="dropdown" aria-label="Notifikasi">
               <i class="bi bi-bell-fill fs-5"></i>
               <span id="jumlahNotifikasi" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:10px">0</span>
             </a>
@@ -128,11 +289,10 @@
               <div id="listNotifikasi"></div>
             </div>
           </div>
-          <!-- User -->
           <div class="dropdown">
             <a href="#" class="d-flex align-items-center gap-2 text-decoration-none text-dark" data-bs-toggle="dropdown">
-              <img id="navbarUserPhoto" src="./assets/img/user2-160x160.jpg" class="user-avatar" alt="">
-              <span id="navbarUserName" class="d-none d-md-inline fw-semibold"></span>
+              <span id="navbarUserPhoto" class="user-avatar"><i class="bi bi-person-fill"></i></span>
+              <span id="navbarUserName" class="d-none d-md-inline fw-semibold">Admin</span>
               <i class="bi bi-three-dots-vertical text-secondary"></i>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -144,9 +304,7 @@
         </div>
       </div>
 
-      <!-- Content -->
       <div class="content">
-        <!-- Small Boxes -->
         <div class="row">
           <div class="col-lg-3 col-6">
             <div class="small-box bg-primary-box">
@@ -182,7 +340,6 @@
           </div>
         </div>
 
-        <!-- Charts -->
         <div class="row">
           <div class="col-lg-6">
             <div class="card shadow-sm mb-4">
@@ -198,7 +355,6 @@
           </div>
         </div>
 
-        <!-- Summary -->
         <div class="card shadow-sm">
           <div class="card-body">
             <div class="row text-center">
@@ -232,7 +388,7 @@
       </div>
 
       <footer class="app-footer">
-        <strong>Ovana Farm</strong> &mdash; When Fresh Meets Daily Needs
+        <strong>Ovana Farm</strong> - When Fresh Meets Daily Needs
       </footer>
     </div>
 
@@ -241,8 +397,12 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <script>
-      if (localStorage.getItem("isLogin") !== "true") window.location.href = "./login.html";
-      function logout() { localStorage.removeItem("isLogin"); window.location.href = "./login.html"; }
+      if (localStorage.getItem("isLogin") !== "true") window.location.replace("./login.html");
+
+      function logout() {
+        localStorage.removeItem("isLogin");
+        window.location.replace("./login.html");
+      }
 
       function toggleSidebar() {
         const sidebar = document.getElementById("sidebar");
@@ -250,9 +410,18 @@
         sidebar.classList.toggle("open");
         overlay.classList.toggle("show");
       }
+
       function closeSidebar() {
         document.getElementById("sidebar").classList.remove("open");
         document.getElementById("sidebarOverlay").classList.remove("show");
+      }
+
+      function setImageSlot(element, src, alt) {
+        if (!src) return;
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = alt;
+        element.replaceChildren(img);
       }
     </script>
 
@@ -264,12 +433,18 @@
       let totalProfitChart = 0;
 
       window.addEventListener("DOMContentLoaded", async function () {
-        const { data } = await window.ovanaSupabase.from("setting").select("nama_toko, logo_toko, nama_user, foto_user").eq("id", 1).single();
+        const { data } = await window.ovanaSupabase
+          .from("setting")
+          .select("nama_toko, logo_toko, nama_user, foto_user")
+          .eq("id", 1)
+          .single();
+
         if (!data) return;
+
         document.querySelector(".brand-text").innerText = data.nama_toko || "Ovana Farm";
-        if (data.logo_toko) document.querySelector(".brand-image").src = data.logo_toko;
+        setImageSlot(document.getElementById("brandLogo"), data.logo_toko, "Logo toko");
         document.getElementById("navbarUserName").innerText = data.nama_user || "Admin";
-        if (data.foto_user) document.getElementById("navbarUserPhoto").src = data.foto_user;
+        setImageSlot(document.getElementById("navbarUserPhoto"), data.foto_user, "Foto pengguna");
       });
 
       async function loadNotifikasi() {
@@ -278,16 +453,26 @@
         const { data: setting } = await window.ovanaSupabase.from("setting").select("target_penjualan, target_profit").eq("id", 1).single();
         const targetPenjualan = Number(setting?.target_penjualan || 1000000);
         const targetProfit = Number(setting?.target_profit || 100000);
+
         barang?.forEach((item) => {
-          if (item.stock <= item.minimum_stock) notifikasi.push({ text: `⚠ ${item.nama} stok tersisa ${item.stock}`, link: "./dashboard-kasir.html", danger: true });
+          if (item.stock <= item.minimum_stock) {
+            notifikasi.push({ text: `${item.nama} stok tersisa ${item.stock}`, link: "./dashboard-kasir.html", danger: true });
+          }
         });
+
         const totalHariIni = parseInt(document.getElementById("pendapatanHariIni").innerText.replace(/[^0-9]/g, "")) || 0;
-        if (totalHariIni < targetPenjualan) notifikasi.push({ text: `🎯 Sisa target penjualan Rp ${(targetPenjualan - totalHariIni).toLocaleString("id-ID")}`, link: "#" });
-        if (totalProfitChart < targetProfit) notifikasi.push({ text: `💰 Sisa target profit Rp ${(targetProfit - totalProfitChart).toLocaleString("id-ID")}`, link: "#" });
+        if (totalHariIni < targetPenjualan) {
+          notifikasi.push({ text: `Sisa target penjualan Rp ${(targetPenjualan - totalHariIni).toLocaleString("id-ID")}`, link: "#" });
+        }
+
+        if (totalProfitChart < targetProfit) {
+          notifikasi.push({ text: `Sisa target profit Rp ${(targetProfit - totalProfitChart).toLocaleString("id-ID")}`, link: "#" });
+        }
+
         document.getElementById("jumlahNotifikasi").innerText = notifikasi.length;
         document.getElementById("judulNotifikasi").innerText = notifikasi.length + " Notifikasi";
         document.getElementById("listNotifikasi").innerHTML = notifikasi.length === 0
-          ? `<a href="#" class="dropdown-item">Semua target tercapai 🎉</a>`
+          ? `<a href="#" class="dropdown-item">Semua target tercapai</a>`
           : notifikasi.map(n => `<a href="${n.link}" class="dropdown-item ${n.danger ? 'text-danger fw-bold' : ''}">${n.text}</a><div class="dropdown-divider"></div>`).join("");
       }
 
@@ -307,10 +492,14 @@
           penjualanPerHari[tgl] = (penjualanPerHari[tgl] || 0) + Number(trx.total || 0);
           profitPerHari[tgl] = profitPerHari[tgl] || 0;
           totalPenjualan += Number(trx.total || 0);
-          if (tgl === hariIni) { transaksiHariIni++; pendapatanHariIni += Number(trx.total || 0); }
+          if (tgl === hariIni) {
+            transaksiHariIni++;
+            pendapatanHariIni += Number(trx.total || 0);
+          }
           trx.item?.forEach((i) => {
             const p = ((i.harga || 0) - (i.modal || 0)) * (i.qty || 0);
-            profitPerHari[tgl] += p; totalProfit += p;
+            profitPerHari[tgl] += p;
+            totalProfit += p;
           });
         });
 
@@ -341,7 +530,8 @@
           colors: ["#0d6efd", "#dc3545"],
           chart: { type: "area", height: 260, toolbar: { show: false } },
           stroke: { curve: "smooth", width: [4, 1], dashArray: [0, 6] },
-          markers: { size: [4, 0] }, dataLabels: { enabled: false },
+          markers: { size: [4, 0] },
+          dataLabels: { enabled: false },
           fill: { type: ["gradient", "gradient"], gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05, stops: [0, 100] } },
           legend: { show: true, position: "bottom" },
           yaxis: { min: 0, max: Math.max(targetPenjualan, ...totalChart, 0) * 1.1, tickAmount: 5, labels: { formatter: v => "Rp " + Number(v).toLocaleString("id-ID"), style: { fontSize: "10px" } } },
@@ -354,7 +544,8 @@
           colors: ["#198754", "#dc3545"],
           chart: { type: "area", height: 260, toolbar: { show: false } },
           stroke: { curve: "smooth", width: [4, 1], dashArray: [0, 6] },
-          markers: { size: [4, 0] }, dataLabels: { enabled: false },
+          markers: { size: [4, 0] },
+          dataLabels: { enabled: false },
           fill: { type: ["gradient", "gradient"], gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05, stops: [0, 100] } },
           legend: { show: true, position: "bottom" },
           yaxis: { forceNiceScale: true, labels: { formatter: v => "Rp " + Number(v).toLocaleString("id-ID") } },
@@ -365,7 +556,7 @@
         loadNotifikasi();
       }
 
-      window.addEventListener("load", loadDashboard);
+      window.addEventListener("DOMContentLoaded", loadDashboard);
     </script>
   </body>
 </html>
