@@ -1,598 +1,100 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Dashboard Ovana Farm</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#007bff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)" />
-    <meta name="title" content="AdminLTE v4 | Dashboard" />
-    <meta name="author" content="ColorlibHQ" />
-    <meta name="supported-color-schemes" content="light dark" />
-    <link rel="preload" href="./css/adminlte.css" as="style" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css" integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous" media="print" onload="this.media = 'all'" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" crossorigin="anonymous" />
-    <link rel="stylesheet" href="./css/adminlte.css" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Management Stock - Ovana Farm</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css" integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <style>
-      .app-sidebar, .sidebar-wrapper { will-change: transform; transform: translateZ(0); }
-      .sidebar-wrapper nav { height: calc(100vh - 80px); display: flex; flex-direction: column; }
-      .sidebar-menu { flex: 1; }
-      .setting-menu-bottom { margin-top: auto; }
-      .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .table td, .table th { white-space: nowrap; }
-    </style>
-  </head>
-
-  <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
-    <div class="app-wrapper">
-      <nav class="app-header navbar navbar-expand bg-body">
-        <div class="container-fluid">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"><i class="bi bi-list"></i></a>
-            </li>
-          </ul>
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item dropdown">
-              <a class="nav-link" data-bs-toggle="dropdown" href="#">
-                <i class="bi bi-bell-fill"></i>
-                <span id="jumlahNotifikasi" class="navbar-badge badge text-bg-warning">0</span>
-              </a>
-              <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                <span class="dropdown-item dropdown-header" id="judulNotifikasi">0 Notifikasi</span>
-                <div class="dropdown-divider"></div>
-                <div id="listNotifikasi"></div>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#" data-lte-toggle="fullscreen">
-                <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i>
-                <i data-lte-icon="minimize" class="bi bi-fullscreen-exit" style="display: none"></i>
-              </a>
-            </li>
-            <li class="nav-item dropdown user-menu">
-              <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                <img id="navbarUserPhoto" src="./assets/img/user2-160x160.jpg" class="user-image rounded-circle shadow" alt="User Image" />
-                <span class="d-none d-md-inline" id="navbarUserName"></span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                <li class="user-header text-bg-primary">
-                  <img id="dropdownUserPhoto" src="./assets/img/user2-160x160.jpg" class="rounded-circle shadow" alt="User Image" />
-                  <p><span id="dropdownUserName">Admin</span><small>Ovana Farm</small></p>
-                </li>
-                <li class="user-footer">
-                  <a href="./setting.html" class="btn btn-outline-secondary">Setting</a>
-                  <a href="#" onclick="logout()" class="btn btn-outline-danger float-end">Logout</a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
-        <div class="sidebar-brand">
-          <a href="./index.html" class="brand-link">
-            <img src="./assets/img/AdminLTELogo.png" alt="Logo Toko" class="brand-image shadow" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" />
-            <span class="brand-text fw-light">Ovana Farm</span>
-          </a>
-        </div>
-        <div class="sidebar-wrapper">
-          <nav class="mt-2">
-            <ul class="nav sidebar-menu flex-column d-flex" data-lte-toggle="treeview" role="navigation" aria-label="Main navigation" data-accordion="false" id="navigation">
-              <li class="nav-item"><a href="./index.html" class="nav-link"><i class="nav-icon bi bi-speedometer"></i><p>Laporan Penjualan</p></a></li>
-              <li class="nav-item"><a href="./dashboard-kasir.html" class="nav-link active"><i class="nav-icon bi bi-box-seam"></i><p>Management Stock</p></a></li>
-              <li class="nav-item"><a href="./transaksi-kasir.html" class="nav-link"><i class="nav-icon bi bi-cart-fill"></i><p>Kasir</p></a></li>
-              <li class="nav-item"><a href="./riwayat-penjualan.html" class="nav-link"><i class="nav-icon bi bi-clock-history"></i><p>Riwayat Penjualan</p></a></li>
-              <li class="nav-item"><a href="./pengeluaran.html" class="nav-link"><i class="nav-icon bi bi-cash-stack"></i><p>Pengeluaran</p></a></li>
-              <li class="nav-item"><a href="./trash.html" class="nav-link"><i class="nav-icon bi bi-trash"></i><p>Trash</p></a></li>
-              <li class="nav-item"><a href="./stock-record.html" class="nav-link"><i class="nav-icon bi bi-clipboard-data"></i><p>Stock Record</p></a></li>
-              <li class="nav-item setting-menu-bottom"><a href="./setting.html" class="nav-link"><i class="nav-icon bi bi-gear-fill"></i><p>Setting</p></a></li>
-              <li class="nav-item"><a href="#" class="nav-link" onclick="logout()"><i class="nav-icon bi bi-box-arrow-right"></i><p>Logout</p></a></li>
-            </ul>
-          </nav>
-        </div>
-      </aside>
-
-      <main class="app-main">
-        <div class="app-content-header">
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-sm-6"><h3 class="mb-0">Management Stock</h3></div>
-              <div class="col-sm-6"></div>
-            </div>
-          </div>
-        </div>
-        <div class="app-content">
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card card-primary">
-                  <div class="card-header"><h3 class="card-title">Data Barang</h3></div>
-                  <div class="card-body">
-                    <div class="mb-3"><label>Gambar</label><input type="file" id="gambarBarang" class="form-control"></div>
-                    <div class="mb-3"><label>Nama Barang</label><input type="text" id="namaBarang" class="form-control" placeholder="Masukkan nama barang"></div>
-                    <div class="mb-3"><label>Harga Beli</label><input type="number" id="hargaBeli" class="form-control" placeholder="Masukkan harga beli"></div>
-                    <div class="mb-3"><label>Harga Jual</label><input type="number" id="hargaJual" class="form-control" placeholder="Masukkan harga jual"></div>
-                    <div class="mb-3"><label>Minimum Qty Grosir</label><input type="number" step="0.001" min="0" id="minGrosir" class="form-control" placeholder="Contoh: 10 atau 2.5"></div>
-                    <div class="mb-3"><label>Harga Grosir</label><input type="number" id="hargaGrosir" class="form-control" placeholder="Contoh: 28000"></div>
-                    <div class="mb-3">
-                      <label>Satuan</label>
-                      <select id="satuanBarang" class="form-select">
-                        <option value="pcs">pcs</option>
-                        <option value="kg">kg</option>
-                        <option value="pack">pack</option>
-                        <option value="rcg">rcg</option>
-                      </select>
-                    </div>
-                    <div class="mb-3"><label>Stock</label><input type="number" step="0.001" min="0" id="stockBarang" class="form-control" placeholder="Contoh: 10 atau 14.534"></div>
-                    <div class="mb-3"><label>Minimum Stock</label><input type="number" step="0.001" min="0" id="minimumStock" class="form-control" placeholder="Contoh: 2 atau 0.5"></div>
-                    <button class="btn btn-primary" onclick="simpanBarang()">Simpan</button>
-                  </div>
-                </div>
-
-                <div class="card mt-4">
-                  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <h3 class="card-title mb-0">Daftar Barang</h3>
-                    <div class="input-group" style="width: 300px;">
-                      <input type="text" id="searchBarang" class="form-control" placeholder="Cari nama barang..." oninput="tampilkanBarang()">
-                      <span class="input-group-text"><i class="bi bi-search"></i></span>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table table-bordered text-center align-middle">
-                        <thead>
-                          <tr>
-                            <th>No</th><th>Gambar</th><th>Nama Barang</th><th>Harga Beli</th><th>Harga Jual</th>
-                            <th>Harga Grosir</th><th>Min Qty</th><th>Satuan</th><th>Stock</th><th>Min Stock</th><th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody id="tabelBarang"></tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <footer class="app-footer">
-        <div class="float-end d-none d-sm-inline">When Fresh Meets Daily Needs</div>
-        <strong>Ovana Farm</strong> Management Stock.
-      </footer>
-    </div>
-
-    <!-- Toast Notifikasi -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
-      <div id="toastNotif" class="toast align-items-center text-white border-0" role="alert">
-        <div class="d-flex">
-          <div class="toast-body fw-bold" id="toastPesan"></div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Restock -->
-    <div class="modal fade" id="modalRestock" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Restock Barang</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" id="restockIndex">
-            <div class="mb-3">
-              <label>Qty Masuk</label>
-              <input type="number" step="0.001" min="0" id="qtyMasuk" class="form-control" placeholder="Contoh: 1, 0.5, atau 14.534">
-            </div>
-            <div class="mb-3">
-              <label>Harga Beli Terbaru</label>
-              <input type="number" id="hargaBeliBaru" class="form-control">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-            <button class="btn btn-primary" onclick="simpanRestock()">Simpan</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="./js/adminlte.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
-    <script>
-      if (localStorage.getItem("isLogin") !== "true") { window.location.href = "./login.html"; }
-      function logout() { localStorage.removeItem("isLogin"); window.location.href = "./login.html"; }
-    </script>
-
-    <script>
-      let dataBarang = [];
-
-      // ── Toast ──────────────────────────────────────────────
-      function showToast(pesan, tipe = "success") {
-        const toast = document.getElementById("toastNotif");
-        const toastPesan = document.getElementById("toastPesan");
-        toast.className = `toast align-items-center text-white border-0 bg-${tipe}`;
-        toastPesan.innerText = pesan;
-        new bootstrap.Toast(toast, { delay: 3000 }).show();
+      :root {
+        --app-bg: #f6f7f9;
+        --sidebar-bg: #242b31;
+        --sidebar-hover: rgba(255, 255, 255, .11);
+        --line: #e7eaee;
+        --text: #1f2933;
       }
 
-      // ── Helpers ────────────────────────────────────────────
-      function parseQty(value) {
-        if (value === null || value === undefined || value === "") return 0;
-        const normalized = String(value).trim().replace(",", ".");
-        const qty = parseFloat(normalized);
-        if (Number.isNaN(qty)) return 0;
-        return Math.round(qty * 1000) / 1000;
-      }
-      function qtyToMili(value) { return Math.round(parseQty(value) * 1000); }
-      function miliToQty(value) { return value / 1000; }
-      function formatQty(value, satuan = "pcs") {
-        const qty = parseQty(value ?? 0);
-        if (satuan === "kg") return qty.toFixed(3);
-        return String(Math.round(qty));
-      }
-      function cloneData(data) { return JSON.parse(JSON.stringify(data || null)); }
-
-      // ── User ───────────────────────────────────────────────
-      async function getCurrentUserName() {
-        try {
-          const { data } = await window.ovanaSupabase.from("setting").select("nama_user").eq("id", 1).single();
-          return data?.nama_user || "Admin";
-        } catch { return "Admin"; }
+      * { box-sizing: border-box; }
+      body {
+        background: var(--app-bg);
+        color: var(--text);
+        font-family: "Source Sans 3", "Source Sans Pro", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
       }
 
-      // ── Stock Log ──────────────────────────────────────────
-      async function simpanStockLog(action, barangId, namaBarang, beforeData, afterData, catatan = "") {
-        const userName = await getCurrentUserName();
-        const { error } = await window.ovanaSupabase.from("stock_logs").insert([{
-          action, barang_id: barangId, nama_barang: namaBarang,
-          before_data: beforeData, after_data: afterData, catatan, user_name: userName
-        }]);
-        if (error) console.error("Gagal simpan stock log", error);
+      .sidebar {
+        width: 230px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        padding: 18px 14px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        z-index: 1040;
+        transition: transform .2s ease;
+        overflow-y: auto;
       }
 
-      // ── Compress Image ─────────────────────────────────────
-      async function compressImage(file) {
-        return new Promise((resolve) => {
-          const canvas = document.createElement("canvas");
-          const img = new Image();
-          img.onload = () => {
-            const maxWidth = 500;
-            let width = img.width, height = img.height;
-            if (width > maxWidth) { height = height * (maxWidth / width); width = maxWidth; }
-            canvas.width = width; canvas.height = height;
-            canvas.getContext("2d").drawImage(img, 0, 0, width, height);
-            canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.6);
-          };
-          img.src = URL.createObjectURL(file);
-        });
+      .sidebar.collapsed { transform: translateX(-230px); }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+        text-decoration: none;
+        margin-bottom: 28px;
       }
 
-      // ── Simpan Barang Baru ─────────────────────────────────
-      async function simpanBarang() {
-        let nama = document.getElementById("namaBarang").value;
-        let hargaBeli = document.getElementById("hargaBeli").value;
-        let hargaJual = document.getElementById("hargaJual").value;
-        let stock = document.getElementById("stockBarang").value;
-        let minimumStock = document.getElementById("minimumStock").value;
-        let satuan = document.getElementById("satuanBarang").value;
-        let file = document.getElementById("gambarBarang").files[0];
-
-        if (!file || nama == "" || hargaBeli == "" || hargaJual == "" || stock == "" || minimumStock == "") {
-          showToast("Lengkapi data barang!", "danger"); return;
-        }
-
-        const stockQty = parseQty(stock);
-        const minimumStockQty = parseQty(minimumStock);
-        if (stockQty < 0 || minimumStockQty < 0) {
-          showToast("Stock dan minimum stock tidak valid!", "danger"); return;
-        }
-
-        const originalName = file.name;
-        file = await compressImage(file);
-        const fileName = Date.now() + "-" + originalName;
-
-        const { error: uploadError } = await window.ovanaSupabase.storage.from("barang").upload(fileName, file);
-        if (uploadError) { console.error(uploadError); showToast("Upload gambar gagal", "danger"); return; }
-
-        const { data: publicUrlData } = window.ovanaSupabase.storage.from("barang").getPublicUrl(fileName);
-        const gambarUrl = publicUrlData.publicUrl;
-
-        const barangBaru = {
-          nama, gambar: gambarUrl,
-          harga_beli: parseInt(hargaBeli),
-          harga_jual: parseInt(hargaJual),
-          harga_grosir: parseInt(document.getElementById("hargaGrosir").value || 0),
-          min_grosir: parseQty(document.getElementById("minGrosir").value),
-          satuan, stock: stockQty, minimum_stock: minimumStockQty
-        };
-
-        const { data: insertedBarang, error } = await window.ovanaSupabase.from("barang").insert([barangBaru]).select("*").single();
-        if (error) { console.error(error); showToast("Gagal menyimpan barang!", "danger"); return; }
-
-        await simpanStockLog("CREATE", insertedBarang.id, insertedBarang.nama, null, insertedBarang, "Barang baru dibuat");
-        loadBarangSupabase();
-        showToast("Barang berhasil disimpan");
+      .brand-logo {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        flex: 0 0 38px;
+        background: linear-gradient(135deg, #3f8f5f, #f4b942);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
+        overflow: hidden;
       }
 
-      // ── Tampilkan Tabel ────────────────────────────────────
-      function tampilkanBarang() {
-        let tabel = document.getElementById("tabelBarang");
-        tabel.innerHTML = "";
-        const keyword = (document.getElementById("searchBarang")?.value || "").toLowerCase().trim();
-
-        dataBarang.sort((a, b) => (b.stock <= b.minimumStock) - (a.stock <= a.minimumStock));
-
-        const filtered = dataBarang.filter(b => b.nama.toLowerCase().includes(keyword));
-        if (filtered.length === 0) {
-          tabel.innerHTML = `<tr><td colspan="11" class="text-center text-muted py-3">Tidak ada barang ditemukan</td></tr>`;
-          return;
-        }
-
-        let html = "";
-        filtered.forEach((barang, nomor) => {
-          const index = dataBarang.indexOf(barang);
-          html += `
-<tr class="${barang.stock <= barang.minimumStock ? 'table-danger' : ''}">
-  <td>${nomor + 1}</td>
-  <td>
-    <img src="${barang.gambar}" width="70" height="70" id="gambarPreview${index}" loading="lazy" style="cursor:pointer; object-fit:cover" onclick="document.getElementById('gambarInput${index}').click()">
-    <input type="file" id="gambarInput${index}" class="form-control d-none mt-2" onchange="previewGambar(event, ${index})">
-  </td>
-  <td>
-    <span id="namaText${index}">${barang.nama}</span>
-    <input type="text" id="namaInput${index}" value="${barang.nama}" class="form-control d-none">
-  </td>
-  <td>
-    <span id="modalText${index}">Rp ${parseInt(barang.modal).toLocaleString("id-ID")}</span>
-    <input type="number" id="modalInput${index}" value="${barang.modal}" class="form-control d-none">
-  </td>
-  <td>
-    <span id="jualText${index}">Rp ${parseInt(barang.hargaJual).toLocaleString("id-ID")}</span>
-    <input type="number" id="jualInput${index}" value="${barang.hargaJual}" class="form-control d-none">
-  </td>
-  <td>
-    <span id="grosirText${index}">Rp ${(barang.hargaGrosir || 0).toLocaleString("id-ID")}</span>
-    <input type="number" id="grosirInput${index}" value="${barang.hargaGrosir || 0}" class="form-control d-none">
-  </td>
-  <td>
-    <span id="minGrosirText${index}">${formatQty(barang.minGrosir ?? 0, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}</span>
-    <input type="number" step="0.001" min="0" id="minGrosirInput${index}" value="${barang.minGrosir ?? 0}" class="form-control d-none">
-  </td>
-  <td>
-    <span id="satuanText${index}">${barang.satuan || 'pcs'}</span>
-    <select id="satuanInput${index}" class="form-select d-none">
-      <option value="pcs" ${(barang.satuan || 'pcs') === 'pcs' ? 'selected' : ''}>pcs</option>
-      <option value="kg" ${(barang.satuan || 'pcs') === 'kg' ? 'selected' : ''}>kg</option>
-      <option value="pack" ${(barang.satuan || 'pcs') === 'pack' ? 'selected' : ''}>pack</option>
-      <option value="rcg" ${(barang.satuan || 'pcs') === 'rcg' ? 'selected' : ''}>rcg</option>
-    </select>
-  </td>
-  <td>
-    <span id="stockText${index}">
-      ${formatQty(barang.stock ?? 0, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}
-      ${barang.stock <= barang.minimumStock ? '<br><small class="text-danger fw-bold">Stock Menipis</small>' : ''}
-    </span>
-    <input type="number" step="0.001" min="0" id="stockInput${index}" value="${barang.stock ?? 0}" class="form-control d-none">
-  </td>
-  <td>
-    <span id="minStockText${index}">${formatQty(barang.minimumStock ?? 0, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}</span>
-    <input type="number" step="0.001" min="0" id="minStockInput${index}" value="${barang.minimumStock ?? 0}" class="form-control d-none">
-  </td>
-  <td>
-    <button class="btn btn-warning btn-sm" id="editBtn${index}" onclick="editBarang(${index})"><i class="bi bi-pencil"></i></button>
-    <button class="btn btn-info btn-sm" onclick="restockBarang(${index})"><i class="bi bi-plus-circle"></i></button>
-    <button class="btn btn-success btn-sm d-none" id="saveBtn${index}" onclick="saveBarang(${index})">Save</button>
-    <button class="btn btn-danger btn-sm d-none" id="hapusBtn${index}" onclick="hapusBarang(${index})">Hapus</button>
-  </td>
-</tr>`;
-        });
-        tabel.innerHTML = html;
+      .brand-logo img,
+      .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
 
-      // ── Hapus Barang ───────────────────────────────────────
-      async function hapusBarang(index) {
-        if (!confirm("Pindahkan ke Trash?")) return;
-        const barang = dataBarang[index];
-        const beforeData = cloneData(barang);
-        await simpanKeTrash("barang", barang.id, barang);
-        const { error } = await window.ovanaSupabase.from("barang").delete().eq("id", barang.id);
-        if (error) { showToast("Gagal menghapus", "danger"); return; }
-        await simpanStockLog("DELETE_TO_TRASH", barang.id, barang.nama, beforeData, null, "Barang dipindahkan ke trash");
-        showToast("Barang masuk Trash", "warning");
-        loadBarangSupabase();
+      .brand-text {
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0;
       }
 
-      // ── Restock ────────────────────────────────────────────
-      function restockBarang(index) {
-        document.getElementById("restockIndex").value = index;
-        document.getElementById("qtyMasuk").value = "";
-        document.getElementById("hargaBeliBaru").value = "";
-        new bootstrap.Modal(document.getElementById("modalRestock")).show();
+      .sidebar .nav-link {
+        color: rgba(255, 255, 255, .78);
+        border-radius: 6px;
+        margin-bottom: 4px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
-      async function simpanRestock() {
-        let index = parseInt(document.getElementById("restockIndex").value);
-        let qtyMasuk = parseQty(document.getElementById("qtyMasuk").value);
-        let hargaBeliBaru = parseInt(document.getElementById("hargaBeliBaru").value);
-
-        if (qtyMasuk <= 0 || !hargaBeliBaru) { showToast("Lengkapi data!", "danger"); return; }
-
-        const beforeData = cloneData(dataBarang[index]);
-        let stockLama = dataBarang[index].stock;
-        let modalLama = dataBarang[index].modal;
-        let modalBaru = Math.round(((stockLama * modalLama) + (qtyMasuk * hargaBeliBaru)) / (stockLama + qtyMasuk));
-
-        dataBarang[index].stock = miliToQty(qtyToMili(stockLama) + qtyToMili(qtyMasuk));
-        dataBarang[index].modal = modalBaru;
-
-        const { error } = await window.ovanaSupabase.from("barang").update({
-          stock: dataBarang[index].stock, harga_beli: dataBarang[index].modal
-        }).eq("id", dataBarang[index].id);
-
-        if (error) { console.error(error); showToast("Restock gagal", "danger"); return; }
-
-        await simpanStockLog("RESTOCK", dataBarang[index].id, dataBarang[index].nama, beforeData, cloneData(dataBarang[index]),
-          `Restock ${formatQty(qtyMasuk, dataBarang[index].satuan || "pcs")} ${dataBarang[index].satuan || "pcs"}`);
-
-        loadBarangSupabase();
-        bootstrap.Modal.getInstance(document.getElementById("modalRestock")).hide();
-        showToast("Restock berhasil");
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #fff;
+        background: var(--sidebar-hover);
       }
 
-      // ── Edit Barang ────────────────────────────────────────
-      function editBarang(index) {
-        ["nama","modal","jual","satuan","stock","minStock","grosir","minGrosir"].forEach(f => {
-          document.getElementById(`${f}Text${index}`)?.classList.add("d-none");
-          document.getElementById(`${f}Input${index}`)?.classList.remove("d-none");
-        });
-        document.getElementById(`gambarInput${index}`).classList.remove("d-none");
-        document.getElementById(`editBtn${index}`).classList.add("d-none");
-        document.getElementById(`saveBtn${index}`).classList.remove("d-none");
-        document.getElementById(`hapusBtn${index}`).classList.remove("d-none");
-      }
+      .sidebar .nav-link i { font-size: 16px; }
+      .sidebar-bottom { margin-top: auto; padding-top: 16px; }
 
-      async function saveBarang(index) {
-        const beforeData = cloneData(dataBarang[index]);
-        dataBarang[index].nama = document.getElementById(`namaInput${index}`).value;
-        dataBarang[index].modal = parseInt(document.getElementById(`modalInput${index}`).value);
-        dataBarang[index].hargaJual = parseInt(document.getElementById(`jualInput${index}`).value);
-        dataBarang[index].hargaGrosir = parseInt(document.getElementById(`grosirInput${index}`).value);
-        dataBarang[index].minGrosir = parseQty(document.getElementById(`minGrosirInput${index}`).value);
-        dataBarang[index].satuan = document.getElementById(`satuanInput${index}`).value;
-        dataBarang[index].stock = parseQty(document.getElementById(`stockInput${index}`).value);
-        dataBarang[index].minimumStock = parseQty(document.getElementById(`minStockInput${index}`).value);
-
-        if (dataBarang[index].stock < 0 || dataBarang[index].minimumStock < 0) {
-          showToast("Stock tidak valid!", "danger"); return;
-        }
-
-        let file = document.getElementById(`gambarInput${index}`).files[0];
-        if (file) {
-          const originalName = file.name;
-          file = await compressImage(file);
-          const fileName = Date.now() + "-" + originalName;
-          const { error: uploadError } = await window.ovanaSupabase.storage.from("barang").upload(fileName, file);
-          if (uploadError) { console.error(uploadError); showToast("Upload gambar gagal", "danger"); return; }
-          const { data: publicUrlData } = window.ovanaSupabase.storage.from("barang").getPublicUrl(fileName);
-          dataBarang[index].gambar = publicUrlData.publicUrl;
-        }
-
-        const { error } = await window.ovanaSupabase.from("barang").update({
-          nama: dataBarang[index].nama, gambar: dataBarang[index].gambar,
-          harga_beli: dataBarang[index].modal, harga_jual: dataBarang[index].hargaJual,
-          harga_grosir: dataBarang[index].hargaGrosir, min_grosir: dataBarang[index].minGrosir,
-          satuan: dataBarang[index].satuan, stock: dataBarang[index].stock,
-          minimum_stock: dataBarang[index].minimumStock
-        }).eq("id", dataBarang[index].id);
-
-        if (error) { console.error(error); showToast("Data gagal diupdate", "danger"); return; }
-
-        await simpanStockLog("EDIT", dataBarang[index].id, dataBarang[index].nama, beforeData, cloneData(dataBarang[index]), "Data barang diedit dari management stock");
-        loadBarangSupabase();
-        showToast("Data berhasil diupdate");
-      }
-
-      // ── Preview Gambar ─────────────────────────────────────
-      function previewGambar(event, index) {
-        const file = event.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) { document.getElementById(`gambarPreview${index}`).src = e.target.result; };
-          reader.readAsDataURL(file);
-        }
-      }
-
-      tampilkanBarang();
-    </script>
-
-    <script>
-      // ── Notifikasi ─────────────────────────────────────────
-      function loadNotifikasi() {
-        let notifikasi = [];
-        dataBarang.forEach((barang) => {
-          if (barang.stock <= barang.minimumStock) {
-            notifikasi.push(`${barang.nama} stok tersisa ${formatQty(barang.stock ?? 0, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}`);
-          }
-        });
-        document.getElementById("jumlahNotifikasi").innerText = notifikasi.length;
-        document.getElementById("judulNotifikasi").innerText = notifikasi.length + " Notifikasi";
-        let html = "";
-        notifikasi.forEach((item) => { html += `<a href="#" class="dropdown-item">${item}</a><div class="dropdown-divider"></div>`; });
-        if (notifikasi.length === 0) html = `<a href="#" class="dropdown-item">Tidak ada notifikasi</a>`;
-        document.getElementById("listNotifikasi").innerHTML = html;
-      }
-      loadNotifikasi();
-    </script>
-
-    <script>
-      const SUPABASE_URL = "https://dyholzqyltspnpbjkpsn.supabase.co";
-      const SUPABASE_KEY = "sb_publishable_5dQRwThjCNLnL-Zsr6Jbig_bA3OrGf6";
-      window.ovanaSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-      window.addEventListener("DOMContentLoaded", async function () {
-        const { data } = await window.ovanaSupabase.from("setting").select("nama_user, foto_user").eq("id", 1).single();
-        if (!data) return;
-        document.getElementById("navbarUserName").innerText = data.nama_user || "Admin";
-        document.getElementById("dropdownUserName").innerText = data.nama_user || "Admin";
-        if (data.foto_user) {
-          document.getElementById("navbarUserPhoto").src = data.foto_user;
-          document.getElementById("dropdownUserPhoto").src = data.foto_user;
-        }
-      });
-
-      window.addEventListener("DOMContentLoaded", async function () {
-        const { data } = await window.ovanaSupabase.from("setting").select("nama_toko, logo_toko").eq("id", 1).single();
-        if (!data) return;
-        document.querySelector(".brand-text").innerText = data.nama_toko || "Ovana Farm";
-        if (data.logo_toko) document.querySelector(".brand-image").src = data.logo_toko;
-      });
-
-      async function loadBarangSupabase() {
-        document.getElementById("tabelBarang").innerHTML = `
-          <tr><td colspan="11" class="text-center">
-            <div class="spinner-border spinner-border-sm"></div> Memuat data barang...
-          </td></tr>`;
-
-        const { data, error } = await window.ovanaSupabase.from("barang").select(`
-          id, gambar, nama, harga_beli, harga_jual, harga_grosir, min_grosir, satuan, stock, minimum_stock
-        `).order("id", { ascending: false });
-
-        if (error) { console.error(error); return; }
-
-        dataBarang = data.map(item => ({
-          id: item.id,
-          gambar: item.gambar,
-          nama: item.nama,
-          modal: item.harga_beli,
-          hargaJual: item.harga_jual,
-          hargaGrosir: item.harga_grosir,
-          minGrosir: parseQty(item.min_grosir ?? 0),
-          satuan: item.satuan || "pcs",
-          stock: parseQty(item.stock ?? 0),
-          minimumStock: parseQty(item.minimum_stock ?? 0)
-        }));
-
-        tampilkanBarang();
-        loadNotifikasi();
-      }
-
-      loadBarangSupabase();
-
-      async function simpanKeTrash(source, originalId, data) {
-        return await window.ovanaSupabase.from("trash").insert([{ source, original_id: originalId, data_json: data }]);
-      }
-    </script>
-
-  </body>
-</html>
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
