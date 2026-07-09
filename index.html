@@ -280,6 +280,48 @@
         box-shadow: 0 2px 8px rgba(31, 41, 51, .16);
       }
 
+      .chart-date-filter {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .chart-date-field {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #667085;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .chart-date-field input {
+        width: 132px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 5px 7px;
+        color: #344054;
+        font-size: 12px;
+        background: #fff;
+      }
+
+      .chart-date-clear {
+        width: 30px;
+        height: 30px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: #fff;
+        color: #667085;
+        display: inline-grid;
+        place-items: center;
+      }
+
+      .chart-date-clear:hover {
+        color: #dc3545;
+        border-color: #f0b8bf;
+      }
+
       .chart-meta {
         display: flex;
         align-items: center;
@@ -342,6 +384,18 @@
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
         }
+        .chart-date-filter {
+          width: 100%;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 30px;
+          align-items: end;
+        }
+        .chart-date-field {
+          align-items: stretch;
+          flex-direction: column;
+          gap: 3px;
+        }
+        .chart-date-field input { width: 100%; }
         .chart-range-btn { padding: 8px 6px; }
         .chart-meta {
           align-items: flex-start;
@@ -461,6 +515,17 @@
                   <button class="chart-range-btn active" type="button" data-range="30">30H</button>
                   <button class="chart-range-btn" type="button" data-range="all">All</button>
                 </div>
+                <div class="chart-date-filter" aria-label="Filter tanggal grafik">
+                  <label class="chart-date-field">Dari
+                    <input id="chartStartDate" type="date">
+                  </label>
+                  <label class="chart-date-field">Sampai
+                    <input id="chartEndDate" type="date">
+                  </label>
+                  <button id="clearDateFilter" class="chart-date-clear" type="button" title="Reset tanggal" aria-label="Reset tanggal">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
               </div>
               <div class="card-body">
                 <div class="chart-meta">
@@ -569,6 +634,8 @@
       let profitChart = null;
       let dashboardChartRows = [];
       let selectedChartRange = window.matchMedia("(max-width: 640px)").matches ? 14 : 30;
+      let customStartDate = "";
+      let customEndDate = "";
       let activeTargetPenjualan = 0;
       let activeTargetProfit = 0;
 
@@ -597,6 +664,14 @@
       }
 
       function getVisibleRows() {
+        if (selectedChartRange === "custom") {
+          const start = customStartDate || dashboardChartRows[0]?.dateKey || "";
+          const end = customEndDate || dashboardChartRows[dashboardChartRows.length - 1]?.dateKey || "";
+          if (!start || !end) return [];
+          const from = start <= end ? start : end;
+          const to = start <= end ? end : start;
+          return dashboardChartRows.filter(row => row.dateKey >= from && row.dateKey <= to);
+        }
         if (selectedChartRange === "all") return dashboardChartRows;
         return dashboardChartRows.slice(-Number(selectedChartRange));
       }
@@ -605,6 +680,21 @@
         document.querySelectorAll(".chart-range-btn").forEach((button) => {
           button.classList.toggle("active", String(selectedChartRange) === button.dataset.range);
         });
+      }
+
+      function setDateInputLimits() {
+        const startInput = document.getElementById("chartStartDate");
+        const endInput = document.getElementById("chartEndDate");
+        const firstDate = dashboardChartRows[0]?.dateKey || "";
+        const lastDate = dashboardChartRows[dashboardChartRows.length - 1]?.dateKey || "";
+
+        startInput.min = firstDate;
+        startInput.max = lastDate;
+        endInput.min = firstDate;
+        endInput.max = lastDate;
+
+        if (!customStartDate && selectedChartRange !== "custom") startInput.value = "";
+        if (!customEndDate && selectedChartRange !== "custom") endInput.value = "";
       }
 
       function buildAreaChartOptions(series, colors, categories, maxValue) {
@@ -654,6 +744,7 @@
         const transaksiPeriodTotal = rows.reduce((sum, row) => sum + row.transaksi, 0);
 
         setChartRangeButtons();
+        setDateInputLimits();
         document.getElementById("revenueRangeText").innerText = formatRentangTanggal(rows);
         document.getElementById("profitRangeText").innerText = formatRentangTanggal(rows);
         document.getElementById("revenuePeriodTotal").innerText = formatRupiah(revenuePeriodTotal);
@@ -804,8 +895,33 @@
       document.querySelectorAll(".chart-range-btn").forEach((button) => {
         button.addEventListener("click", () => {
           selectedChartRange = button.dataset.range === "all" ? "all" : Number(button.dataset.range);
+          customStartDate = "";
+          customEndDate = "";
+          document.getElementById("chartStartDate").value = "";
+          document.getElementById("chartEndDate").value = "";
           renderDashboardCharts(activeTargetPenjualan, activeTargetProfit);
         });
+      });
+
+      document.getElementById("chartStartDate").addEventListener("change", (event) => {
+        customStartDate = event.target.value;
+        selectedChartRange = "custom";
+        renderDashboardCharts(activeTargetPenjualan, activeTargetProfit);
+      });
+
+      document.getElementById("chartEndDate").addEventListener("change", (event) => {
+        customEndDate = event.target.value;
+        selectedChartRange = "custom";
+        renderDashboardCharts(activeTargetPenjualan, activeTargetProfit);
+      });
+
+      document.getElementById("clearDateFilter").addEventListener("click", () => {
+        customStartDate = "";
+        customEndDate = "";
+        selectedChartRange = window.matchMedia("(max-width: 640px)").matches ? 14 : 30;
+        document.getElementById("chartStartDate").value = "";
+        document.getElementById("chartEndDate").value = "";
+        renderDashboardCharts(activeTargetPenjualan, activeTargetProfit);
       });
 
       window.addEventListener("DOMContentLoaded", loadDashboard);
