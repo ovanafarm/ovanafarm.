@@ -227,6 +227,98 @@
         border-bottom-color: var(--line);
       }
 
+      .chart-card {
+        overflow: hidden;
+      }
+
+      .chart-card .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 14px 16px;
+      }
+
+      .chart-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        font-weight: 700;
+        color: #20262d;
+      }
+
+      .chart-title i {
+        color: #3f8f5f;
+      }
+
+      .chart-tools {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f8fafc;
+      }
+
+      .chart-range-btn {
+        border: 0;
+        background: transparent;
+        color: #667085;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .chart-range-btn.active {
+        background: #242b31;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(31, 41, 51, .16);
+      }
+
+      .chart-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+        color: #667085;
+        font-size: 12px;
+      }
+
+      .chart-meta strong {
+        color: #20262d;
+      }
+
+      .chart-empty {
+        min-height: 260px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #667085;
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        background: #fbfcfd;
+      }
+
+      .chart-empty.show {
+        display: flex;
+      }
+
+      .metric-card {
+        padding: 12px 8px;
+        border-right: 1px solid var(--line);
+      }
+
+      .metric-card:last-child {
+        border-right: 0;
+      }
+
       .app-footer {
         background: #fff;
         border-top: 1px solid var(--line);
@@ -242,6 +334,26 @@
         .hamburger { display: block; }
         .small-box h3 { font-size: 1.2rem; }
         .topbar-title { font-size: 16px; }
+        .content { padding: 14px; }
+        .chart-card .card-header { align-items: stretch; }
+        .chart-title { width: 100%; }
+        .chart-tools {
+          width: 100%;
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        .chart-range-btn { padding: 8px 6px; }
+        .chart-meta {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .metric-card {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .metric-card:nth-last-child(-n+2) {
+          border-bottom: 0;
+        }
       }
     </style>
   </head>
@@ -340,15 +452,39 @@
 
         <div class="row">
           <div class="col-lg-6">
-            <div class="card shadow-sm mb-4">
-              <div class="card-header"><h6 class="mb-0 fw-semibold">Hasil Penjualan</h6></div>
-              <div class="card-body"><div id="revenue-chart"></div></div>
+            <div class="card chart-card shadow-sm mb-4">
+              <div class="card-header">
+                <h6 class="chart-title"><i class="bi bi-graph-up-arrow"></i>Hasil Penjualan</h6>
+                <div class="chart-tools" aria-label="Filter periode grafik">
+                  <button class="chart-range-btn" type="button" data-range="7">7H</button>
+                  <button class="chart-range-btn" type="button" data-range="14">14H</button>
+                  <button class="chart-range-btn active" type="button" data-range="30">30H</button>
+                  <button class="chart-range-btn" type="button" data-range="all">All</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart-meta">
+                  <span id="revenueRangeText">Memuat data...</span>
+                  <strong id="revenuePeriodTotal">Rp 0</strong>
+                </div>
+                <div id="revenue-chart"></div>
+                <div id="revenue-empty" class="chart-empty">Belum ada data penjualan untuk periode ini.</div>
+              </div>
             </div>
           </div>
           <div class="col-lg-6">
-            <div class="card shadow-sm mb-4">
-              <div class="card-header"><h6 class="mb-0 fw-semibold">Grafik Profit</h6></div>
-              <div class="card-body"><div id="profit-chart"></div></div>
+            <div class="card chart-card shadow-sm mb-4">
+              <div class="card-header">
+                <h6 class="chart-title"><i class="bi bi-cash-coin"></i>Grafik Profit</h6>
+              </div>
+              <div class="card-body">
+                <div class="chart-meta">
+                  <span id="profitRangeText">Mengikuti periode penjualan</span>
+                  <strong id="profitPeriodTotal">Rp 0</strong>
+                </div>
+                <div id="profit-chart"></div>
+                <div id="profit-empty" class="chart-empty">Belum ada data profit untuk periode ini.</div>
+              </div>
             </div>
           </div>
         </div>
@@ -356,27 +492,27 @@
         <div class="card shadow-sm">
           <div class="card-body">
             <div class="row text-center">
-              <div class="col-6 col-md-2 mb-3">
+              <div class="col-6 col-md-2 metric-card">
                 <div class="text-muted small">Total Penjualan</div>
                 <div id="totalPenjualanText" class="fw-bold text-primary fs-6">Rp 0</div>
               </div>
-              <div class="col-6 col-md-2 mb-3">
+              <div class="col-6 col-md-2 metric-card">
                 <div class="text-muted small">Rata-rata per Hari</div>
                 <div id="rataRataText" class="fw-bold text-success fs-6">Rp 0</div>
               </div>
-              <div class="col-6 col-md-2 mb-3">
+              <div class="col-6 col-md-2 metric-card">
                 <div class="text-muted small">Total Profit</div>
                 <div id="profitText" class="fw-bold text-success fs-6">Rp 0</div>
               </div>
-              <div class="col-6 col-md-2 mb-3">
+              <div class="col-6 col-md-2 metric-card">
                 <div class="text-muted small">Penjualan Tertinggi</div>
                 <div id="tertinggiText" class="fw-bold text-warning fs-6">Rp 0</div>
               </div>
-              <div class="col-6 col-md-2 mb-3">
+              <div class="col-6 col-md-2 metric-card">
                 <div class="text-muted small">Penjualan Terendah</div>
                 <div id="terendahText" class="fw-bold text-danger fs-6">Rp 0</div>
               </div>
-              <div class="col-6 col-md-2 mb-3">
+              <div class="col-6 col-md-2 metric-card">
                 <div class="text-muted small">Total Transaksi</div>
                 <div id="transaksiText" class="fw-bold fs-6">0</div>
               </div>
@@ -429,6 +565,138 @@
       window.ovanaSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
       let totalProfitChart = 0;
+      let revenueChart = null;
+      let profitChart = null;
+      let dashboardChartRows = [];
+      let selectedChartRange = window.matchMedia("(max-width: 640px)").matches ? 14 : 30;
+      let activeTargetPenjualan = 0;
+      let activeTargetProfit = 0;
+
+      function formatRupiah(value) {
+        return "Rp " + Math.round(Number(value || 0)).toLocaleString("id-ID");
+      }
+
+      function toDateKey(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function formatTanggalPendek(dateKey) {
+        if (!dateKey) return "-";
+        const date = new Date(`${dateKey}T00:00:00`);
+        return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+      }
+
+      function formatRentangTanggal(rows) {
+        if (!rows.length) return "Tidak ada data";
+        return `${formatTanggalPendek(rows[0].dateKey)} - ${formatTanggalPendek(rows[rows.length - 1].dateKey)} (${rows.length} hari)`;
+      }
+
+      function getVisibleRows() {
+        if (selectedChartRange === "all") return dashboardChartRows;
+        return dashboardChartRows.slice(-Number(selectedChartRange));
+      }
+
+      function setChartRangeButtons() {
+        document.querySelectorAll(".chart-range-btn").forEach((button) => {
+          button.classList.toggle("active", String(selectedChartRange) === button.dataset.range);
+        });
+      }
+
+      function buildAreaChartOptions(series, colors, categories, maxValue) {
+        return {
+          series,
+          colors,
+          chart: {
+            type: "area",
+            height: window.matchMedia("(max-width: 640px)").matches ? 230 : 280,
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            fontFamily: "Inter, system-ui, sans-serif"
+          },
+          grid: { borderColor: "#eef1f4", strokeDashArray: 4, padding: { left: 4, right: 10 } },
+          stroke: { curve: "smooth", width: [3, 1], dashArray: [0, 6] },
+          markers: { size: categories.length <= 14 ? [4, 0] : [0, 0], strokeWidth: 2 },
+          dataLabels: { enabled: false },
+          fill: {
+            type: ["gradient", "gradient"],
+            gradient: { shadeIntensity: 1, opacityFrom: 0.36, opacityTo: 0.04, stops: [0, 100] }
+          },
+          legend: { show: true, position: "bottom", fontSize: "12px", markers: { width: 8, height: 8 } },
+          yaxis: {
+            min: 0,
+            max: Math.max(maxValue, 1) * 1.12,
+            tickAmount: 4,
+            labels: { formatter: v => formatRupiah(v), style: { fontSize: "10px" } }
+          },
+          xaxis: {
+            categories,
+            tickAmount: Math.min(categories.length, window.matchMedia("(max-width: 640px)").matches ? 4 : 7),
+            labels: { rotate: -35, rotateAlways: categories.length > 7, trim: true, style: { fontSize: "11px" } },
+            axisBorder: { color: "#eef1f4" },
+            axisTicks: { color: "#eef1f4" }
+          },
+          tooltip: { shared: true, y: { formatter: v => formatRupiah(v) } }
+        };
+      }
+
+      function renderDashboardCharts(targetPenjualan, targetProfit) {
+        const rows = getVisibleRows();
+        const categories = rows.map(row => row.label);
+        const totalChart = rows.map(row => row.penjualan);
+        const profitChartData = rows.map(row => row.profit);
+        const revenuePeriodTotal = totalChart.reduce((sum, value) => sum + value, 0);
+        const profitPeriodTotal = profitChartData.reduce((sum, value) => sum + value, 0);
+        const transaksiPeriodTotal = rows.reduce((sum, row) => sum + row.transaksi, 0);
+
+        setChartRangeButtons();
+        document.getElementById("revenueRangeText").innerText = formatRentangTanggal(rows);
+        document.getElementById("profitRangeText").innerText = formatRentangTanggal(rows);
+        document.getElementById("revenuePeriodTotal").innerText = formatRupiah(revenuePeriodTotal);
+        document.getElementById("profitPeriodTotal").innerText = formatRupiah(profitPeriodTotal);
+        document.getElementById("profitText").innerText = formatRupiah(profitPeriodTotal);
+        document.getElementById("totalPenjualanText").innerText = formatRupiah(revenuePeriodTotal);
+        document.getElementById("rataRataText").innerText = formatRupiah(revenuePeriodTotal / (rows.length || 1));
+        document.getElementById("tertinggiText").innerText = formatRupiah(totalChart.length ? Math.max(...totalChart) : 0);
+        document.getElementById("terendahText").innerText = formatRupiah(totalChart.length ? Math.min(...totalChart) : 0);
+        document.getElementById("transaksiText").innerText = transaksiPeriodTotal;
+
+        document.getElementById("revenue-empty").classList.toggle("show", rows.length === 0);
+        document.getElementById("profit-empty").classList.toggle("show", rows.length === 0);
+        document.getElementById("revenue-chart").style.display = rows.length ? "block" : "none";
+        document.getElementById("profit-chart").style.display = rows.length ? "block" : "none";
+        if (!rows.length) return;
+
+        const revenueOptions = buildAreaChartOptions(
+          [{ name: "Penjualan", data: totalChart }, { name: "Target", data: rows.map(() => targetPenjualan) }],
+          ["#0d6efd", "#dc3545"],
+          categories,
+          Math.max(targetPenjualan, ...totalChart, 0)
+        );
+
+        const profitOptions = buildAreaChartOptions(
+          [{ name: "Profit", data: profitChartData }, { name: "Target Profit", data: rows.map(() => targetProfit) }],
+          ["#198754", "#dc3545"],
+          categories,
+          Math.max(targetProfit, ...profitChartData, 0)
+        );
+
+        if (revenueChart) revenueChart.updateOptions(revenueOptions, true, true);
+        else {
+          revenueChart = new ApexCharts(document.querySelector("#revenue-chart"), revenueOptions);
+          revenueChart.render();
+        }
+
+        if (profitChart) profitChart.updateOptions(profitOptions, true, true);
+        else {
+          profitChart = new ApexCharts(document.querySelector("#profit-chart"), profitOptions);
+          profitChart.render();
+        }
+      }
 
       window.addEventListener("DOMContentLoaded", async function () {
         const { data } = await window.ovanaSupabase
@@ -480,15 +748,19 @@
         const { data: setting } = await window.ovanaSupabase.from("setting").select("target_penjualan, target_profit").eq("id", 1).single();
         const targetPenjualan = Number(setting?.target_penjualan || 0);
         const targetProfit = Number(setting?.target_profit || 0);
+        activeTargetPenjualan = targetPenjualan;
+        activeTargetProfit = targetProfit;
 
-        let penjualanPerHari = {}, profitPerHari = {};
+        let penjualanPerHari = {}, profitPerHari = {}, transaksiPerHari = {};
         let transaksiHariIni = 0, pendapatanHariIni = 0, totalProfit = 0, totalPenjualan = 0;
-        const hariIni = new Date().toLocaleDateString("id-ID");
+        const hariIni = toDateKey(new Date());
 
         penjualan?.forEach((trx) => {
-          const tgl = new Date(trx.tanggal).toLocaleDateString("id-ID");
+          const tgl = toDateKey(trx.tanggal);
+          if (!tgl) return;
           penjualanPerHari[tgl] = (penjualanPerHari[tgl] || 0) + Number(trx.total || 0);
           profitPerHari[tgl] = profitPerHari[tgl] || 0;
+          transaksiPerHari[tgl] = (transaksiPerHari[tgl] || 0) + 1;
           totalPenjualan += Number(trx.total || 0);
           if (tgl === hariIni) {
             transaksiHariIni++;
@@ -504,55 +776,37 @@
         let totalPengeluaran = 0, pengeluaranHariIni = 0;
         pengeluaran?.forEach((item) => {
           totalPengeluaran += Number(item.nominal || 0);
-          if (item.tanggal === hariIni) pengeluaranHariIni += Number(item.nominal || 0);
+          if (toDateKey(item.tanggal) === hariIni) pengeluaranHariIni += Number(item.nominal || 0);
         });
 
-        const tanggalChart = Object.keys(penjualanPerHari);
-        const totalChart = Object.values(penjualanPerHari);
-        const totalProfitPerHari = Object.values(profitPerHari);
+        dashboardChartRows = Object.keys(penjualanPerHari)
+          .sort()
+          .map((dateKey) => ({
+            dateKey,
+            label: formatTanggalPendek(dateKey),
+            penjualan: penjualanPerHari[dateKey] || 0,
+            profit: profitPerHari[dateKey] || 0,
+            transaksi: transaksiPerHari[dateKey] || 0
+          }));
+
         totalProfitChart = totalProfit;
 
         document.getElementById("totalTransaksi").innerText = transaksiHariIni;
-        document.getElementById("pendapatanHariIni").innerText = "Rp " + pendapatanHariIni.toLocaleString("id-ID");
-        document.getElementById("saldoOvana").innerText = "Rp " + (totalPenjualan - totalPengeluaran).toLocaleString("id-ID");
-        document.getElementById("pengeluaranHariIni").innerText = "Rp " + pengeluaranHariIni.toLocaleString("id-ID");
-        document.getElementById("profitText").innerText = "Rp " + totalProfit.toLocaleString("id-ID");
-        document.getElementById("totalPenjualanText").innerText = "Rp " + totalPenjualan.toLocaleString("id-ID");
-        document.getElementById("rataRataText").innerText = "Rp " + Math.round(totalPenjualan / (tanggalChart.length || 1)).toLocaleString("id-ID");
-        document.getElementById("tertinggiText").innerText = "Rp " + Math.max(...totalChart, 0).toLocaleString("id-ID");
-        document.getElementById("terendahText").innerText = "Rp " + (totalChart.length ? Math.min(...totalChart) : 0).toLocaleString("id-ID");
-        document.getElementById("transaksiText").innerText = penjualan?.length || 0;
+        document.getElementById("pendapatanHariIni").innerText = formatRupiah(pendapatanHariIni);
+        document.getElementById("saldoOvana").innerText = formatRupiah(totalPenjualan - totalPengeluaran);
+        document.getElementById("pengeluaranHariIni").innerText = formatRupiah(pengeluaranHariIni);
 
-        new ApexCharts(document.querySelector("#revenue-chart"), {
-          series: [{ name: "Penjualan", data: totalChart }, { name: "Target", data: tanggalChart.map(() => targetPenjualan) }],
-          colors: ["#0d6efd", "#dc3545"],
-          chart: { type: "area", height: 260, toolbar: { show: false } },
-          stroke: { curve: "smooth", width: [4, 1], dashArray: [0, 6] },
-          markers: { size: [4, 0] },
-          dataLabels: { enabled: false },
-          fill: { type: ["gradient", "gradient"], gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05, stops: [0, 100] } },
-          legend: { show: true, position: "bottom" },
-          yaxis: { min: 0, max: Math.max(targetPenjualan, ...totalChart, 0) * 1.1, tickAmount: 5, labels: { formatter: v => "Rp " + Number(v).toLocaleString("id-ID"), style: { fontSize: "10px" } } },
-          xaxis: { categories: tanggalChart },
-          tooltip: { y: { formatter: v => "Rp " + v.toLocaleString("id-ID") } }
-        }).render();
-
-        new ApexCharts(document.querySelector("#profit-chart"), {
-          series: [{ name: "Profit", data: totalProfitPerHari }, { name: "Target Profit", data: tanggalChart.map(() => targetProfit) }],
-          colors: ["#198754", "#dc3545"],
-          chart: { type: "area", height: 260, toolbar: { show: false } },
-          stroke: { curve: "smooth", width: [4, 1], dashArray: [0, 6] },
-          markers: { size: [4, 0] },
-          dataLabels: { enabled: false },
-          fill: { type: ["gradient", "gradient"], gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05, stops: [0, 100] } },
-          legend: { show: true, position: "bottom" },
-          yaxis: { forceNiceScale: true, labels: { formatter: v => "Rp " + Number(v).toLocaleString("id-ID") } },
-          xaxis: { categories: tanggalChart },
-          tooltip: { y: { formatter: v => "Rp " + v.toLocaleString("id-ID") } }
-        }).render();
+        renderDashboardCharts(targetPenjualan, targetProfit);
 
         loadNotifikasi();
       }
+
+      document.querySelectorAll(".chart-range-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectedChartRange = button.dataset.range === "all" ? "all" : Number(button.dataset.range);
+          renderDashboardCharts(activeTargetPenjualan, activeTargetProfit);
+        });
+      });
 
       window.addEventListener("DOMContentLoaded", loadDashboard);
     </script>
