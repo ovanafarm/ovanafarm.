@@ -253,6 +253,19 @@
         color: #3f8f5f;
       }
 
+      .chart-filter-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(16, 24, 40, .04);
+      }
+
       .chart-tools {
         display: inline-flex;
         align-items: center;
@@ -285,6 +298,7 @@
         align-items: center;
         gap: 6px;
         flex-wrap: wrap;
+        margin-left: auto;
       }
 
       .chart-date-field {
@@ -379,12 +393,18 @@
         .content { padding: 14px; }
         .chart-card .card-header { align-items: stretch; }
         .chart-title { width: 100%; }
+        .chart-filter-bar {
+          align-items: stretch;
+          flex-direction: column;
+          padding: 10px;
+        }
         .chart-tools {
           width: 100%;
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
         }
         .chart-date-filter {
+          margin-left: 0;
           width: 100%;
           display: grid;
           grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 30px;
@@ -505,27 +525,31 @@
         </div>
 
         <div class="row">
+          <div class="col-12">
+            <div class="chart-filter-bar">
+              <div class="chart-tools" aria-label="Filter periode grafik">
+                <button class="chart-range-btn" type="button" data-range="7">7H</button>
+                <button class="chart-range-btn" type="button" data-range="14">14H</button>
+                <button class="chart-range-btn active" type="button" data-range="30">30H</button>
+                <button class="chart-range-btn" type="button" data-range="all">All</button>
+              </div>
+              <div class="chart-date-filter" aria-label="Filter tanggal grafik">
+                <label class="chart-date-field">Dari
+                  <input id="chartStartDate" type="date">
+                </label>
+                <label class="chart-date-field">Sampai
+                  <input id="chartEndDate" type="date">
+                </label>
+                <button id="clearDateFilter" class="chart-date-clear" type="button" title="Reset tanggal" aria-label="Reset tanggal">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </div>
+          </div>
           <div class="col-lg-6">
             <div class="card chart-card shadow-sm mb-4">
               <div class="card-header">
                 <h6 class="chart-title"><i class="bi bi-graph-up-arrow"></i>Hasil Penjualan</h6>
-                <div class="chart-tools" aria-label="Filter periode grafik">
-                  <button class="chart-range-btn" type="button" data-range="7">7H</button>
-                  <button class="chart-range-btn" type="button" data-range="14">14H</button>
-                  <button class="chart-range-btn active" type="button" data-range="30">30H</button>
-                  <button class="chart-range-btn" type="button" data-range="all">All</button>
-                </div>
-                <div class="chart-date-filter" aria-label="Filter tanggal grafik">
-                  <label class="chart-date-field">Dari
-                    <input id="chartStartDate" type="date">
-                  </label>
-                  <label class="chart-date-field">Sampai
-                    <input id="chartEndDate" type="date">
-                  </label>
-                  <button id="clearDateFilter" class="chart-date-clear" type="button" title="Reset tanggal" aria-label="Reset tanggal">
-                    <i class="bi bi-x-lg"></i>
-                  </button>
-                </div>
               </div>
               <div class="card-body">
                 <div class="chart-meta">
