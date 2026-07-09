@@ -454,7 +454,12 @@
           return;
         }
 
-        if (satuan === "kg" && digits.length > 3) {
+        if (satuan === "kg") {
+          if (digits.length <= 3) {
+            input.value = digits;
+            return;
+          }
+
           const whole = digits.slice(0, -3).replace(/^0+(?=\d)/, "") || "0";
           input.value = `${parseInt(whole, 10).toLocaleString("id-ID")}.${digits.slice(-3)}`;
           return;
