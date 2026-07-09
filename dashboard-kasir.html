@@ -354,7 +354,7 @@
             <input type="hidden" id="restockIndex">
             <div class="mb-3">
               <label class="form-label">Qty Masuk</label>
-              <input type="text" inputmode="decimal" id="qtyMasuk" class="form-control" placeholder="Contoh: 1, 0.500, atau 14.500" oninput="formatQtyField(this, this.dataset.satuan || 'pcs')">
+              <input type="text" inputmode="decimal" id="qtyMasuk" class="form-control" placeholder="Contoh: 1, 0.500, atau 14.500" oninput="formatQtyField(this, getRestockSatuan())">
             </div>
             <div class="mb-3">
               <label class="form-label">Harga Beli Terbaru</label>
@@ -416,6 +416,15 @@
         new bootstrap.Toast(toast, { delay: 3000 }).show();
       }
 
+      function normalizeSatuan(satuan = "pcs") {
+        return String(satuan || "pcs").trim().toLowerCase();
+      }
+
+      function getRestockSatuan() {
+        const index = parseInt(document.getElementById("restockIndex")?.value || "-1");
+        return normalizeSatuan(document.getElementById("qtyMasuk")?.dataset.satuan || dataBarang[index]?.satuan || "kg");
+      }
+
       function parseQty(value) {
         if (value === null || value === undefined || value === "") return 0;
         const normalized = String(value).trim().replace(",", ".");
@@ -433,8 +442,11 @@
       }
 
       function parseQtyInput(value, satuan = "pcs") {
-        if (satuan === "kg") return parseQty(value);
-        const digits = String(value || "").replace(/\D/g, "");
+        const raw = String(value || "").trim();
+        const digits = raw.replace(/\D/g, "");
+        if (normalizeSatuan(satuan) === "kg" || /^0[.,]\d+$/.test(raw) || (digits.length >= 4 && digits.startsWith("0"))) {
+          return parseQty(raw.includes(".") || raw.includes(",") ? raw : Number(digits) / 1000);
+        }
         return digits ? parseInt(digits, 10) : 0;
       }
 
@@ -448,18 +460,24 @@
       }
 
       function formatQtyField(input, satuan = "pcs") {
+        satuan = normalizeSatuan(satuan);
         let digits = String(input.value || "").replace(/\D/g, "");
         if (!digits) {
           input.value = "";
           return;
         }
 
-        if (satuan === "kg") {
+        if (digits.startsWith("0")) {
           if (digits.length <= 3) {
             input.value = digits;
             return;
           }
 
+          input.value = (Number(digits) / 1000).toFixed(3);
+          return;
+        }
+
+        if (satuan === "kg" && digits.length > 3) {
           const whole = digits.slice(0, -3).replace(/^0+(?=\d)/, "") || "0";
           input.value = `${parseInt(whole, 10).toLocaleString("id-ID")}.${digits.slice(-3)}`;
           return;
@@ -473,7 +491,7 @@
 
       function formatQty(value, satuan = "pcs") {
         const qty = parseQty(value ?? 0);
-        if (satuan === "kg") return qty.toFixed(3);
+        if (normalizeSatuan(satuan) === "kg") return qty.toFixed(3);
         return String(Math.round(qty));
       }
 
@@ -674,7 +692,7 @@
 
       function restockBarang(index) {
         document.getElementById("restockIndex").value = index;
-        const satuan = dataBarang[index]?.satuan || "pcs";
+        const satuan = normalizeSatuan(dataBarang[index]?.satuan || "pcs");
         const qtyMasukInput = document.getElementById("qtyMasuk");
         qtyMasukInput.value = "";
         qtyMasukInput.dataset.satuan = satuan;
