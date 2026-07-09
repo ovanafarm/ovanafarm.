@@ -277,10 +277,10 @@
           <div class="card-body">
             <div class="mb-3"><label class="form-label">Gambar</label><input type="file" id="gambarBarang" class="form-control"></div>
             <div class="mb-3"><label class="form-label">Nama Barang</label><input type="text" id="namaBarang" class="form-control" placeholder="Masukkan nama barang"></div>
-            <div class="mb-3"><label class="form-label">Harga Beli</label><input type="number" id="hargaBeli" class="form-control" placeholder="Masukkan harga beli"></div>
-            <div class="mb-3"><label class="form-label">Harga Jual</label><input type="number" id="hargaJual" class="form-control" placeholder="Masukkan harga jual"></div>
+            <div class="mb-3"><label class="form-label">Harga Beli</label><input type="text" inputmode="numeric" id="hargaBeli" class="form-control" placeholder="Masukkan harga beli" oninput="formatCurrencyField(this)"></div>
+            <div class="mb-3"><label class="form-label">Harga Jual</label><input type="text" inputmode="numeric" id="hargaJual" class="form-control" placeholder="Masukkan harga jual" oninput="formatCurrencyField(this)"></div>
             <div class="mb-3"><label class="form-label">Minimum Qty Grosir</label><input type="number" step="0.001" min="0" id="minGrosir" class="form-control" placeholder="Contoh: 10 atau 2.5"></div>
-            <div class="mb-3"><label class="form-label">Harga Grosir</label><input type="number" id="hargaGrosir" class="form-control" placeholder="Contoh: 28000"></div>
+            <div class="mb-3"><label class="form-label">Harga Grosir</label><input type="text" inputmode="numeric" id="hargaGrosir" class="form-control" placeholder="Contoh: 28.000" oninput="formatCurrencyField(this)"></div>
             <div class="mb-3">
               <label class="form-label">Satuan</label>
               <select id="satuanBarang" class="form-select">
@@ -290,8 +290,8 @@
                 <option value="rcg">rcg</option>
               </select>
             </div>
-            <div class="mb-3"><label class="form-label">Stock</label><input type="number" step="0.001" min="0" id="stockBarang" class="form-control" placeholder="Contoh: 10 atau 14.534"></div>
-            <div class="mb-3"><label class="form-label">Minimum Stock</label><input type="number" step="0.001" min="0" id="minimumStock" class="form-control" placeholder="Contoh: 2 atau 0.5"></div>
+            <div class="mb-3"><label class="form-label">Stock</label><input type="text" inputmode="decimal" id="stockBarang" class="form-control" placeholder="Contoh: 10 atau 14.500" oninput="formatQtyField(this, document.getElementById('satuanBarang').value)"></div>
+            <div class="mb-3"><label class="form-label">Minimum Stock</label><input type="text" inputmode="decimal" id="minimumStock" class="form-control" placeholder="Contoh: 2 atau 0.500" oninput="formatQtyField(this, document.getElementById('satuanBarang').value)"></div>
             <button class="btn btn-primary" onclick="simpanBarang()">Simpan</button>
           </div>
         </div>
@@ -354,11 +354,11 @@
             <input type="hidden" id="restockIndex">
             <div class="mb-3">
               <label class="form-label">Qty Masuk</label>
-              <input type="number" step="0.001" min="0" id="qtyMasuk" class="form-control" placeholder="Contoh: 1, 0.5, atau 14.534">
+              <input type="text" inputmode="decimal" id="qtyMasuk" class="form-control" placeholder="Contoh: 1, 0.500, atau 14.500" oninput="formatQtyField(this, this.dataset.satuan || 'pcs')">
             </div>
             <div class="mb-3">
               <label class="form-label">Harga Beli Terbaru</label>
-              <input type="number" id="hargaBeliBaru" class="form-control">
+              <input type="text" inputmode="numeric" id="hargaBeliBaru" class="form-control" oninput="formatCurrencyField(this)">
             </div>
           </div>
           <div class="modal-footer">
@@ -419,9 +419,48 @@
       function parseQty(value) {
         if (value === null || value === undefined || value === "") return 0;
         const normalized = String(value).trim().replace(",", ".");
+        if (/^\d{1,3}(\.\d{3})+$/.test(normalized)) {
+          return Math.round((Number(normalized.replace(/\./g, "")) / 1000) * 1000) / 1000;
+        }
         const qty = parseFloat(normalized);
         if (Number.isNaN(qty)) return 0;
         return Math.round(qty * 1000) / 1000;
+      }
+
+      function parseCurrency(value) {
+        const digits = String(value || "").replace(/\D/g, "");
+        return digits ? parseInt(digits, 10) : 0;
+      }
+
+      function parseQtyInput(value, satuan = "pcs") {
+        if (satuan === "kg") return parseQty(value);
+        const digits = String(value || "").replace(/\D/g, "");
+        return digits ? parseInt(digits, 10) : 0;
+      }
+
+      function formatCurrencyValue(value) {
+        const digits = String(value || "").replace(/\D/g, "");
+        return digits ? parseInt(digits, 10).toLocaleString("id-ID") : "";
+      }
+
+      function formatCurrencyField(input) {
+        input.value = formatCurrencyValue(input.value);
+      }
+
+      function formatQtyField(input, satuan = "pcs") {
+        let digits = String(input.value || "").replace(/\D/g, "");
+        if (!digits) {
+          input.value = "";
+          return;
+        }
+
+        if (satuan === "kg" && digits.length > 3) {
+          const whole = digits.slice(0, -3).replace(/^0+(?=\d)/, "") || "0";
+          input.value = `${parseInt(whole, 10).toLocaleString("id-ID")}.${digits.slice(-3)}`;
+          return;
+        }
+
+        input.value = parseInt(digits, 10).toLocaleString("id-ID");
       }
 
       function qtyToMili(value) { return Math.round(parseQty(value) * 1000); }
@@ -494,8 +533,8 @@
           return;
         }
 
-        const stockQty = parseQty(stock);
-        const minimumStockQty = parseQty(minimumStock);
+        const stockQty = parseQtyInput(stock, satuan);
+        const minimumStockQty = parseQtyInput(minimumStock, satuan);
         if (stockQty < 0 || minimumStockQty < 0) {
           showToast("Stock dan minimum stock tidak valid!", "danger");
           return;
@@ -518,9 +557,9 @@
         const barangBaru = {
           nama,
           gambar: gambarUrl,
-          harga_beli: parseInt(hargaBeli),
-          harga_jual: parseInt(hargaJual),
-          harga_grosir: parseInt(document.getElementById("hargaGrosir").value || 0),
+          harga_beli: parseCurrency(hargaBeli),
+          harga_jual: parseCurrency(hargaJual),
+          harga_grosir: parseCurrency(document.getElementById("hargaGrosir").value || 0),
           min_grosir: parseQty(document.getElementById("minGrosir").value),
           satuan,
           stock: stockQty,
@@ -568,19 +607,19 @@
   </td>
   <td>
     <span id="modalText${index}">Rp ${parseInt(barang.modal).toLocaleString("id-ID")}</span>
-    <input type="number" id="modalInput${index}" value="${barang.modal}" class="form-control d-none">
+    <input type="text" inputmode="numeric" id="modalInput${index}" value="${formatCurrencyValue(barang.modal)}" class="form-control d-none" oninput="formatCurrencyField(this)">
   </td>
   <td>
     <span id="jualText${index}">Rp ${parseInt(barang.hargaJual).toLocaleString("id-ID")}</span>
-    <input type="number" id="jualInput${index}" value="${barang.hargaJual}" class="form-control d-none">
+    <input type="text" inputmode="numeric" id="jualInput${index}" value="${formatCurrencyValue(barang.hargaJual)}" class="form-control d-none" oninput="formatCurrencyField(this)">
   </td>
   <td>
     <span id="grosirText${index}">Rp ${(barang.hargaGrosir || 0).toLocaleString("id-ID")}</span>
-    <input type="number" id="grosirInput${index}" value="${barang.hargaGrosir || 0}" class="form-control d-none">
+    <input type="text" inputmode="numeric" id="grosirInput${index}" value="${formatCurrencyValue(barang.hargaGrosir || 0)}" class="form-control d-none" oninput="formatCurrencyField(this)">
   </td>
   <td>
     <span id="minGrosirText${index}">${formatQty(barang.minGrosir ?? 0, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}</span>
-    <input type="number" step="0.001" min="0" id="minGrosirInput${index}" value="${barang.minGrosir ?? 0}" class="form-control d-none">
+    <input type="text" inputmode="decimal" id="minGrosirInput${index}" value="${formatQty(barang.minGrosir ?? 0, barang.satuan || 'pcs')}" class="form-control d-none" oninput="formatQtyField(this, document.getElementById('satuanInput${index}').value)">
   </td>
   <td>
     <span id="satuanText${index}">${barang.satuan || 'pcs'}</span>
@@ -596,11 +635,11 @@
       ${formatQty(barang.stock ?? 0, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}
       ${barang.stock <= barang.minimumStock ? '<br><small class="text-danger fw-bold">Stock Menipis</small>' : ''}
     </span>
-    <input type="number" step="0.001" min="0" id="stockInput${index}" value="${barang.stock ?? 0}" class="form-control d-none">
+    <input type="text" inputmode="decimal" id="stockInput${index}" value="${formatQty(barang.stock ?? 0, barang.satuan || 'pcs')}" class="form-control d-none" oninput="formatQtyField(this, document.getElementById('satuanInput${index}').value)">
   </td>
   <td>
     <span id="minStockText${index}">${formatQty(barang.minimumStock ?? 0, barang.satuan || 'pcs')} ${barang.satuan || 'pcs'}</span>
-    <input type="number" step="0.001" min="0" id="minStockInput${index}" value="${barang.minimumStock ?? 0}" class="form-control d-none">
+    <input type="text" inputmode="decimal" id="minStockInput${index}" value="${formatQty(barang.minimumStock ?? 0, barang.satuan || 'pcs')}" class="form-control d-none" oninput="formatQtyField(this, document.getElementById('satuanInput${index}').value)">
   </td>
   <td>
     <button class="btn btn-warning btn-sm" id="editBtn${index}" onclick="editBarang(${index})"><i class="bi bi-pencil"></i></button>
@@ -630,15 +669,19 @@
 
       function restockBarang(index) {
         document.getElementById("restockIndex").value = index;
-        document.getElementById("qtyMasuk").value = "";
+        const satuan = dataBarang[index]?.satuan || "pcs";
+        const qtyMasukInput = document.getElementById("qtyMasuk");
+        qtyMasukInput.value = "";
+        qtyMasukInput.dataset.satuan = satuan;
         document.getElementById("hargaBeliBaru").value = "";
         new bootstrap.Modal(document.getElementById("modalRestock")).show();
       }
 
       async function simpanRestock() {
         let index = parseInt(document.getElementById("restockIndex").value);
-        let qtyMasuk = parseQty(document.getElementById("qtyMasuk").value);
-        let hargaBeliBaru = parseInt(document.getElementById("hargaBeliBaru").value);
+        let satuan = dataBarang[index]?.satuan || "pcs";
+        let qtyMasuk = parseQtyInput(document.getElementById("qtyMasuk").value, satuan);
+        let hargaBeliBaru = parseCurrency(document.getElementById("hargaBeliBaru").value);
 
         if (qtyMasuk <= 0 || !hargaBeliBaru) {
           showToast("Lengkapi data!", "danger");
@@ -686,13 +729,13 @@
       async function saveBarang(index) {
         const beforeData = cloneData(dataBarang[index]);
         dataBarang[index].nama = document.getElementById(`namaInput${index}`).value;
-        dataBarang[index].modal = parseInt(document.getElementById(`modalInput${index}`).value);
-        dataBarang[index].hargaJual = parseInt(document.getElementById(`jualInput${index}`).value);
-        dataBarang[index].hargaGrosir = parseInt(document.getElementById(`grosirInput${index}`).value);
-        dataBarang[index].minGrosir = parseQty(document.getElementById(`minGrosirInput${index}`).value);
+        dataBarang[index].modal = parseCurrency(document.getElementById(`modalInput${index}`).value);
+        dataBarang[index].hargaJual = parseCurrency(document.getElementById(`jualInput${index}`).value);
+        dataBarang[index].hargaGrosir = parseCurrency(document.getElementById(`grosirInput${index}`).value);
         dataBarang[index].satuan = document.getElementById(`satuanInput${index}`).value;
-        dataBarang[index].stock = parseQty(document.getElementById(`stockInput${index}`).value);
-        dataBarang[index].minimumStock = parseQty(document.getElementById(`minStockInput${index}`).value);
+        dataBarang[index].minGrosir = parseQtyInput(document.getElementById(`minGrosirInput${index}`).value, dataBarang[index].satuan);
+        dataBarang[index].stock = parseQtyInput(document.getElementById(`stockInput${index}`).value, dataBarang[index].satuan);
+        dataBarang[index].minimumStock = parseQtyInput(document.getElementById(`minStockInput${index}`).value, dataBarang[index].satuan);
 
         if (dataBarang[index].stock < 0 || dataBarang[index].minimumStock < 0) {
           showToast("Stock tidak valid!", "danger");
