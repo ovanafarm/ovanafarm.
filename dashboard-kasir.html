@@ -357,8 +357,9 @@
               <input type="text" inputmode="decimal" id="qtyMasuk" class="form-control" placeholder="Contoh: 1, 0.500, atau 14.500" oninput="formatQtyField(this, getRestockSatuan())">
             </div>
             <div class="mb-3">
-              <label class="form-label">Harga Beli Terbaru</label>
+              <label class="form-label">Harga Beli Terbaru (Satuan)</label>
               <input type="text" inputmode="numeric" id="hargaBeliBaru" class="form-control" oninput="formatCurrencyField(this)">
+              <small class="text-muted">Isi harga per satuan, bukan harga total. Contoh: beli 12 pcs total Rp120.000 &rarr; isi Rp10.000</small>
             </div>
           </div>
           <div class="modal-footer">
