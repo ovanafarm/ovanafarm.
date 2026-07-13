@@ -676,6 +676,21 @@
         return `${year}-${month}-${day}`;
       }
 
+      // Kolom "tanggal" pada tabel pengeluaran bertipe text dengan format "D/M/YYYY"
+      // (contoh: "21/6/2026"). new Date() bawaan JS salah mengartikan ini sebagai
+      // MM/DD/YYYY sehingga menghasilkan Invalid Date. Fungsi ini mem-parsing
+      // format tersebut secara manual, dengan fallback ke toDateKey untuk format lain.
+      function parseTanggalID(value) {
+        if (typeof value === "string" && value.includes("/")) {
+          const parts = value.split("/").map(Number);
+          const [day, month, year] = parts;
+          if (day && month && year) {
+            return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          }
+        }
+        return toDateKey(value);
+      }
+
       function formatTanggalPendek(dateKey) {
         if (!dateKey) return "-";
         const date = new Date(`${dateKey}T00:00:00`);
@@ -891,7 +906,7 @@
         let totalPengeluaran = 0, pengeluaranHariIni = 0;
         pengeluaran?.forEach((item) => {
           totalPengeluaran += Number(item.nominal || 0);
-          if (toDateKey(item.tanggal) === hariIni) pengeluaranHariIni += Number(item.nominal || 0);
+          if (parseTanggalID(item.tanggal) === hariIni) pengeluaranHariIni += Number(item.nominal || 0);
         });
 
         dashboardChartRows = Object.keys(penjualanPerHari)
