@@ -43,18 +43,18 @@
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
     <aside class="sidebar" id="sidebar">
         <a class="brand" href="./index.html">
-          <span class="brand-logo"><img class="brand-image" src="./assets/img/AdminLTELogo.png" alt="Logo"></span>
+          <span class="brand-logo" id="brandLogo"><img class="brand-image" src="./assets/img/AdminLTELogo.png" alt="Logo"></span>
           <span class="brand-text">Ovana Farm</span>
         </a>
 
         <nav class="nav flex-column">
-          <a class="nav-link" href="./index.html"><i class="bi bi-speedometer me-2"></i>Laporan Penjualan</a>
-          <a class="nav-link" href="./dashboard-kasir.html"><i class="bi bi-box-seam me-2"></i>Management Stock</a>
-          <a class="nav-link" href="./transaksi-kasir.html"><i class="bi bi-cart-fill me-2"></i>Kasir</a>
-          <a class="nav-link" href="./riwayat-penjualan.html"><i class="bi bi-clock-history me-2"></i>Riwayat Penjualan</a>
-          <a class="nav-link" href="./pengeluaran.html"><i class="bi bi-cash-stack me-2"></i>Pengeluaran</a>
-          <a class="nav-link active" href="./trash.html"><i class="bi bi-trash me-2"></i>Trash</a>
-          <a class="nav-link" href="./stock-record.html"><i class="bi bi-clipboard-data me-2"></i>Stock Record</a>
+          <a class="nav-link" href="./index.html"><i class="bi bi-speedometer"></i>Laporan Penjualan</a>
+          <a class="nav-link" href="./dashboard-kasir.html"><i class="bi bi-box-seam"></i>Management Stock</a>
+          <a class="nav-link" href="./transaksi-kasir.html"><i class="bi bi-cart-fill"></i>Kasir</a>
+          <a class="nav-link" href="./riwayat-penjualan.html"><i class="bi bi-clock-history"></i>Riwayat Penjualan</a>
+          <a class="nav-link" href="./pengeluaran.html"><i class="bi bi-cash-stack"></i>Pengeluaran</a>
+          <a class="nav-link active" href="./trash.html"><i class="bi bi-trash"></i>Trash</a>
+          <a class="nav-link" href="./stock-record.html"><i class="bi bi-clipboard-data"></i>Stock Record</a>
         </nav>
         <div class="sidebar-bottom"><nav class="nav flex-column">
           <a class="nav-link" href="./setting.html"><i class="bi bi-gear-fill"></i>Setting</a>
@@ -67,8 +67,8 @@
       <div class="topbar">
         <div class="topbar-left"><button class="hamburger" onclick="toggleSidebar()" aria-label="Buka menu"><i class="bi bi-list"></i></button><span class="topbar-title">Trash</span></div>
         <div class="topbar-right">
-          <div class="dropdown"><a href="#" class="text-secondary position-relative" data-bs-toggle="dropdown" aria-label="Notifikasi"><i class="bi bi-bell-fill fs-5"></i><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:10px">0</span></a><div class="dropdown-menu dropdown-menu-end" style="min-width:280px"><h6 class="dropdown-header">0 Notifikasi</h6><div class="dropdown-item text-muted">Tidak ada notifikasi</div></div></div>
-          <div class="dropdown"><a href="#" class="d-flex align-items-center gap-2 text-decoration-none text-dark" data-bs-toggle="dropdown"><span class="user-avatar"><i class="bi bi-person-fill"></i></span><span class="d-none d-md-inline">Admin</span><i class="bi bi-three-dots-vertical text-secondary"></i></a><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="./setting.html"><i class="bi bi-gear me-2"></i>Setting</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li></ul></div>
+          <div class="dropdown"><a href="#" class="text-secondary position-relative" data-bs-toggle="dropdown" aria-label="Notifikasi"><i class="bi bi-bell-fill fs-5"></i><span id="jumlahNotifikasi" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:10px">0</span></a><div class="dropdown-menu dropdown-menu-end" style="min-width:280px"><h6 class="dropdown-header" id="judulNotifikasi">0 Notifikasi</h6><div id="listNotifikasi"></div></div></div>
+          <div class="dropdown"><a href="#" class="d-flex align-items-center gap-2 text-decoration-none text-dark" data-bs-toggle="dropdown"><span id="navbarUserPhoto" class="user-avatar"><i class="bi bi-person-fill"></i></span><span id="navbarUserName" class="d-none d-md-inline navbar-user-name">Admin</span><i class="bi bi-three-dots-vertical text-secondary"></i></a><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="./setting.html"><i class="bi bi-gear me-2"></i>Setting</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li></ul></div>
         </div>
       </div>
       <main class="content">
@@ -139,6 +139,34 @@
 
       window.ovanaSupabase =
         window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      function setImageSlot(element, src, alt) {
+        if (!src || !element) return;
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = alt;
+        element.replaceChildren(img);
+      }
+
+      window.addEventListener("DOMContentLoaded", async function () {
+        const { data } = await window.ovanaSupabase.from("setting")
+          .select("nama_toko, logo_toko, nama_user, foto_user").eq("id", 1).single();
+        if (!data) return;
+        document.querySelector(".brand-text").innerText = data.nama_toko || "Ovana Farm";
+        document.getElementById("navbarUserName").innerText = data.nama_user || "Admin";
+        setImageSlot(document.getElementById("brandLogo"), data.logo_toko, "Logo toko");
+        setImageSlot(document.getElementById("navbarUserPhoto"), data.foto_user, "Foto pengguna");
+      });
+
+      function loadNotifikasi() {
+        const notifikasi = (JSON.parse(localStorage.getItem("barang")) || []).filter(item => item.stock <= item.minimumStock);
+        document.getElementById("jumlahNotifikasi").innerText = notifikasi.length;
+        document.getElementById("judulNotifikasi").innerText = notifikasi.length + " Notifikasi";
+        document.getElementById("listNotifikasi").innerHTML = notifikasi.length
+          ? notifikasi.map(item => `<a href="./dashboard-kasir.html" class="dropdown-item text-danger fw-bold">${item.nama} stok tersisa ${item.stock}</a><div class="dropdown-divider"></div>`).join("")
+          : '<a href="#" class="dropdown-item">Tidak ada notifikasi</a>';
+      }
+      loadNotifikasi();
 
       let trashData = [];
 
@@ -335,4 +363,3 @@
     </script>
   </body>
 </html>
- 
