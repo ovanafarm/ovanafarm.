@@ -162,7 +162,6 @@
         if (!data) return;
         document.querySelector(".brand-text").innerText = data.nama_toko || "Ovana Farm";
         document.getElementById("navbarUserName").innerText = data.nama_user || "Admin";
-        setImageSlot(document.getElementById("brandLogo"), data.logo_toko, "Logo toko");
         setImageSlot(document.getElementById("navbarUserPhoto"), data.foto_user, "Foto pengguna");
       });
 
