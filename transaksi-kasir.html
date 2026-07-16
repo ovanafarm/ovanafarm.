@@ -205,6 +205,8 @@
         .cashier-search .form-control,
         .cashier-search .input-group-text { min-height: 48px; font-size: 16px; }
         .product-grid { --bs-gutter-x: 12px; --bs-gutter-y: 12px; }
+        .cashier-products { order: 1; }
+        .cashier-cart { order: 2; }
         .product-card { height: 100%; border-radius: 14px; overflow: hidden; }
         .product-card .card-body { padding: 12px 10px; display: flex; flex-direction: column; }
         .product-image { width: 100%; height: 112px; object-fit: contain !important; margin-bottom: 8px; }
@@ -226,6 +228,12 @@
       }
 
       /* Kasir specific */
+      /* Ukuran dasar gambar produk untuk desktop; HP menimpanya di media query. */
+      .product-image {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+      }
       .qty-modal-summary { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px; }
       .qty-modal-summary .label { color: #6c757d; font-size: 13px; margin-bottom: 2px; }
       .qty-modal-summary .value { color: #212529; font-weight: 600; }
@@ -324,10 +332,10 @@
         </div>
 
         <div class="row">
-          <div class="col-lg-8">
+          <div class="col-lg-8 cashier-products">
             <div class="row product-grid" id="daftarBarangKasir"></div>
           </div>
-          <div class="col-lg-4">
+          <div class="col-lg-4 cashier-cart">
             <div class="card shadow-sm cart-card">
               <div class="card-header"><h6 class="mb-0 fw-bold">Keranjang</h6></div>
               <div class="card-body">
