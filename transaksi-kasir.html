@@ -185,6 +185,17 @@
         color: #6c757d;
       }
 
+      /* Keranjang tetap terlihat saat daftar produk di-scroll pada layar desktop. */
+      @media (min-width: 992px) {
+        .cashier-cart .cart-card {
+          position: sticky;
+          /* Tetap sejajar di bawah kolom pencarian, tidak naik ke topbar. */
+          top: 190px;
+          max-height: calc(100vh - 210px);
+          overflow-y: auto;
+        }
+      }
+
       @media (max-width: 900px) {
         .sidebar { transform: translateX(-230px); }
         .sidebar.open { transform: translateX(0); }
