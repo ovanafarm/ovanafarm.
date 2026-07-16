@@ -228,12 +228,27 @@
       }
 
       /* Kasir specific */
-      /* Ukuran dasar gambar produk untuk desktop; HP menimpanya di media query. */
+      /* Kartu produk seragam di desktop maupun HP. */
+      .product-grid > [class*="col-"] { display: flex; }
+      .product-card {
+        width: 100%;
+        min-height: 280px;
+        overflow: hidden;
+      }
+      .product-card .card-body {
+        display: flex;
+        flex-direction: column;
+      }
       .product-image {
         width: 120px;
         height: 120px;
-        object-fit: cover;
+        object-fit: contain;
       }
+      .product-name { min-height: 48px; margin: 12px 0 6px; line-height: 1.25; }
+      .product-price { margin: 0 0 6px; }
+      .product-stock { margin: 0 0 12px; }
+      .product-wholesale { min-height: 32px; }
+      .product-card .btn { margin-top: auto; }
       .qty-modal-summary { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px; }
       .qty-modal-summary .label { color: #6c757d; font-size: 13px; margin-bottom: 2px; }
       .qty-modal-summary .value { color: #212529; font-weight: 600; }
