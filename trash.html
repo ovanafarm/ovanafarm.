@@ -117,6 +117,15 @@
       <footer class="app-footer"><strong>Ovana Farm</strong> - When Fresh Meets Daily Needs</footer>
     </div>
 
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+      <div id="toastNotif" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body fw-bold" id="toastPesan"></div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       function toggleSidebar() {
@@ -130,6 +139,13 @@
       function logout() {
         localStorage.removeItem('isLogin');
         window.location.replace('./login.html');
+      }
+      function showToast(pesan, tipe = "success") {
+        const toast = document.getElementById("toastNotif");
+        const toastPesan = document.getElementById("toastPesan");
+        toast.className = `toast align-items-center text-white border-0 bg-${tipe}`;
+        toastPesan.innerText = pesan;
+        new bootstrap.Toast(toast, { delay: 3000 }).show();
       }
     </script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -287,7 +303,7 @@
 
         if (error) {
           console.error(error);
-          alert("Gagal memuat trash");
+          showToast("Gagal memuat trash", "danger");
           return;
         }
 
@@ -304,7 +320,7 @@
         const dataJson = item.data_json || {};
 
         if (item.source !== "barang") {
-          alert("Restore untuk source ini belum tersedia.");
+          showToast("Restore untuk source ini belum tersedia.", "danger");
           return;
         }
 
@@ -319,7 +335,7 @@
 
         if (insertError) {
           console.error(insertError);
-          alert("Restore gagal");
+          showToast("Restore gagal", "danger");
           return;
         }
 
@@ -337,7 +353,7 @@
           "Barang direstore dari trash"
         );
 
-        alert("Barang berhasil direstore");
+        showToast("Barang berhasil direstore");
         loadTrash();
       }
 
@@ -352,10 +368,11 @@
 
         if (error) {
           console.error(error);
-          alert("Gagal hapus permanen");
+          showToast("Gagal hapus permanen", "danger");
           return;
         }
 
+        showToast("Data dihapus permanen", "warning");
         loadTrash();
       }
 
