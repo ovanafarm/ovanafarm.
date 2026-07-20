@@ -411,6 +411,7 @@
 
     <button
       class="btn btn-primary"
+      id="btnSimpanPengeluaran"
       onclick="simpanPengeluaran()">
 
       <i class="bi bi-save"></i>
@@ -492,6 +493,18 @@
     </main>
     </div>
     <!--end::App Wrapper-->
+
+    <!--begin::Toast Notifikasi-->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+      <div id="toastNotif" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body fw-bold" id="toastPesan"></div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      </div>
+    </div>
+    <!--end::Toast Notifikasi-->
+
     <!--begin::Script-->
     <!--begin::Third Party Plugin(OverlayScrollbars)-->
     <script
@@ -550,6 +563,16 @@
       });
     </script>
 
+    <script>
+      function showToast(pesan, tipe = "success") {
+        const toast = document.getElementById("toastNotif");
+        const toastPesan = document.getElementById("toastPesan");
+        toast.className = `toast align-items-center text-white border-0 bg-${tipe}`;
+        toastPesan.innerText = pesan;
+        new bootstrap.Toast(toast, { delay: 3000 }).show();
+      }
+    </script>
+
 <script>
 
   async function loadPengeluaran() {
@@ -562,6 +585,7 @@
 
   if (error) {
     console.error(error);
+    showToast("Gagal memuat data pengeluaran", "danger");
     return;
   }
 
@@ -569,6 +593,17 @@
     document.getElementById("dataRiwayat");
 
   tbody.innerHTML = "";
+
+  if (data.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center text-muted py-4">
+          Belum ada data pengeluaran
+        </td>
+      </tr>
+    `;
+    return;
+  }
 
   data.forEach((trx, index) => {
 
@@ -612,7 +647,12 @@ async function exportExcel() {
       .order("id", { ascending: false });
 
   if (error) {
-    alert("Gagal mengambil data");
+    showToast("Gagal mengambil data untuk export", "danger");
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    showToast("Belum ada data pengeluaran untuk di-export", "warning");
     return;
   }
 
@@ -641,6 +681,8 @@ async function exportExcel() {
     "pengeluaran.xlsx"
   );
 
+  showToast("Excel berhasil diunduh");
+
 }
   
   async function simpanPengeluaran() {
@@ -661,10 +703,13 @@ async function exportExcel() {
 
   if (!inputTanggal || !keterangan || !nominal) {
 
-    alert("Lengkapi data!");
+    showToast("Lengkapi data!", "danger");
     return;
 
   }
+
+  const btn = document.getElementById("btnSimpanPengeluaran");
+  btn.disabled = true;
 
   const { error } =
     await window.ovanaSupabase
@@ -675,22 +720,25 @@ async function exportExcel() {
         nominal: Number(nominal)
       }]);
 
+  btn.disabled = false;
+
 if (error) {
 
   console.error(error);
 
-  alert(
-    "Error: " +
-    error.message
-  );
+  showToast("Error: " + error.message, "danger");
 
   return;
 
 }
 
-  alert("Pengeluaran berhasil disimpan");
+  showToast("Pengeluaran berhasil disimpan");
 
-  location.reload();
+  document.getElementById("keterangan").value = "";
+  document.getElementById("nominal").value = "";
+  document.getElementById("tanggal").valueAsDate = new Date();
+
+  loadPengeluaran();
 
 }
 
@@ -731,6 +779,8 @@ async function hapusItem(id) {
     .from("pengeluaran")
     .delete()
     .eq("id", id);
+
+  showToast("Data dipindahkan ke Trash", "warning");
 
   loadPengeluaran();
 
