@@ -407,15 +407,29 @@
       loadRiwayat();
 
       function exportExcel() {
-        let dataExport = riwayat.map((trx, index) => ({
-          No: index + 1,
-          Tanggal: trx.tanggal,
-          Total: trx.total,
-          Bayar: trx.bayar,
-          Kembalian: trx.kembalian,
-          Item: trx.item ? trx.item.map(i => `${i.nama} (${i.qty})`).join(", ") : "-",
-          Profit: trx.item ? trx.item.reduce((total, i) => total + (((i.harga || 0) - (i.modal || 0)) * (i.qty || 0)), 0) : 0
-        }));
+        let dataExport = riwayat.map((trx, index) => {
+          const tgl = new Date(trx.tanggal);
+          return {
+            No: index + 1,
+            Tanggal: tgl.toLocaleDateString("id-ID", {
+              timeZone: "Asia/Jakarta",
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric"
+            }),
+            Jam: tgl.toLocaleTimeString("id-ID", {
+              timeZone: "Asia/Jakarta",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit"
+            }),
+            Total: trx.total,
+            Bayar: trx.bayar,
+            Kembalian: trx.kembalian,
+            Item: trx.item ? trx.item.map(i => `${i.nama} (${i.qty})`).join(", ") : "-",
+            Profit: trx.item ? trx.item.reduce((total, i) => total + (((i.harga || 0) - (i.modal || 0)) * (i.qty || 0)), 0) : 0
+          };
+        });
 
         let worksheet = XLSX.utils.json_to_sheet(dataExport);
         let workbook = XLSX.utils.book_new();
