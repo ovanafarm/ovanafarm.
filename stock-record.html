@@ -21,7 +21,7 @@
       .content { padding: 24px; }
       .toolbar { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
       .muted-small { color: #6c757d; font-size: 13px; }
-      .diff-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 8px 10px; min-width: 170px; }
+      .diff-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 8px 10px; min-width: 220px; }
       .badge-action { letter-spacing: .2px; }
       @media (max-width: 900px) {
         .app-shell { grid-template-columns: 1fr; }
@@ -114,7 +114,7 @@
                     <th>Waktu</th>
                     <th>Action</th>
                     <th>Barang</th>
-                    <th>Stock</th>
+                    <th>Perubahan</th>
                     <th>User</th>
                     <th>Catatan</th>
                   </tr>
@@ -188,15 +188,6 @@
         return satuan === "kg" ? qty.toFixed(3) : String(Math.round(qty));
       }
 
-      function getStockInfo(data) {
-        if (!data) return "-";
-
-        const satuan = data.satuan || "pcs";
-        const stock = data.stock ?? 0;
-
-        return `${formatQty(stock, satuan)} ${satuan}`;
-      }
-
       function getBadge(action) {
         const map = {
           CREATE: "text-bg-primary",
@@ -207,6 +198,79 @@
         };
 
         return map[action] || "text-bg-secondary";
+      }
+
+      // ==== Diff engine: bandingin SEMUA field, bukan cuma stock ====
+
+      const FIELD_LABELS = {
+        nama: "Nama",
+        harga_beli: "Harga Beli",
+        harga_jual: "Harga Jual",
+        harga_grosir: "Harga Grosir",
+        min_grosir: "Min Qty Grosir",
+        satuan: "Satuan",
+        stock: "Stock",
+        minimum_stock: "Minimum Stock"
+      };
+
+      const CURRENCY_FIELDS = ["harga_beli", "harga_jual", "harga_grosir"];
+      const QTY_FIELDS = ["stock", "minimum_stock", "min_grosir"];
+
+      // Log lama pakai camelCase (modal, hargaJual, dst), log baru snake_case.
+      // Normalizer ini bikin dua-duanya kebaca dengan benar.
+      function normalizeLogData(data) {
+        if (!data) return null;
+        return {
+          nama: data.nama,
+          harga_beli: data.harga_beli ?? data.modal,
+          harga_jual: data.harga_jual ?? data.hargaJual,
+          harga_grosir: data.harga_grosir ?? data.hargaGrosir,
+          min_grosir: data.min_grosir ?? data.minGrosir,
+          satuan: data.satuan,
+          stock: data.stock,
+          minimum_stock: data.minimum_stock ?? data.minimumStock
+        };
+      }
+
+      function formatFieldValue(field, value, satuan) {
+        if (value === null || value === undefined || value === "") return "-";
+        if (CURRENCY_FIELDS.includes(field)) return "Rp " + Number(value).toLocaleString("id-ID");
+        if (QTY_FIELDS.includes(field)) return `${formatQty(value, satuan)} ${satuan || "pcs"}`;
+        return String(value);
+      }
+
+      function buildDiffHtml(rawBefore, rawAfter) {
+        const before = normalizeLogData(rawBefore);
+        const after = normalizeLogData(rawAfter);
+        const satuan = (after || before)?.satuan || "pcs";
+        const keys = Object.keys(FIELD_LABELS);
+
+        if (!before && after) {
+          // CREATE: tampilkan snapshot data barunya
+          return keys
+            .filter((k) => after[k] !== undefined && after[k] !== null && after[k] !== "")
+            .map((k) => `<div>${FIELD_LABELS[k]}: <strong>${formatFieldValue(k, after[k], satuan)}</strong></div>`)
+            .join("");
+        }
+
+        if (before && !after) {
+          return `<div class="muted-small">Barang dihapus. Stock terakhir: ${formatFieldValue("stock", before.stock, satuan)}</div>`;
+        }
+
+        if (!before && !after) return '<span class="muted-small">-</span>';
+
+        const changed = keys.filter((k) => String(before[k] ?? "") !== String(after[k] ?? ""));
+        if (changed.length === 0) return '<span class="muted-small">Tidak ada perubahan nilai</span>';
+
+        return changed
+          .map(
+            (k) => `
+          <div class="mb-1">
+            <span class="muted-small">${FIELD_LABELS[k]}:</span>
+            ${formatFieldValue(k, before[k], satuan)} &rarr; <strong>${formatFieldValue(k, after[k], satuan)}</strong>
+          </div>`
+          )
+          .join("");
       }
 
       function tampilkanLogs() {
@@ -235,8 +299,7 @@
         }
 
         tbody.innerHTML = filtered.map((log) => {
-          const beforeStock = getStockInfo(log.before_data);
-          const afterStock = getStockInfo(log.after_data);
+          const diffHtml = buildDiffHtml(log.before_data, log.after_data);
           const waktu = log.created_at
             ? new Date(log.created_at).toLocaleString("id-ID")
             : "-";
@@ -257,10 +320,7 @@
                 <div class="muted-small">Barang ID: ${log.barang_id || "-"}</div>
               </td>
               <td>
-                <div class="diff-box">
-                  <div class="muted-small">Sebelum: ${beforeStock}</div>
-                  <div>Sesudah: <strong>${afterStock}</strong></div>
-                </div>
+                <div class="diff-box">${diffHtml}</div>
               </td>
               <td>${log.user_name || "-"}</td>
               <td>${log.catatan || "-"}</td>
