@@ -95,9 +95,9 @@
               <table class="table table-hover align-middle">
                 <thead>
                   <tr>
-                    <th>Barang</th>
+                    <th>Item</th>
                     <th>Source</th>
-                    <th>Stock</th>
+                    <th>Detail</th>
                     <th>Dihapus</th>
                     <th class="text-end">Action</th>
                   </tr>
@@ -301,13 +301,56 @@
           ]);
       }
 
+      function formatCurrency(value) {
+        return "Rp " + Number(value || 0).toLocaleString("id-ID");
+      }
+
+      // Setiap source (barang, pengeluaran, dll) punya bentuk data beda,
+      // jadi tampilannya di-adapt per source biar ga nampilin field yang ga relevan.
+      const SOURCE_LABELS = {
+        barang: "Barang",
+        pengeluaran: "Pengeluaran"
+      };
+
+      function getItemDisplay(item) {
+        const data = item.data_json || {};
+
+        if (item.source === "barang") {
+          const satuan = data.satuan || "pcs";
+          return {
+            imgHtml: `<img class="item-img" src="${data.gambar || "./assets/img/AdminLTELogo.png"}" alt="">`,
+            title: data.nama || "-",
+            subtitle: `ID lama: ${item.original_id || "-"}`,
+            detail: `${formatQty(data.stock, satuan)} ${satuan}`
+          };
+        }
+
+        if (item.source === "pengeluaran") {
+          return {
+            imgHtml: `<span class="item-img d-flex align-items-center justify-content-center"><i class="bi bi-cash-stack fs-4 text-secondary"></i></span>`,
+            title: data.keterangan || "-",
+            subtitle: `Tanggal: ${data.tanggal || "-"}`,
+            detail: formatCurrency(data.nominal)
+          };
+        }
+
+        // Fallback generik buat source lain yang mungkin ditambah nanti
+        return {
+          imgHtml: `<span class="item-img d-flex align-items-center justify-content-center"><i class="bi bi-file-earmark fs-4 text-secondary"></i></span>`,
+          title: data.nama || data.keterangan || "-",
+          subtitle: `ID lama: ${item.original_id || "-"}`,
+          detail: "-"
+        };
+      }
+
       function tampilkanTrash() {
         const tbody = document.getElementById("tabelTrash");
         const keyword = document.getElementById("searchTrash").value.toLowerCase();
 
         const filtered = trashData.filter((item) => {
           const data = item.data_json || {};
-          return (data.nama || "").toLowerCase().includes(keyword);
+          const title = (data.nama || data.keterangan || "").toLowerCase();
+          return title.includes(keyword);
         });
 
         if (filtered.length === 0) {
@@ -322,8 +365,7 @@
         }
 
         tbody.innerHTML = filtered.map((item) => {
-          const data = item.data_json || {};
-          const satuan = data.satuan || "pcs";
+          const display = getItemDisplay(item);
           const tanggal = item.deleted_at
             ? new Date(item.deleted_at).toLocaleString("id-ID")
             : "-";
@@ -332,15 +374,15 @@
             <tr>
               <td>
                 <div class="d-flex align-items-center gap-3">
-                  <img class="item-img" src="${data.gambar || "./assets/img/AdminLTELogo.png"}" alt="">
+                  ${display.imgHtml}
                   <div>
-                    <div class="fw-semibold">${data.nama || "-"}</div>
-                    <div class="muted-small">ID lama: ${item.original_id || "-"}</div>
+                    <div class="fw-semibold">${display.title}</div>
+                    <div class="muted-small">${display.subtitle}</div>
                   </div>
                 </div>
               </td>
-              <td>${item.source}</td>
-              <td>${formatQty(data.stock, satuan)} ${satuan}</td>
+              <td>${SOURCE_LABELS[item.source] || item.source}</td>
+              <td>${display.detail}</td>
               <td>${tanggal}</td>
               <td class="text-end">
                 <button class="btn btn-sm btn-success" onclick="restoreTrash(${item.id})">
@@ -377,8 +419,8 @@
         if (!item) return;
 
         const konfirmasi = await showConfirm({
-          title: "Restore Barang",
-          message: "Restore barang ini ke management stock?",
+          title: "Restore Data",
+          message: `Restore ${SOURCE_LABELS[item.source] || item.source} ini?`,
           tipe: "primary",
           okText: "Ya, Restore"
         });
@@ -386,42 +428,62 @@
 
         const dataJson = item.data_json || {};
 
-        if (item.source !== "barang") {
-          showToast("Restore untuk source ini belum tersedia.", "danger");
+        if (item.source === "barang") {
+          const barangDb = mapBarangToDb(dataJson);
+
+          const { data: inserted, error: insertError } =
+            await window.ovanaSupabase
+              .from("barang")
+              .insert([barangDb])
+              .select("*")
+              .single();
+
+          if (insertError) {
+            console.error(insertError);
+            showToast("Restore gagal", "danger");
+            return;
+          }
+
+          await window.ovanaSupabase.from("trash").delete().eq("id", id);
+
+          await simpanStockLog(
+            "RESTORE_FROM_TRASH",
+            inserted.id,
+            inserted.nama,
+            null,
+            inserted,
+            "Barang direstore dari trash"
+          );
+
+          showToast("Barang berhasil direstore");
+          loadTrash();
           return;
         }
 
-        const barangDb = mapBarangToDb(dataJson);
+        if (item.source === "pengeluaran") {
+          const { error: insertError } =
+            await window.ovanaSupabase
+              .from("pengeluaran")
+              .insert([{
+                tanggal: dataJson.tanggal,
+                keterangan: dataJson.keterangan,
+                nominal: dataJson.nominal
+              }]);
 
-        const { data: inserted, error: insertError } =
-          await window.ovanaSupabase
-            .from("barang")
-            .insert([barangDb])
-            .select("*")
-            .single();
+          if (insertError) {
+            console.error(insertError);
+            showToast("Restore gagal", "danger");
+            return;
+          }
 
-        if (insertError) {
-          console.error(insertError);
-          showToast("Restore gagal", "danger");
+          await window.ovanaSupabase.from("trash").delete().eq("id", id);
+
+          showToast("Pengeluaran berhasil direstore");
+          loadTrash();
           return;
         }
 
-        await window.ovanaSupabase
-          .from("trash")
-          .delete()
-          .eq("id", id);
-
-        await simpanStockLog(
-          "RESTORE_FROM_TRASH",
-          inserted.id,
-          inserted.nama,
-          null,
-          inserted,
-          "Barang direstore dari trash"
-        );
-
-        showToast("Barang berhasil direstore");
-        loadTrash();
+        showToast("Restore untuk source ini belum tersedia.", "danger");
       }
 
       async function hapusPermanen(id) {
