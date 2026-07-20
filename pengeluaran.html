@@ -505,6 +505,26 @@
     </div>
     <!--end::Toast Notifikasi-->
 
+    <!--begin::Modal Konfirmasi-->
+    <div class="modal fade" id="modalConfirm" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body text-center pt-4 pb-2">
+            <div id="confirmIcon" class="mb-3">
+              <i class="bi bi-question-circle" style="font-size: 42px; color: #0d6efd;"></i>
+            </div>
+            <h5 class="mb-2" id="confirmTitle">Konfirmasi</h5>
+            <p class="text-muted mb-0" id="confirmMessage">Yakin melanjutkan aksi ini?</p>
+          </div>
+          <div class="modal-footer border-0 justify-content-center pb-4">
+            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Batal</button>
+            <button type="button" class="btn px-4" id="confirmOkBtn">Ya, Lanjutkan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--end::Modal Konfirmasi-->
+
     <!--begin::Script-->
     <!--begin::Third Party Plugin(OverlayScrollbars)-->
     <script
@@ -570,6 +590,49 @@
         toast.className = `toast align-items-center text-white border-0 bg-${tipe}`;
         toastPesan.innerText = pesan;
         new bootstrap.Toast(toast, { delay: 3000 }).show();
+      }
+
+      // Modal konfirmasi custom, pengganti confirm() bawaan browser.
+      // Pakai: const ok = await showConfirm({ title, message, tipe: "danger"|"primary", okText });
+      function showConfirm({ title = "Konfirmasi", message = "Yakin melanjutkan aksi ini?", tipe = "primary", okText = "Ya, Lanjutkan" } = {}) {
+        return new Promise((resolve) => {
+          const modalEl = document.getElementById("modalConfirm");
+          const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+          const icon = document.getElementById("confirmIcon");
+          const okBtn = document.getElementById("confirmOkBtn");
+
+          document.getElementById("confirmTitle").innerText = title;
+          document.getElementById("confirmMessage").innerText = message;
+
+          const iconMap = {
+            danger: { icon: "bi-exclamation-triangle", color: "#dc3545" },
+            primary: { icon: "bi-question-circle", color: "#0d6efd" },
+            success: { icon: "bi-check-circle", color: "#198754" }
+          };
+          const chosen = iconMap[tipe] || iconMap.primary;
+          icon.innerHTML = `<i class="bi ${chosen.icon}" style="font-size: 42px; color: ${chosen.color};"></i>`;
+
+          okBtn.className = `btn px-4 btn-${tipe}`;
+          okBtn.innerText = okText;
+
+          let resolved = false;
+
+          const onOk = () => {
+            resolved = true;
+            modal.hide();
+            resolve(true);
+          };
+          const onHidden = () => {
+            okBtn.removeEventListener("click", onOk);
+            modalEl.removeEventListener("hidden.bs.modal", onHidden);
+            if (!resolved) resolve(false);
+          };
+
+          okBtn.addEventListener("click", onOk);
+          modalEl.addEventListener("hidden.bs.modal", onHidden);
+
+          modal.show();
+        });
       }
     </script>
 
@@ -759,8 +822,13 @@ function formatNominal(input) {
 
 async function hapusItem(id) {
 
-  if (!confirm("Pindahkan ke Trash?"))
-    return;
+  const konfirmasi = await showConfirm({
+    title: "Pindahkan ke Trash",
+    message: "Pindahkan data pengeluaran ini ke Trash?",
+    tipe: "danger",
+    okText: "Ya, Pindahkan"
+  });
+  if (!konfirmasi) return;
 
   const { data:item } =
     await window.ovanaSupabase
