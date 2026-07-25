@@ -610,6 +610,28 @@
             </div>
           </div>
         </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="card chart-card shadow-sm mb-4">
+              <div class="card-header">
+                <h6 class="chart-title"><i class="bi bi-trophy-fill"></i>Tren Penjualan Barang</h6>
+                <div class="chart-tools" aria-label="Filter tren barang">
+                  <button class="chart-range-btn active" type="button" data-product-view="terlaris">Paling Laku</button>
+                  <button class="chart-range-btn" type="button" data-product-view="lama">Paling Lama Tidak Terjual</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="chart-meta">
+                  <span id="productRangeText">Memuat data...</span>
+                  <strong id="productRangeCount">0 barang</strong>
+                </div>
+                <div id="product-chart"></div>
+                <div id="product-empty" class="chart-empty">Belum ada data penjualan barang.</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <footer class="app-footer">
@@ -664,6 +686,9 @@
       let customEndDate = "";
       let activeTargetPenjualan = 0;
       let activeTargetProfit = 0;
+      let productChart = null;
+      let productStatsRows = [];
+      let activeProductView = "terlaris";
 
       function formatRupiah(value) {
         return "Rp " + Math.round(Number(value || 0)).toLocaleString("id-ID");
@@ -718,7 +743,7 @@
       }
 
       function setChartRangeButtons() {
-        document.querySelectorAll(".chart-range-btn").forEach((button) => {
+        document.querySelectorAll(".chart-range-btn[data-range]").forEach((button) => {
           button.classList.toggle("active", String(selectedChartRange) === button.dataset.range);
         });
       }
@@ -933,7 +958,121 @@
         loadNotifikasi();
       }
 
-      document.querySelectorAll(".chart-range-btn").forEach((button) => {
+      // Menghitung ranking barang berdasarkan riwayat transaksi ("penjualan.item")
+      // digabung dengan daftar master barang, supaya barang yang belum pernah
+      // terjual sama sekali juga ikut muncul di daftar "Paling Lama Tidak Terjual".
+      // Asumsi: setiap entri di trx.item memiliki field "nama" yang sama dengan
+      // nama pada tabel "barang". Sesuaikan nama field ini jika berbeda.
+      async function loadProductTrends() {
+        const { data: penjualan } = await window.ovanaSupabase.from("penjualan").select("tanggal, item");
+        const { data: barang } = await window.ovanaSupabase.from("barang").select("nama");
+
+        const statsByName = {};
+
+        barang?.forEach((item) => {
+          if (!item.nama) return;
+          statsByName[item.nama] = { nama: item.nama, qty: 0, revenue: 0, lastDate: "" };
+        });
+
+        penjualan?.forEach((trx) => {
+          const tgl = toDateKey(trx.tanggal);
+          trx.item?.forEach((i) => {
+            const nama = i.nama || "Tanpa Nama";
+            if (!statsByName[nama]) statsByName[nama] = { nama, qty: 0, revenue: 0, lastDate: "" };
+            statsByName[nama].qty += Number(i.qty || 0);
+            statsByName[nama].revenue += Number(i.harga || 0) * Number(i.qty || 0);
+            if (tgl && (!statsByName[nama].lastDate || tgl > statsByName[nama].lastDate)) {
+              statsByName[nama].lastDate = tgl;
+            }
+          });
+        });
+
+        productStatsRows = Object.values(statsByName);
+        renderProductTrends(activeProductView);
+      }
+
+      function renderProductTrends(view) {
+        activeProductView = view;
+        document.querySelectorAll("[data-product-view]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.productView === view);
+        });
+
+        let rows;
+        let rangeLabel;
+
+        if (view === "lama") {
+          // Belum pernah terjual ditaruh paling atas, lalu diurutkan dari yang
+          // paling lama sejak terakhir kali terjual.
+          rows = [...productStatsRows]
+            .sort((a, b) => {
+              if (!a.lastDate && !b.lastDate) return b.qty - a.qty;
+              if (!a.lastDate) return -1;
+              if (!b.lastDate) return 1;
+              return a.lastDate.localeCompare(b.lastDate);
+            })
+            .slice(0, 10);
+          rangeLabel = "Barang yang paling lama tidak terjual";
+        } else {
+          rows = [...productStatsRows]
+            .filter((row) => row.qty > 0)
+            .sort((a, b) => b.qty - a.qty)
+            .slice(0, 10);
+          rangeLabel = "Barang paling laku berdasarkan jumlah terjual";
+        }
+
+        document.getElementById("productRangeText").innerText = rangeLabel;
+        document.getElementById("productRangeCount").innerText = rows.length + " barang";
+        document.getElementById("product-empty").classList.toggle("show", rows.length === 0);
+        document.getElementById("product-chart").style.display = rows.length ? "block" : "none";
+        if (!rows.length) return;
+
+        const categories = rows.map((row) => row.nama);
+        const values = rows.map((row) => row.qty);
+        const dataLabels = view === "lama"
+          ? rows.map((row) => (row.lastDate ? `Terakhir ${formatTanggalPendek(row.lastDate)}` : "Belum pernah terjual"))
+          : rows.map((row) => `${row.qty} terjual`);
+
+        const options = {
+          series: [{ name: "Jumlah Terjual", data: values }],
+          chart: {
+            type: "bar",
+            height: Math.max(rows.length * 34, 200),
+            toolbar: { show: false },
+            fontFamily: "Inter, system-ui, sans-serif"
+          },
+          colors: [view === "lama" ? "#dc3545" : "#0d6efd"],
+          plotOptions: { bar: { horizontal: true, borderRadius: 4, barHeight: "55%" } },
+          dataLabels: {
+            enabled: true,
+            formatter: (val, opts) => dataLabels[opts.dataPointIndex],
+            style: { fontSize: "11px", colors: ["#20262d"] },
+            offsetX: 6
+          },
+          grid: { borderColor: "#eef1f4", strokeDashArray: 4 },
+          xaxis: { categories, labels: { style: { fontSize: "11px" } } },
+          yaxis: { labels: { style: { fontSize: "12px" } } },
+          tooltip: {
+            y: {
+              formatter: (val, opts) => {
+                const row = rows[opts.dataPointIndex];
+                return `${val} unit terjual • ${formatRupiah(row.revenue)}`;
+              }
+            }
+          }
+        };
+
+        if (productChart) productChart.updateOptions(options, true, true);
+        else {
+          productChart = new ApexCharts(document.querySelector("#product-chart"), options);
+          productChart.render();
+        }
+      }
+
+      document.querySelectorAll("[data-product-view]").forEach((button) => {
+        button.addEventListener("click", () => renderProductTrends(button.dataset.productView));
+      });
+
+      document.querySelectorAll(".chart-range-btn[data-range]").forEach((button) => {
         button.addEventListener("click", () => {
           selectedChartRange = button.dataset.range === "all" ? "all" : Number(button.dataset.range);
           customStartDate = "";
@@ -966,6 +1105,7 @@
       });
 
       window.addEventListener("DOMContentLoaded", loadDashboard);
+      window.addEventListener("DOMContentLoaded", loadProductTrends);
     </script>
   </body>
 </html>
