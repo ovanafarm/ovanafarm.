@@ -689,6 +689,8 @@
       let productChart = null;
       let productStatsRows = [];
       let activeProductView = "terlaris";
+      let rawSalesForProducts = [];
+      let barangList = [];
 
       function formatRupiah(value) {
         return "Rp " + Math.round(Number(value || 0)).toLocaleString("id-ID");
@@ -903,6 +905,8 @@
         const { data: penjualan } = await window.ovanaSupabase.from("penjualan").select("*");
         const { data: pengeluaran } = await window.ovanaSupabase.from("pengeluaran").select("*");
         const { data: setting } = await window.ovanaSupabase.from("setting").select("target_penjualan, target_profit").eq("id", 1).single();
+        const { data: barang } = await window.ovanaSupabase.from("barang").select("nama");
+        barangList = barang || [];
         const targetPenjualan = Number(setting?.target_penjualan || 0);
         const targetProfit = Number(setting?.target_profit || 0);
         activeTargetPenjualan = targetPenjualan;
@@ -911,6 +915,7 @@
         let penjualanPerHari = {}, profitPerHari = {}, transaksiPerHari = {};
         let transaksiHariIni = 0, pendapatanHariIni = 0, totalProfit = 0, totalPenjualan = 0;
         const hariIni = toDateKey(new Date());
+        rawSalesForProducts = [];
 
         penjualan?.forEach((trx) => {
           const tgl = toDateKey(trx.tanggal);
@@ -923,6 +928,7 @@
             transaksiHariIni++;
             pendapatanHariIni += Number(trx.total || 0);
           }
+          rawSalesForProducts.push({ dateKey: tgl, items: trx.item || [] });
           trx.item?.forEach((i) => {
             const p = ((i.harga || 0) - (i.modal || 0)) * (i.qty || 0);
             profitPerHari[tgl] += p;
@@ -954,41 +960,49 @@
         document.getElementById("pengeluaranHariIni").innerText = formatRupiah(pengeluaranHariIni);
 
         renderDashboardCharts(targetPenjualan, targetProfit);
+        renderProductTrends(activeProductView);
 
         loadNotifikasi();
       }
 
-      // Menghitung ranking barang berdasarkan riwayat transaksi ("penjualan.item")
-      // digabung dengan daftar master barang, supaya barang yang belum pernah
-      // terjual sama sekali juga ikut muncul di daftar "Paling Lama Tidak Terjual".
+      // Menghitung ranking barang untuk rentang tanggal yang sedang aktif di
+      // filter periode (7H/14H/30H/All/tanggal custom) di atas — jadi tren
+      // barang ini otomatis mengikuti periode yang sama dengan grafik Hasil
+      // Penjualan & Profit.
       // Asumsi: setiap entri di trx.item memiliki field "nama" yang sama dengan
       // nama pada tabel "barang". Sesuaikan nama field ini jika berbeda.
-      async function loadProductTrends() {
-        const { data: penjualan } = await window.ovanaSupabase.from("penjualan").select("tanggal, item");
-        const { data: barang } = await window.ovanaSupabase.from("barang").select("nama");
+      function computeProductStatsForRange() {
+        const visibleRows = getVisibleRows();
+        let filteredSales = rawSalesForProducts;
+
+        if (selectedChartRange !== "all") {
+          if (!visibleRows.length) filteredSales = [];
+          else {
+            const from = visibleRows[0].dateKey;
+            const to = visibleRows[visibleRows.length - 1].dateKey;
+            filteredSales = rawSalesForProducts.filter((sale) => sale.dateKey >= from && sale.dateKey <= to);
+          }
+        }
 
         const statsByName = {};
-
-        barang?.forEach((item) => {
+        barangList.forEach((item) => {
           if (!item.nama) return;
           statsByName[item.nama] = { nama: item.nama, qty: 0, revenue: 0, lastDate: "" };
         });
 
-        penjualan?.forEach((trx) => {
-          const tgl = toDateKey(trx.tanggal);
-          trx.item?.forEach((i) => {
+        filteredSales.forEach((sale) => {
+          sale.items?.forEach((i) => {
             const nama = i.nama || "Tanpa Nama";
             if (!statsByName[nama]) statsByName[nama] = { nama, qty: 0, revenue: 0, lastDate: "" };
             statsByName[nama].qty += Number(i.qty || 0);
             statsByName[nama].revenue += Number(i.harga || 0) * Number(i.qty || 0);
-            if (tgl && (!statsByName[nama].lastDate || tgl > statsByName[nama].lastDate)) {
-              statsByName[nama].lastDate = tgl;
+            if (sale.dateKey && (!statsByName[nama].lastDate || sale.dateKey > statsByName[nama].lastDate)) {
+              statsByName[nama].lastDate = sale.dateKey;
             }
           });
         });
 
-        productStatsRows = Object.values(statsByName);
-        renderProductTrends(activeProductView);
+        return { rows: Object.values(statsByName), periodLabel: formatRentangTanggal(visibleRows) };
       }
 
       function renderProductTrends(view) {
@@ -997,12 +1011,15 @@
           button.classList.toggle("active", button.dataset.productView === view);
         });
 
+        const { rows: allRows, periodLabel } = computeProductStatsForRange();
+        productStatsRows = allRows;
+
         let rows;
         let rangeLabel;
 
         if (view === "lama") {
-          // Belum pernah terjual ditaruh paling atas, lalu diurutkan dari yang
-          // paling lama sejak terakhir kali terjual.
+          // Belum terjual pada periode ini ditaruh paling atas, lalu diurutkan
+          // dari yang paling lama sejak terakhir kali terjual dalam periode.
           rows = [...productStatsRows]
             .sort((a, b) => {
               if (!a.lastDate && !b.lastDate) return b.qty - a.qty;
@@ -1011,13 +1028,13 @@
               return a.lastDate.localeCompare(b.lastDate);
             })
             .slice(0, 10);
-          rangeLabel = "Barang yang paling lama tidak terjual";
+          rangeLabel = `Paling lama tidak terjual • ${periodLabel}`;
         } else {
           rows = [...productStatsRows]
             .filter((row) => row.qty > 0)
             .sort((a, b) => b.qty - a.qty)
             .slice(0, 10);
-          rangeLabel = "Barang paling laku berdasarkan jumlah terjual";
+          rangeLabel = `Paling laku • ${periodLabel}`;
         }
 
         document.getElementById("productRangeText").innerText = rangeLabel;
@@ -1029,7 +1046,7 @@
         const categories = rows.map((row) => row.nama);
         const values = rows.map((row) => row.qty);
         const dataLabels = view === "lama"
-          ? rows.map((row) => (row.lastDate ? `Terakhir ${formatTanggalPendek(row.lastDate)}` : "Belum pernah terjual"))
+          ? rows.map((row) => (row.lastDate ? `Terakhir ${formatTanggalPendek(row.lastDate)}` : "Belum terjual periode ini"))
           : rows.map((row) => `${row.qty} terjual`);
 
         const options = {
@@ -1080,6 +1097,7 @@
           document.getElementById("chartStartDate").value = "";
           document.getElementById("chartEndDate").value = "";
           renderDashboardCharts(activeTargetPenjualan, activeTargetProfit);
+          renderProductTrends(activeProductView);
         });
       });
 
@@ -1087,12 +1105,14 @@
         customStartDate = event.target.value;
         selectedChartRange = "custom";
         renderDashboardCharts(activeTargetPenjualan, activeTargetProfit);
+        renderProductTrends(activeProductView);
       });
 
       document.getElementById("chartEndDate").addEventListener("change", (event) => {
         customEndDate = event.target.value;
         selectedChartRange = "custom";
         renderDashboardCharts(activeTargetPenjualan, activeTargetProfit);
+        renderProductTrends(activeProductView);
       });
 
       document.getElementById("clearDateFilter").addEventListener("click", () => {
@@ -1102,10 +1122,10 @@
         document.getElementById("chartStartDate").value = "";
         document.getElementById("chartEndDate").value = "";
         renderDashboardCharts(activeTargetPenjualan, activeTargetProfit);
+        renderProductTrends(activeProductView);
       });
 
       window.addEventListener("DOMContentLoaded", loadDashboard);
-      window.addEventListener("DOMContentLoaded", loadProductTrends);
     </script>
   </body>
 </html>
