@@ -278,6 +278,8 @@
         background: #f8fafc;
       }
 
+      .product-view-tools .chart-range-btn { white-space: nowrap; }
+
       .chart-range-btn {
         border: 0;
         background: transparent;
@@ -405,6 +407,8 @@
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
         }
+        .product-view-tools { grid-template-columns: 1fr; }
+        .product-limit-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .chart-date-filter {
           margin-left: 0;
           width: 100%;
@@ -616,11 +620,11 @@
             <div class="card chart-card shadow-sm mb-4">
               <div class="card-header">
                 <h6 class="chart-title"><i class="bi bi-trophy-fill"></i>Tren Penjualan Barang</h6>
-                <div class="chart-tools" aria-label="Filter tren barang">
+                <div class="chart-tools product-view-tools" aria-label="Filter tren barang">
                   <button class="chart-range-btn active" type="button" data-product-view="terlaris">Paling Laku</button>
                   <button class="chart-range-btn" type="button" data-product-view="lama">Paling Lama Tidak Terjual</button>
                 </div>
-                <div class="chart-tools" aria-label="Jumlah barang yang ditampilkan">
+                <div class="chart-tools product-limit-tools" aria-label="Jumlah barang yang ditampilkan">
                   <button class="chart-range-btn active" type="button" data-product-limit="10">10 Barang</button>
                   <button class="chart-range-btn" type="button" data-product-limit="all">Semua</button>
                 </div>
