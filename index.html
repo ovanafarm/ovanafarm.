@@ -620,6 +620,10 @@
                   <button class="chart-range-btn active" type="button" data-product-view="terlaris">Paling Laku</button>
                   <button class="chart-range-btn" type="button" data-product-view="lama">Paling Lama Tidak Terjual</button>
                 </div>
+                <div class="chart-tools" aria-label="Jumlah barang yang ditampilkan">
+                  <button class="chart-range-btn active" type="button" data-product-limit="10">10 Barang</button>
+                  <button class="chart-range-btn" type="button" data-product-limit="all">Semua</button>
+                </div>
               </div>
               <div class="card-body">
                 <div class="chart-meta">
@@ -689,6 +693,7 @@
       let productChart = null;
       let productStatsRows = [];
       let activeProductView = "terlaris";
+      let activeProductLimit = 10;
       let rawSalesForProducts = [];
       let barangList = [];
 
@@ -1010,6 +1015,9 @@
         document.querySelectorAll("[data-product-view]").forEach((button) => {
           button.classList.toggle("active", button.dataset.productView === view);
         });
+        document.querySelectorAll("[data-product-limit]").forEach((button) => {
+          button.classList.toggle("active", String(activeProductLimit) === button.dataset.productLimit);
+        });
 
         const { rows: allRows, periodLabel } = computeProductStatsForRange();
         productStatsRows = allRows;
@@ -1026,16 +1034,16 @@
               if (!a.lastDate) return -1;
               if (!b.lastDate) return 1;
               return a.lastDate.localeCompare(b.lastDate);
-            })
-            .slice(0, 10);
+            });
           rangeLabel = `Paling lama tidak terjual • ${periodLabel}`;
         } else {
           rows = [...productStatsRows]
             .filter((row) => row.qty > 0)
-            .sort((a, b) => b.qty - a.qty)
-            .slice(0, 10);
+            .sort((a, b) => b.qty - a.qty);
           rangeLabel = `Paling laku • ${periodLabel}`;
         }
+
+        if (activeProductLimit !== "all") rows = rows.slice(0, Number(activeProductLimit));
 
         document.getElementById("productRangeText").innerText = rangeLabel;
         document.getElementById("productRangeCount").innerText = rows.length + " barang";
@@ -1044,13 +1052,17 @@
         if (!rows.length) return;
 
         const categories = rows.map((row) => row.nama);
-        const values = rows.map((row) => row.qty);
+        // Pada tampilan "lama", qty umumnya bernilai 0. Jika nilai 0 langsung
+        // digambar, semua label ApexCharts bertumpuk di titik 0 seperti pada
+        // tampilan sebelumnya. Gunakan batang status bernilai 1 agar tiap barang
+        // tetap memiliki ruang label; angka ini bukan jumlah penjualan.
+        const values = view === "lama" ? rows.map(() => 1) : rows.map((row) => row.qty);
         const dataLabels = view === "lama"
           ? rows.map((row) => (row.lastDate ? `Terakhir ${formatTanggalPendek(row.lastDate)}` : "Belum terjual periode ini"))
           : rows.map((row) => `${row.qty} terjual`);
 
         const options = {
-          series: [{ name: "Jumlah Terjual", data: values }],
+          series: [{ name: view === "lama" ? "Status penjualan" : "Jumlah Terjual", data: values }],
           chart: {
             type: "bar",
             height: Math.max(rows.length * 34, 200),
@@ -1063,15 +1075,23 @@
             enabled: true,
             formatter: (val, opts) => dataLabels[opts.dataPointIndex],
             style: { fontSize: "11px", colors: ["#20262d"] },
-            offsetX: 6
+            offsetX: 6,
+            background: { enabled: false }
           },
           grid: { borderColor: "#eef1f4", strokeDashArray: 4 },
-          xaxis: { categories, labels: { style: { fontSize: "11px" } } },
+          xaxis: view === "lama"
+            ? { categories, min: 0, max: 1.35, labels: { show: false }, axisBorder: { show: false }, axisTicks: { show: false } }
+            : { categories, labels: { style: { fontSize: "11px" } } },
           yaxis: { labels: { style: { fontSize: "12px" } } },
           tooltip: {
             y: {
               formatter: (val, opts) => {
                 const row = rows[opts.dataPointIndex];
+                if (view === "lama") {
+                  return row.lastDate
+                    ? `Terakhir terjual ${formatTanggalPendek(row.lastDate)}`
+                    : "Belum terjual pada periode ini";
+                }
                 return `${val} unit terjual • ${formatRupiah(row.revenue)}`;
               }
             }
@@ -1087,6 +1107,13 @@
 
       document.querySelectorAll("[data-product-view]").forEach((button) => {
         button.addEventListener("click", () => renderProductTrends(button.dataset.productView));
+      });
+
+      document.querySelectorAll("[data-product-limit]").forEach((button) => {
+        button.addEventListener("click", () => {
+          activeProductLimit = button.dataset.productLimit === "all" ? "all" : Number(button.dataset.productLimit);
+          renderProductTrends(activeProductView);
+        });
       });
 
       document.querySelectorAll(".chart-range-btn[data-range]").forEach((button) => {
