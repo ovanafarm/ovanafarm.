@@ -96,6 +96,16 @@
       .app-content-header { padding:0 0 16px; }
       .app-footer { background:transparent; border-top:1px solid var(--line); padding:14px 20px; color:#6c757d; }
       @media (max-width:900px) { .sidebar { transform:translateX(-230px); } .sidebar.open { transform:translateX(0); } .main-wrapper { margin-left:0; } .hamburger { display:block; } .topbar-title { font-size:16px; } .content { padding:14px; } }
+      @media (max-width: 575.98px) {
+        .content { padding: 12px; }
+        .card-body { padding: 14px 12px; }
+        #tanggal, #keterangan, #nominal, #metodeSumber {
+          min-height: 46px;
+          font-size: 16px;
+        }
+        #btnSimpanPengeluaran { width: 100%; min-height: 46px; font-size: 15px; margin-top: 4px; }
+        .table { font-size: 13px; }
+      }
     </style>
 
   </head>
