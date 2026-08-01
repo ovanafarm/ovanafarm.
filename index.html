@@ -189,6 +189,15 @@
         font-weight: 700;
       }
 
+      .small-box-breakdown {
+        font-size: 12px;
+        opacity: .9;
+        line-height: 1.35;
+        position: relative;
+        z-index: 1;
+        padding-right: 30px;
+      }
+
       .small-box-footer {
         display: block;
         background: rgba(0, 0, 0, .15);
@@ -392,7 +401,10 @@
         .sidebar.open { transform: translateX(0); }
         .main-wrapper { margin-left: 0; }
         .hamburger { display: block; }
-        .small-box h3 { font-size: 1.2rem; }
+        .small-box { padding: 14px; }
+        .small-box h3 { font-size: 1.2rem; margin-bottom: 6px; }
+        .small-box-icon { width: 38px; height: 38px; top: 12px; right: 12px; }
+        .small-box-breakdown { font-size: 10.5px; padding-right: 40px; }
         .topbar-title { font-size: 16px; }
         .content { padding: 14px; }
         .chart-card .card-header { align-items: stretch; }
@@ -434,6 +446,18 @@
         .metric-card:nth-last-child(-n+2) {
           border-bottom: 0;
         }
+      }
+
+      /* Layar HP sempit (2 kartu per baris): breakdown Cash/QRIS ditumpuk per
+         baris supaya tidak mepet/kepotong di kartu yang lebih kecil. */
+      @media (max-width: 420px) {
+        .small-box-breakdown {
+          padding-right: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+        }
+        .small-box-breakdown .bd-sep { display: none; }
       }
     </style>
   </head>
@@ -500,7 +524,7 @@
             <div class="small-box bg-primary-box">
               <p>Transaksi Hari Ini</p>
               <h3 id="totalTransaksi">0</h3>
-              <div id="transaksiBreakdown" style="font-size:12px;opacity:.9">Cash: 0 &middot; QRIS: 0</div>
+              <div id="transaksiBreakdown" class="small-box-breakdown">Cash: 0 &middot; QRIS: 0</div>
               <i class="bi bi-cart-fill small-box-icon"></i>
               <a href="./riwayat-penjualan.html" class="small-box-footer">More info <i class="bi bi-link-45deg"></i></a>
             </div>
@@ -509,7 +533,7 @@
             <div class="small-box bg-success-box">
               <p>Pendapatan Hari Ini</p>
               <h3 id="pendapatanHariIni">Rp 0</h3>
-              <div id="pendapatanBreakdown" style="font-size:12px;opacity:.9">Cash: Rp 0 &middot; QRIS: Rp 0</div>
+              <div id="pendapatanBreakdown" class="small-box-breakdown">Cash: Rp 0 &middot; QRIS: Rp 0</div>
               <i class="bi bi-bar-chart-fill small-box-icon"></i>
               <a href="./riwayat-penjualan.html" class="small-box-footer">More info <i class="bi bi-link-45deg"></i></a>
             </div>
@@ -518,7 +542,7 @@
             <div class="small-box bg-warning-box">
               <p>Saldo Ovana</p>
               <h3 id="saldoOvana">Rp 0</h3>
-              <div id="saldoBreakdown" style="font-size:12px;opacity:.9">Cash: Rp 0 &middot; QRIS: Rp 0</div>
+              <div id="saldoBreakdown" class="small-box-breakdown">Cash: Rp 0 &middot; QRIS: Rp 0</div>
               <i class="bi bi-person-plus-fill small-box-icon"></i>
               <a href="./dashboard-kasir.html" class="small-box-footer">More info <i class="bi bi-link-45deg"></i></a>
             </div>
@@ -527,7 +551,7 @@
             <div class="small-box bg-danger-box">
               <p>Pengeluaran Hari Ini</p>
               <h3 id="pengeluaranHariIni">Rp 0</h3>
-              <div id="pengeluaranBreakdown" style="font-size:12px;opacity:.9">Cash: Rp 0 &middot; QRIS: Rp 0</div>
+              <div id="pengeluaranBreakdown" class="small-box-breakdown">Cash: Rp 0 &middot; QRIS: Rp 0</div>
               <i class="bi bi-pie-chart-fill small-box-icon"></i>
               <a href="./pengeluaran.html" class="small-box-footer">More info <i class="bi bi-link-45deg"></i></a>
             </div>
@@ -707,6 +731,14 @@
 
       function formatRupiah(value) {
         return "Rp " + Math.round(Number(value || 0)).toLocaleString("id-ID");
+      }
+
+      // Dirender sebagai 3 elemen terpisah (Cash, separator, QRIS) supaya di
+      // layar HP sempit (lihat media query max-width:420px) baris Cash & QRIS
+      // bisa otomatis ditumpuk ke bawah tanpa saling mepet.
+      function setBreakdown(id, cashLabel, qrisLabel) {
+        document.getElementById(id).innerHTML =
+          `<span class="bd-cash">${cashLabel}</span><span class="bd-sep"> \u00b7 </span><span class="bd-qris">${qrisLabel}</span>`;
       }
 
       function toDateKey(value) {
@@ -992,13 +1024,13 @@
         const saldoQris = totalPenjualanQris - totalPengeluaranQris;
 
         document.getElementById("totalTransaksi").innerText = transaksiHariIni;
-        document.getElementById("transaksiBreakdown").innerText = `Cash: ${transaksiHariIniCash} \u00b7 QRIS: ${transaksiHariIniQris}`;
+        setBreakdown("transaksiBreakdown", `Cash: ${transaksiHariIniCash}`, `QRIS: ${transaksiHariIniQris}`);
         document.getElementById("pendapatanHariIni").innerText = formatRupiah(pendapatanHariIni);
-        document.getElementById("pendapatanBreakdown").innerText = `Cash: ${formatRupiah(pendapatanHariIniCash)} \u00b7 QRIS: ${formatRupiah(pendapatanHariIniQris)}`;
+        setBreakdown("pendapatanBreakdown", `Cash: ${formatRupiah(pendapatanHariIniCash)}`, `QRIS: ${formatRupiah(pendapatanHariIniQris)}`);
         document.getElementById("saldoOvana").innerText = formatRupiah(saldoCash + saldoQris);
-        document.getElementById("saldoBreakdown").innerText = `Cash: ${formatRupiah(saldoCash)} \u00b7 QRIS: ${formatRupiah(saldoQris)}`;
+        setBreakdown("saldoBreakdown", `Cash: ${formatRupiah(saldoCash)}`, `QRIS: ${formatRupiah(saldoQris)}`);
         document.getElementById("pengeluaranHariIni").innerText = formatRupiah(pengeluaranHariIni);
-        document.getElementById("pengeluaranBreakdown").innerText = `Cash: ${formatRupiah(pengeluaranHariIniCash)} \u00b7 QRIS: ${formatRupiah(pengeluaranHariIniQris)}`;
+        setBreakdown("pengeluaranBreakdown", `Cash: ${formatRupiah(pengeluaranHariIniCash)}`, `QRIS: ${formatRupiah(pengeluaranHariIniQris)}`);
 
         renderDashboardCharts(targetPenjualan, targetProfit);
         renderProductTrends(activeProductView);
