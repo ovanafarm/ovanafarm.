@@ -175,6 +175,18 @@
         position: relative;
         overflow: hidden;
         margin-bottom: 16px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Baris kartu (row) meregangkan semua kolom ke tinggi yang sama secara
+         default (Bootstrap grid pakai flex). Karena .small-box sekarang diberi
+         height:100% + flex column, kartu yang kontennya lebih pendek (mis. tidak
+         ada baris breakdown Cash/QRIS) akan tetap setinggi kartu di sebelahnya,
+         dengan footer "More info" tetap menempel rapi di bagian bawah. */
+      .stat-row > [class*="col-"] {
+        display: flex;
       }
 
       .small-box p {
@@ -192,8 +204,7 @@
       .small-box-footer {
         display: block;
         background: rgba(0, 0, 0, .15);
-        margin: -18px;
-        margin-top: 10px;
+        margin: auto -18px -18px;
         padding: 7px 18px;
         color: #fff;
         text-decoration: none;
@@ -495,7 +506,7 @@
       </div>
 
       <div class="content">
-        <div class="row">
+        <div class="row stat-row">
           <div class="col-lg-3 col-6">
             <div class="small-box bg-primary-box">
               <p>Transaksi Hari Ini</p>
