@@ -377,7 +377,7 @@
 
 <div class="row g-3">
 
-  <div class="col-md-4">
+  <div class="col-md-3">
         <label>Tanggal</label>
 
         <input
@@ -385,7 +385,7 @@
           id="tanggal"
           class="form-control">
 </div>
-      <div class="col-md-4 mb-3">
+      <div class="col-md-3 mb-3">
         <label>Keterangan</label>
 
             <input
@@ -395,7 +395,7 @@
             placeholder="Contoh: Beli Telur">
       </div>
 
-      <div class="col-md-4 mb-3">
+      <div class="col-md-3 mb-3">
         <label>Nominal</label>
 
 <input
@@ -405,6 +405,15 @@
   placeholder="Contoh: 500.000"
   oninput="formatNominal(this)">
 
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <label>Sumber Dana</label>
+
+        <select id="metodeSumber" class="form-select">
+          <option value="cash" selected>Cash</option>
+          <option value="qris">QRIS</option>
+        </select>
       </div>
 
     </div>
@@ -454,6 +463,7 @@
 <th class="text-center">Tanggal</th>
 <th class="text-center">Keterangan</th>
 <th class="text-center">Nominal</th>
+<th class="text-center">Sumber</th>
 <th class="text-center">Action</th>
   </tr>
 
@@ -660,7 +670,7 @@
   if (data.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="text-center text-muted py-4">
+        <td colspan="6" class="text-center text-muted py-4">
           Belum ada data pengeluaran
         </td>
       </tr>
@@ -669,6 +679,10 @@
   }
 
   data.forEach((trx, index) => {
+
+    const metode = trx.metode === "qris" ? "qris" : "cash";
+    const badgeClass = metode === "qris" ? "text-bg-primary" : "text-bg-secondary";
+    const badgeLabel = metode === "qris" ? "QRIS" : "Cash";
 
     tbody.innerHTML += `
       <tr>
@@ -682,6 +696,10 @@
         <td>
           Rp ${Number(trx.nominal)
             .toLocaleString("id-ID")}
+        </td>
+
+        <td>
+          <span class="badge ${badgeClass}">${badgeLabel}</span>
         </td>
 
         <td>
@@ -724,7 +742,8 @@ async function exportExcel() {
       No: index + 1,
       Tanggal: trx.tanggal,
       Keterangan: trx.keterangan,
-      Nominal: trx.nominal
+      Nominal: trx.nominal,
+      Sumber: trx.metode === "qris" ? "QRIS" : "Cash"
     }));
 
   let worksheet =
@@ -764,6 +783,9 @@ async function exportExcel() {
     document.getElementById("nominal")
       .value.replace(/\./g, "");
 
+  let metode =
+    document.getElementById("metodeSumber").value;
+
   if (!inputTanggal || !keterangan || !nominal) {
 
     showToast("Lengkapi data!", "danger");
@@ -780,7 +802,8 @@ async function exportExcel() {
       .insert([{
         tanggal: tanggal,
         keterangan: keterangan,
-        nominal: Number(nominal)
+        nominal: Number(nominal),
+        metode: metode
       }]);
 
   btn.disabled = false;
@@ -799,6 +822,7 @@ if (error) {
 
   document.getElementById("keterangan").value = "";
   document.getElementById("nominal").value = "";
+  document.getElementById("metodeSumber").value = "cash";
   document.getElementById("tanggal").valueAsDate = new Date();
 
   loadPengeluaran();
