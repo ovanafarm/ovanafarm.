@@ -1,0 +1,1180 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Monitoring Ayam - Ovana Farm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css">
+    <style>
+      :root {
+        --app-bg: #f6f7f9;
+        --sidebar-bg: #242b31;
+        --sidebar-hover: rgba(255, 255, 255, .11);
+        --line: #e7eaee;
+        --text: #1f2933;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        background: var(--app-bg);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
+      }
+
+      .sidebar {
+        width: 230px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        padding: 18px 14px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        z-index: 1040;
+        transition: transform .2s ease;
+        overflow-y: auto;
+      }
+
+      .sidebar.collapsed { transform: translateX(-230px); }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #fff;
+        text-decoration: none;
+        margin-bottom: 28px;
+      }
+
+      .brand-logo {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        flex: 0 0 38px;
+        background: rgba(255, 255, 255, .12);
+        color: rgba(255, 255, 255, .85);
+        font-size: 18px;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
+        overflow: hidden;
+      }
+
+      .brand-logo img,
+      .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .brand-text {
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .navbar-user-name { font-weight: 400; }
+
+      .sidebar .nav-link {
+        color: rgba(255, 255, 255, .78);
+        border-radius: 6px;
+        margin-bottom: 4px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sidebar .nav-link:hover,
+      .sidebar .nav-link.active {
+        color: #fff;
+        background: var(--sidebar-hover);
+      }
+
+      .sidebar .nav-link i { font-size: 16px; }
+      .sidebar-bottom { margin-top: auto; padding-top: 16px; }
+
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .4);
+        z-index: 1039;
+      }
+
+      .sidebar-overlay.show { display: block; }
+
+      .main-wrapper {
+        margin-left: 230px;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        transition: margin .2s ease;
+      }
+
+      .main-wrapper.expanded { margin-left: 0; }
+
+      .topbar {
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .topbar-left,
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .topbar-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #20262d;
+      }
+
+      .hamburger {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #495057;
+        padding: 2px 6px;
+        display: none;
+      }
+
+      .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background: #eef1f4;
+        color: #607080;
+        font-size: 15px;
+      }
+
+      .content { padding: 20px; flex: 1; }
+
+      .small-box {
+        border-radius: 10px;
+        padding: 18px;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 16px;
+      }
+
+      .small-box p {
+        margin: 0 0 4px;
+        font-size: 13px;
+        opacity: .9;
+      }
+
+      .small-box h3 {
+        margin: 0 0 10px;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .small-box-breakdown {
+        font-size: 12px;
+        opacity: .9;
+        line-height: 1.35;
+        position: relative;
+        z-index: 1;
+        padding-right: 30px;
+      }
+
+      .small-box-icon {
+        position: absolute;
+        right: 14px;
+        top: 14px;
+        width: 52px;
+        height: 52px;
+        opacity: .25;
+      }
+
+      .bg-primary-box { background: #0d6efd; }
+      .bg-success-box { background: #198754; }
+      .bg-warning-box { background: #ffc107; }
+      .bg-danger-box  { background: #dc3545; }
+      .bg-info-box    { background: #0dcaf0; }
+
+      .card {
+        border-color: var(--line);
+        border-radius: 8px;
+      }
+
+      .card-header {
+        background: #fff;
+        border-bottom-color: var(--line);
+      }
+
+      .chart-card { overflow: hidden; }
+
+      .chart-card .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 14px 16px;
+      }
+
+      .chart-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        font-weight: 700;
+        color: #20262d;
+      }
+
+      .chart-title i { color: #3f8f5f; }
+
+      .chart-filter-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(16, 24, 40, .04);
+      }
+
+      .chart-tools {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f8fafc;
+      }
+
+      .chart-range-btn {
+        border: 0;
+        background: transparent;
+        color: #667085;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .chart-range-btn.active {
+        background: #242b31;
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(31, 41, 51, .16);
+      }
+
+      .chart-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+        color: #667085;
+        font-size: 12px;
+      }
+
+      .chart-meta strong { color: #20262d; }
+
+      .chart-empty {
+        min-height: 220px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #667085;
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        background: #fbfcfd;
+      }
+
+      .chart-empty.show { display: flex; }
+
+      .metric-card {
+        padding: 12px 8px;
+        border-right: 1px solid var(--line);
+      }
+
+      .metric-card:last-child { border-right: 0; }
+
+      .app-footer {
+        background: #fff;
+        border-top: 1px solid var(--line);
+        padding: 10px 20px;
+        font-size: 13px;
+        color: #6c757d;
+      }
+
+      .progress-breakeven {
+        height: 10px;
+        border-radius: 6px;
+      }
+
+      .health-item {
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .health-item .health-date {
+        font-weight: 700;
+        color: #20262d;
+        font-size: 13px;
+      }
+
+      .health-item .health-tags span {
+        font-size: 11px;
+        margin-left: 6px;
+      }
+
+      .fab-add {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #198754;
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 24px;
+        box-shadow: 0 8px 20px rgba(25, 135, 84, .35);
+        border: none;
+        z-index: 200;
+      }
+
+      .fab-add:hover { background: #157347; color: #fff; }
+
+      @media (max-width: 900px) {
+        .sidebar { transform: translateX(-230px); }
+        .sidebar.open { transform: translateX(0); }
+        .main-wrapper { margin-left: 0; }
+        .hamburger { display: block; }
+        .small-box { padding: 14px; }
+        .small-box h3 { font-size: 1.2rem; margin-bottom: 6px; }
+        .small-box-icon { width: 38px; height: 38px; top: 12px; right: 12px; }
+        .small-box-breakdown { font-size: 10.5px; padding-right: 40px; }
+        .topbar-title { font-size: 16px; }
+        .content { padding: 14px; }
+        .chart-card .card-header { align-items: stretch; }
+        .chart-title { width: 100%; }
+        .chart-filter-bar { align-items: stretch; flex-direction: column; padding: 10px; }
+        .chart-tools { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .chart-meta { align-items: flex-start; flex-direction: column; }
+        .metric-card { border-right: 0; border-bottom: 1px solid var(--line); }
+        .metric-card:nth-last-child(-n+2) { border-bottom: 0; }
+      }
+
+      @media (max-width: 420px) {
+        .small-box-breakdown {
+          padding-right: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+        }
+        .small-box-breakdown .bd-sep { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="./index.html">
+        <span class="brand-logo" id="brandLogo" aria-label="Logo Ovana Farm"><i class="bi bi-person-fill"></i></span>
+        <span class="brand-text">Ovana Farm</span>
+      </a>
+      <nav class="nav flex-column">
+        <a class="nav-link" href="./index.html"><i class="bi bi-speedometer"></i>Laporan Penjualan</a>
+        <a class="nav-link" href="./dashboard-kasir.html"><i class="bi bi-box-seam"></i>Management Stock</a>
+        <a class="nav-link" href="./transaksi-kasir.html"><i class="bi bi-cart-fill"></i>Kasir</a>
+        <a class="nav-link" href="./riwayat-penjualan.html"><i class="bi bi-clock-history"></i>Riwayat Penjualan</a>
+        <a class="nav-link" href="./pengeluaran.html"><i class="bi bi-cash-stack"></i>Pengeluaran</a>
+        <a class="nav-link active" href="./monitoring-ayam.html"><i class="bi bi-egg-fried"></i>Monitoring Ayam</a>
+        <a class="nav-link" href="./trash.html"><i class="bi bi-trash"></i>Trash</a>
+        <a class="nav-link" href="./stock-record.html"><i class="bi bi-clipboard-data"></i>Stock Record</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <nav class="nav flex-column">
+          <a class="nav-link" href="./setting.html"><i class="bi bi-gear-fill"></i>Setting</a>
+          <a class="nav-link" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i>Logout</a>
+        </nav>
+      </div>
+    </aside>
+
+    <div class="main-wrapper" id="mainWrapper">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" onclick="toggleSidebar()" aria-label="Buka menu"><i class="bi bi-list"></i></button>
+          <span class="topbar-title">Monitoring Ayam</span>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#settingAyamModal">
+            <i class="bi bi-sliders"></i> Pengaturan
+          </button>
+          <div class="dropdown">
+            <a href="#" class="d-flex align-items-center gap-2 text-decoration-none text-dark" data-bs-toggle="dropdown">
+              <span id="navbarUserPhoto" class="user-avatar"><i class="bi bi-person-fill"></i></span>
+              <span id="navbarUserName" class="d-none d-md-inline navbar-user-name">Admin</span>
+              <i class="bi bi-three-dots-vertical text-secondary"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="./setting.html"><i class="bi bi-gear me-2"></i>Setting</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- Ringkasan hari ini -->
+        <div class="row stat-row">
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-primary-box">
+              <p>Ayam Hidup</p>
+              <h3 id="ayamHidup">0</h3>
+              <div id="ayamHidupBreakdown" class="small-box-breakdown">Kapasitas: 0 &middot; Mati (total): 0</div>
+              <i class="bi bi-egg-fried small-box-icon"></i>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-success-box">
+              <p>Produksi Telur Hari Ini</p>
+              <h3 id="telurHariIni">0 butir</h3>
+              <div id="telurBreakdown" class="small-box-breakdown">Rasio: 0% &middot; Target: 0%</div>
+              <i class="bi bi-basket-fill small-box-icon"></i>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning-box">
+              <p>Pakan Hari Ini</p>
+              <h3 id="pakanHariIni">0 kg</h3>
+              <div id="pakanBreakdown" class="small-box-breakdown">Stok tersisa: 0 kg</div>
+              <i class="bi bi-basket2-fill small-box-icon"></i>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <div class="small-box" id="profitHariIniBox">
+              <p>Profit Hari Ini</p>
+              <h3 id="profitHariIni">Rp 0</h3>
+              <div id="profitBreakdown" class="small-box-breakdown">Pendapatan: Rp 0 &middot; Biaya: Rp 0</div>
+              <i class="bi bi-graph-up-arrow small-box-icon"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress balik modal -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+              <h6 class="chart-title mb-0"><i class="bi bi-piggy-bank-fill"></i>Progress Balik Modal</h6>
+              <span id="breakevenStatusText" class="text-muted small">Memuat data...</span>
+            </div>
+            <div class="progress progress-breakeven mb-2">
+              <div id="breakevenProgressBar" class="progress-bar bg-success" role="progressbar" style="width:0%"></div>
+            </div>
+            <div class="row text-center">
+              <div class="col-6 col-md-3 metric-card">
+                <div class="text-muted small">Investasi Awal</div>
+                <div id="investasiAwalText" class="fw-bold fs-6">Rp 0</div>
+              </div>
+              <div class="col-6 col-md-3 metric-card">
+                <div class="text-muted small">Profit Kumulatif</div>
+                <div id="profitKumulatifText" class="fw-bold text-success fs-6">Rp 0</div>
+              </div>
+              <div class="col-6 col-md-3 metric-card">
+                <div class="text-muted small">Sisa Menuju BEP</div>
+                <div id="sisaBepText" class="fw-bold text-warning fs-6">Rp 0</div>
+              </div>
+              <div class="col-6 col-md-3 metric-card">
+                <div class="text-muted small">Estimasi Balik Modal</div>
+                <div id="estimasiBepText" class="fw-bold fs-6">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter periode grafik -->
+        <div class="row">
+          <div class="col-12">
+            <div class="chart-filter-bar">
+              <div class="chart-tools" aria-label="Filter periode grafik ayam">
+                <button class="chart-range-btn" type="button" data-arange="7">7H</button>
+                <button class="chart-range-btn" type="button" data-arange="14">14H</button>
+                <button class="chart-range-btn active" type="button" data-arange="30">30H</button>
+                <button class="chart-range-btn" type="button" data-arange="all">All</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card chart-card shadow-sm mb-4">
+              <div class="card-header">
+                <h6 class="chart-title"><i class="bi bi-basket-fill"></i>Produksi Telur & Rasio Bertelur</h6>
+              </div>
+              <div class="card-body">
+                <div class="chart-meta">
+                  <span id="telurRangeText">Memuat data...</span>
+                  <strong id="telurRangeTotal">0 butir</strong>
+                </div>
+                <div id="telur-chart"></div>
+                <div id="telur-empty" class="chart-empty">Belum ada data produksi telur untuk periode ini.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card chart-card shadow-sm mb-4">
+              <div class="card-header">
+                <h6 class="chart-title"><i class="bi bi-basket2-fill"></i>Konsumsi & Stok Pakan</h6>
+              </div>
+              <div class="card-body">
+                <div class="chart-meta">
+                  <span id="pakanRangeText">Memuat data...</span>
+                  <strong id="pakanRangeTotal">0 kg</strong>
+                </div>
+                <div id="pakan-chart"></div>
+                <div id="pakan-empty" class="chart-empty">Belum ada data pakan untuk periode ini.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card chart-card shadow-sm mb-4">
+              <div class="card-header">
+                <h6 class="chart-title"><i class="bi bi-cash-coin"></i>Profit Harian & Kumulatif</h6>
+              </div>
+              <div class="card-body">
+                <div class="chart-meta">
+                  <span id="profitRangeText">Memuat data...</span>
+                  <strong id="profitRangeTotal">Rp 0</strong>
+                </div>
+                <div id="profitchart-ayam"></div>
+                <div id="profitchart-ayam-empty" class="chart-empty">Belum ada data keuangan untuk periode ini.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Riwayat kesehatan -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card chart-card shadow-sm mb-4">
+              <div class="card-header">
+                <h6 class="chart-title"><i class="bi bi-heart-pulse-fill"></i>Riwayat Kesehatan & Kematian</h6>
+                <span id="healthRangeText" class="text-muted small">Mengikuti periode di atas</span>
+              </div>
+              <div class="card-body">
+                <div id="health-list"></div>
+                <div id="health-empty" class="chart-empty">Tidak ada catatan sakit/kematian pada periode ini. Aman terkendali.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="app-footer">
+        <strong>Ovana Farm</strong> - When Fresh Meets Daily Needs
+      </footer>
+    </div>
+
+    <!-- Tombol input harian -->
+    <button class="fab-add" data-bs-toggle="modal" data-bs-target="#inputHarianModal" aria-label="Tambah input harian">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+
+    <!-- Modal input harian -->
+    <div class="modal fade" id="inputHarianModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="formHarian">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="bi bi-journal-plus me-2"></i>Input Harian</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-2">
+                <label class="form-label small fw-bold">Tanggal</label>
+                <input type="date" id="fTanggal" class="form-control" required>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Ayam Hidup</label>
+                  <input type="number" min="0" id="fAyamHidup" class="form-control" required>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Ayam Mati</label>
+                  <input type="number" min="0" id="fAyamMati" class="form-control" value="0" required>
+                </div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Telur (butir)</label>
+                  <input type="number" min="0" id="fTelurButir" class="form-control" value="0" required>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Telur Rusak</label>
+                  <input type="number" min="0" id="fTelurRusak" class="form-control" value="0" required>
+                </div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Pakan Terpakai (kg)</label>
+                  <input type="number" min="0" step="0.1" id="fPakanKg" class="form-control" value="0" required>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Pakan Masuk / Beli (kg)</label>
+                  <input type="number" min="0" step="0.1" id="fPakanMasuk" class="form-control" value="0" required>
+                </div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Ayam Sakit</label>
+                  <input type="number" min="0" id="fAyamSakit" class="form-control" value="0" required>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Biaya Lain (Rp)</label>
+                  <input type="number" min="0" id="fPengeluaranLain" class="form-control" value="0" required>
+                </div>
+              </div>
+              <div class="mb-1">
+                <label class="form-label small fw-bold">Catatan (opsional)</label>
+                <textarea id="fCatatan" class="form-control" rows="2" placeholder="mis. obat cacing, cuaca panas, dll"></textarea>
+              </div>
+              <div class="form-text">Jika tanggal sudah pernah diisi, data akan menimpa (update) entri hari itu.</div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-1"></i>Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal pengaturan -->
+    <div class="modal fade" id="settingAyamModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="formSetting">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="bi bi-sliders me-2"></i>Pengaturan Peternakan</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-2">
+                <label class="form-label small fw-bold">Investasi Awal (Rp)</label>
+                <input type="number" min="0" id="sInvestasiAwal" class="form-control" required>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Jumlah Ayam Awal</label>
+                  <input type="number" min="0" id="sJumlahAyamAwal" class="form-control" required>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Kapasitas Kandang</label>
+                  <input type="number" min="0" id="sKapasitasKandang" class="form-control" required>
+                </div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Harga Telur / butir (Rp)</label>
+                  <input type="number" min="0" id="sHargaTelur" class="form-control" required>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-bold">Harga Pakan / kg (Rp)</label>
+                  <input type="number" min="0" id="sHargaPakan" class="form-control" required>
+                </div>
+              </div>
+              <div class="mb-1">
+                <label class="form-label small fw-bold">Target Rasio Bertelur (%)</label>
+                <input type="number" min="0" max="100" id="sTargetRasio" class="form-control" required>
+                <div class="form-text">Persentase ayam yang ditargetkan bertelur per hari (mis. 85).</div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-1"></i>Simpan Pengaturan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <script>
+      if (localStorage.getItem("isLogin") !== "true") window.location.replace("./login.html");
+
+      function logout() {
+        localStorage.removeItem("isLogin");
+        window.location.replace("./login.html");
+      }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("show");
+      }
+
+      function closeSidebar() {
+        document.getElementById("sidebar").classList.remove("open");
+        document.getElementById("sidebarOverlay").classList.remove("show");
+      }
+
+      function setImageSlot(element, src, alt) {
+        if (!src) return;
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = alt;
+        element.replaceChildren(img);
+      }
+    </script>
+
+    <script>
+      const SUPABASE_URL = "https://dyholzqyltspnpbjkpsn.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_5dQRwThjCNLnL-Zsr6Jbig_bA3OrGf6";
+      window.ovanaSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      function formatRupiah(value) {
+        return "Rp " + Math.round(Number(value || 0)).toLocaleString("id-ID");
+      }
+
+      function setBreakdown(id, cashLabel, qrisLabel) {
+        document.getElementById(id).innerHTML =
+          `<span class="bd-cash">${cashLabel}</span><span class="bd-sep"> \u00b7 </span><span class="bd-qris">${qrisLabel}</span>`;
+      }
+
+      function toDateKey(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function formatTanggalPendek(dateKey) {
+        if (!dateKey) return "-";
+        const date = new Date(`${dateKey}T00:00:00`);
+        return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+      }
+
+      function formatRentangTanggal(rows) {
+        if (!rows.length) return "Tidak ada data";
+        return `${formatTanggalPendek(rows[0].dateKey)} - ${formatTanggalPendek(rows[rows.length - 1].dateKey)} (${rows.length} hari)`;
+      }
+
+      let ayamRows = [];      // semua baris ayam_harian, urut tanggal naik
+      let ayamSetting = null;
+      let selectedRange = window.matchMedia("(max-width: 640px)").matches ? 14 : 30;
+      let telurChart = null, pakanChart = null, profitChartAyam = null;
+
+      function getVisibleRows() {
+        if (selectedRange === "all") return ayamRows;
+        return ayamRows.slice(-Number(selectedRange));
+      }
+
+      function setRangeButtons() {
+        document.querySelectorAll(".chart-range-btn[data-arange]").forEach((btn) => {
+          btn.classList.toggle("active", String(selectedRange) === btn.dataset.arange);
+        });
+      }
+
+      function buildAreaOptions(series, colors, categories, maxValue, valueFormatter) {
+        return {
+          series,
+          colors,
+          chart: {
+            type: "area",
+            height: window.matchMedia("(max-width: 640px)").matches ? 230 : 280,
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            fontFamily: "Inter, system-ui, sans-serif"
+          },
+          grid: { borderColor: "#eef1f4", strokeDashArray: 4, padding: { left: 4, right: 10 } },
+          stroke: { curve: "smooth", width: series.map((_, i) => (i === 0 ? 3 : 1)), dashArray: series.map((_, i) => (i === 0 ? 0 : 6)) },
+          markers: { size: categories.length <= 14 ? series.map((_, i) => (i === 0 ? 4 : 0)) : series.map(() => 0), strokeWidth: 2 },
+          dataLabels: { enabled: false },
+          fill: {
+            type: series.map(() => "gradient"),
+            gradient: { shadeIntensity: 1, opacityFrom: 0.36, opacityTo: 0.04, stops: [0, 100] }
+          },
+          legend: { show: true, position: "bottom", fontSize: "12px", markers: { width: 8, height: 8 } },
+          yaxis: {
+            min: 0,
+            max: Math.max(maxValue, 1) * 1.15,
+            tickAmount: 4,
+            labels: { formatter: valueFormatter, style: { fontSize: "10px" } }
+          },
+          xaxis: {
+            categories,
+            tickAmount: Math.min(categories.length, window.matchMedia("(max-width: 640px)").matches ? 4 : 7),
+            labels: { rotate: -35, rotateAlways: categories.length > 7, trim: true, style: { fontSize: "11px" } },
+            axisBorder: { color: "#eef1f4" },
+            axisTicks: { color: "#eef1f4" }
+          },
+          tooltip: { shared: true, y: { formatter: valueFormatter } }
+        };
+      }
+
+      function renderTelurChart(rows) {
+        const categories = rows.map(r => r.label);
+        const telur = rows.map(r => r.telur_butir - r.telur_rusak);
+        const target = rows.map(r => Math.round(r.jumlah_ayam_hidup * (ayamSetting.target_rasio_bertelur || 0)));
+        const total = telur.reduce((a, b) => a + b, 0);
+
+        document.getElementById("telurRangeText").innerText = formatRentangTanggal(rows);
+        document.getElementById("telurRangeTotal").innerText = `${total.toLocaleString("id-ID")} butir`;
+        document.getElementById("telur-empty").classList.toggle("show", rows.length === 0);
+        document.getElementById("telur-chart").style.display = rows.length ? "block" : "none";
+        if (!rows.length) return;
+
+        const options = buildAreaOptions(
+          [{ name: "Telur Layak Jual", data: telur }, { name: "Target Telur", data: target }],
+          ["#198754", "#dc3545"],
+          categories,
+          Math.max(...telur, ...target, 0),
+          (v) => `${Math.round(v)} butir`
+        );
+
+        if (telurChart) telurChart.updateOptions(options, true, true);
+        else { telurChart = new ApexCharts(document.querySelector("#telur-chart"), options); telurChart.render(); }
+      }
+
+      function renderPakanChart(rows) {
+        const categories = rows.map(r => r.label);
+        const pakai = rows.map(r => r.pakan_kg);
+        let stok = 0;
+        const stokSeries = [];
+        rows.forEach(r => { stok += (r.pakan_masuk_kg - r.pakan_kg); stokSeries.push(Math.max(stok, 0)); });
+        const total = pakai.reduce((a, b) => a + b, 0);
+
+        document.getElementById("pakanRangeText").innerText = formatRentangTanggal(rows);
+        document.getElementById("pakanRangeTotal").innerText = `${total.toLocaleString("id-ID")} kg`;
+        document.getElementById("pakan-empty").classList.toggle("show", rows.length === 0);
+        document.getElementById("pakan-chart").style.display = rows.length ? "block" : "none";
+        if (!rows.length) return;
+
+        const options = buildAreaOptions(
+          [{ name: "Pakan Terpakai (kg)", data: pakai }, { name: "Stok Pakan (kg)", data: stokSeries }],
+          ["#ffc107", "#0d6efd"],
+          categories,
+          Math.max(...pakai, ...stokSeries, 0),
+          (v) => `${Math.round(v)} kg`
+        );
+
+        if (pakanChart) pakanChart.updateOptions(options, true, true);
+        else { pakanChart = new ApexCharts(document.querySelector("#pakan-chart"), options); pakanChart.render(); }
+      }
+
+      function renderProfitChartAyam(rows) {
+        const categories = rows.map(r => r.label);
+        const profitHarian = rows.map(r => r.profit);
+        let kumulatif = -(ayamSetting.investasi_awal || 0);
+        // kumulatif dihitung dari seluruh histori sebelum periode tampil, bukan hanya dari baris yang terlihat
+        const startIndex = ayamRows.length - rows.length;
+        for (let i = 0; i < startIndex; i++) kumulatif += ayamRows[i].profit;
+        const kumulatifSeries = rows.map(r => { kumulatif += r.profit; return kumulatif; });
+
+        const totalProfit = profitHarian.reduce((a, b) => a + b, 0);
+        document.getElementById("profitRangeText").innerText = formatRentangTanggal(rows);
+        document.getElementById("profitRangeTotal").innerText = formatRupiah(totalProfit);
+        document.getElementById("profitchart-ayam-empty").classList.toggle("show", rows.length === 0);
+        document.getElementById("profitchart-ayam").style.display = rows.length ? "block" : "none";
+        if (!rows.length) return;
+
+        const allValues = [...profitHarian, ...kumulatifSeries];
+        const options = {
+          series: [
+            { name: "Profit Harian", type: "column", data: profitHarian },
+            { name: "Profit Kumulatif (vs Investasi)", type: "line", data: kumulatifSeries }
+          ],
+          chart: { height: 300, toolbar: { show: false }, fontFamily: "Inter, system-ui, sans-serif" },
+          colors: ["#198754", "#0d6efd"],
+          stroke: { width: [0, 3], curve: "smooth" },
+          plotOptions: { bar: { columnWidth: "55%", borderRadius: 3 } },
+          dataLabels: { enabled: false },
+          grid: { borderColor: "#eef1f4", strokeDashArray: 4 },
+          legend: { show: true, position: "bottom", fontSize: "12px", markers: { width: 8, height: 8 } },
+          xaxis: {
+            categories,
+            tickAmount: Math.min(categories.length, window.matchMedia("(max-width: 640px)").matches ? 4 : 7),
+            labels: { rotate: -35, rotateAlways: categories.length > 7, trim: true, style: { fontSize: "11px" } }
+          },
+          yaxis: {
+            min: Math.min(0, ...allValues) * 1.1,
+            max: Math.max(1, ...allValues) * 1.15,
+            labels: { formatter: v => formatRupiah(v), style: { fontSize: "10px" } }
+          },
+          annotations: {
+            yaxis: [{ y: 0, borderColor: "#adb5bd", strokeDashArray: 3, label: { text: "Balik Modal (BEP)", style: { fontSize: "10px" } } }]
+          },
+          tooltip: { shared: true, y: { formatter: v => formatRupiah(v) } }
+        };
+
+        if (profitChartAyam) profitChartAyam.updateOptions(options, true, true);
+        else { profitChartAyam = new ApexCharts(document.querySelector("#profitchart-ayam"), options); profitChartAyam.render(); }
+      }
+
+      function renderHealthList(rows) {
+        const withEvents = rows.filter(r => r.ayam_mati > 0 || r.ayam_sakit > 0);
+        document.getElementById("healthRangeText").innerText = formatRentangTanggal(rows);
+        document.getElementById("health-empty").classList.toggle("show", withEvents.length === 0);
+        document.getElementById("health-list").style.display = withEvents.length ? "block" : "none";
+        if (!withEvents.length) { document.getElementById("health-list").innerHTML = ""; return; }
+
+        document.getElementById("health-list").innerHTML = withEvents
+          .slice()
+          .reverse()
+          .map(r => {
+            const tags = [];
+            if (r.ayam_mati > 0) tags.push(`<span class="badge bg-danger">Mati: ${r.ayam_mati}</span>`);
+            if (r.ayam_sakit > 0) tags.push(`<span class="badge bg-warning text-dark">Sakit: ${r.ayam_sakit}</span>`);
+            return `<div class="health-item">
+                <div>
+                  <div class="health-date">${formatTanggalPendek(r.dateKey)}</div>
+                  <div class="text-muted small">${r.catatan ? r.catatan : "Tidak ada catatan tambahan"}</div>
+                </div>
+                <div class="health-tags">${tags.join("")}</div>
+              </div>`;
+          }).join("");
+      }
+
+      function updateBreakevenCard() {
+        const investasi = ayamSetting.investasi_awal || 0;
+        const totalProfit = ayamRows.reduce((sum, r) => sum + r.profit, 0);
+        const kumulatif = totalProfit - investasi;
+        const progressPct = investasi > 0 ? Math.min(100, Math.max(0, (totalProfit / investasi) * 100)) : 0;
+
+        document.getElementById("investasiAwalText").innerText = formatRupiah(investasi);
+        document.getElementById("profitKumulatifText").innerText = formatRupiah(totalProfit);
+        document.getElementById("breakevenProgressBar").style.width = progressPct + "%";
+
+        if (kumulatif >= 0) {
+          document.getElementById("sisaBepText").innerText = "Rp 0";
+          document.getElementById("breakevenStatusText").innerText = "Sudah balik modal \ud83c\udf89";
+          document.getElementById("breakevenProgressBar").classList.remove("bg-warning");
+          document.getElementById("breakevenProgressBar").classList.add("bg-success");
+        } else {
+          document.getElementById("sisaBepText").innerText = formatRupiah(-kumulatif);
+          document.getElementById("breakevenStatusText").innerText = `${progressPct.toFixed(1)}% menuju balik modal`;
+        }
+
+        const recentRows = ayamRows.slice(-14);
+        const avgDaily = recentRows.length ? recentRows.reduce((s, r) => s + r.profit, 0) / recentRows.length : 0;
+        const estText = document.getElementById("estimasiBepText");
+        if (kumulatif >= 0) {
+          estText.innerText = "Tercapai";
+        } else if (avgDaily <= 0) {
+          estText.innerText = "Belum bisa diprediksi";
+        } else {
+          const daysLeft = Math.ceil(-kumulatif / avgDaily);
+          estText.innerText = `\u00b1 ${daysLeft} hari lagi`;
+        }
+      }
+
+      function renderAllCharts() {
+        setRangeButtons();
+        const rows = getVisibleRows();
+        renderTelurChart(rows);
+        renderPakanChart(rows);
+        renderProfitChartAyam(rows);
+        renderHealthList(rows);
+      }
+
+      function updateTopCards() {
+        const last = ayamRows[ayamRows.length - 1];
+        const hariIni = toDateKey(new Date());
+        const todayRow = ayamRows.find(r => r.dateKey === hariIni);
+
+        const totalMati = ayamRows.reduce((s, r) => s + r.ayam_mati, 0);
+        const ayamHidupSekarang = last ? last.jumlah_ayam_hidup : (ayamSetting.jumlah_ayam_awal || 0);
+        document.getElementById("ayamHidup").innerText = ayamHidupSekarang;
+        setBreakdown("ayamHidupBreakdown", `Kapasitas: ${ayamSetting.kapasitas_kandang || 0}`, `Mati (total): ${totalMati}`);
+
+        let stokPakan = 0;
+        ayamRows.forEach(r => { stokPakan += (r.pakan_masuk_kg - r.pakan_kg); });
+
+        if (todayRow) {
+          const telurLayak = todayRow.telur_butir - todayRow.telur_rusak;
+          const rasio = todayRow.jumlah_ayam_hidup > 0 ? (telurLayak / todayRow.jumlah_ayam_hidup) * 100 : 0;
+          const targetPct = (ayamSetting.target_rasio_bertelur || 0) * 100;
+          document.getElementById("telurHariIni").innerText = `${telurLayak} butir`;
+          setBreakdown("telurBreakdown", `Rasio: ${rasio.toFixed(0)}%`, `Target: ${targetPct.toFixed(0)}%`);
+
+          document.getElementById("pakanHariIni").innerText = `${todayRow.pakan_kg} kg`;
+          setBreakdown("pakanBreakdown", `Stok tersisa: ${stokPakan.toFixed(1)} kg`, "");
+
+          document.getElementById("profitHariIni").innerText = formatRupiah(todayRow.profit);
+          setBreakdown("profitBreakdown", `Pendapatan: ${formatRupiah(todayRow.pendapatan)}`, `Biaya: ${formatRupiah(todayRow.biaya)}`);
+          const box = document.getElementById("profitHariIniBox");
+          box.className = "small-box " + (todayRow.profit >= 0 ? "bg-success-box" : "bg-danger-box");
+        } else {
+          document.getElementById("telurHariIni").innerText = "0 butir";
+          setBreakdown("telurBreakdown", "Belum ada input hari ini", "");
+          document.getElementById("pakanHariIni").innerText = "0 kg";
+          setBreakdown("pakanBreakdown", `Stok tersisa: ${stokPakan.toFixed(1)} kg`, "");
+          document.getElementById("profitHariIni").innerText = "Rp 0";
+          setBreakdown("profitBreakdown", "Belum ada input hari ini", "");
+          document.getElementById("profitHariIniBox").className = "small-box bg-info-box";
+        }
+      }
+
+      async function loadSetting() {
+        const { data } = await window.ovanaSupabase.from("ayam_setting").select("*").eq("id", 1).single();
+        ayamSetting = data || {
+          investasi_awal: 2762000, jumlah_ayam_awal: 20, kapasitas_kandang: 36,
+          harga_telur_per_butir: 2000, harga_pakan_per_kg: 7000, target_rasio_bertelur: 0.85
+        };
+
+        document.getElementById("sInvestasiAwal").value = ayamSetting.investasi_awal;
+        document.getElementById("sJumlahAyamAwal").value = ayamSetting.jumlah_ayam_awal;
+        document.getElementById("sKapasitasKandang").value = ayamSetting.kapasitas_kandang;
+        document.getElementById("sHargaTelur").value = ayamSetting.harga_telur_per_butir;
+        document.getElementById("sHargaPakan").value = ayamSetting.harga_pakan_per_kg;
+        document.getElementById("sTargetRasio").value = Math.round((ayamSetting.target_rasio_bertelur || 0) * 100);
+      }
+
+      async function loadAyamHarian() {
+        const { data } = await window.ovanaSupabase.from("ayam_harian").select("*").order("tanggal", { ascending: true });
+        ayamRows = (data || []).map(r => {
+          const telurLayak = (r.telur_butir || 0) - (r.telur_rusak || 0);
+          const pendapatan = telurLayak * (ayamSetting.harga_telur_per_butir || 0);
+          const biaya = (r.pakan_kg || 0) * (ayamSetting.harga_pakan_per_kg || 0) + (r.pengeluaran_lain || 0);
+          return {
+            dateKey: toDateKey(r.tanggal),
+            label: formatTanggalPendek(toDateKey(r.tanggal)),
+            jumlah_ayam_hidup: r.jumlah_ayam_hidup || 0,
+            telur_butir: r.telur_butir || 0,
+            telur_rusak: r.telur_rusak || 0,
+            pakan_kg: r.pakan_kg || 0,
+            pakan_masuk_kg: r.pakan_masuk_kg || 0,
+            ayam_mati: r.ayam_mati || 0,
+            ayam_sakit: r.ayam_sakit || 0,
+            catatan: r.catatan || "",
+            pendapatan,
+            biaya,
+            profit: pendapatan - biaya
+          };
+        });
+      }
+
+      async function loadAll() {
+        await loadSetting();
+        await loadAyamHarian();
+        updateTopCards();
+        updateBreakevenCard();
+        renderAllCharts();
+      }
+
+      window.addEventListener("DOMContentLoaded", async function () {
+        const { data } = await window.ovanaSupabase
+          .from("setting")
+          .select("nama_toko, logo_toko, nama_user, foto_user")
+          .eq("id", 1)
+          .single();
+
+        if (data) {
+          document.querySelector(".brand-text").innerText = data.nama_toko || "Ovana Farm";
+          setImageSlot(document.getElementById("brandLogo"), data.logo_toko, "Logo toko");
+          document.getElementById("navbarUserName").innerText = data.nama_user || "Admin";
+          setImageSlot(document.getElementById("navbarUserPhoto"), data.foto_user, "Foto pengguna");
+        }
+
+        document.getElementById("fTanggal").value = toDateKey(new Date());
+        await loadAll();
+      });
+
+      document.querySelectorAll(".chart-range-btn[data-arange]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          selectedRange = btn.dataset.arange === "all" ? "all" : Number(btn.dataset.arange);
+          renderAllCharts();
+        });
+      });
+
+      document.getElementById("formHarian").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const payload = {
+          tanggal: document.getElementById("fTanggal").value,
+          jumlah_ayam_hidup: Number(document.getElementById("fAyamHidup").value || 0),
+          ayam_mati: Number(document.getElementById("fAyamMati").value || 0),
+          telur_butir: Number(document.getElementById("fTelurButir").value || 0),
+          telur_rusak: Number(document.getElementById("fTelurRusak").value || 0),
+          pakan_kg: Number(document.getElementById("fPakanKg").value || 0),
+          pakan_masuk_kg: Number(document.getElementById("fPakanMasuk").value || 0),
+          ayam_sakit: Number(document.getElementById("fAyamSakit").value || 0),
+          pengeluaran_lain: Number(document.getElementById("fPengeluaranLain").value || 0),
+          catatan: document.getElementById("fCatatan").value || null
+        };
+
+        const { error } = await window.ovanaSupabase
+          .from("ayam_harian")
+          .upsert(payload, { onConflict: "tanggal" });
+
+        if (error) {
+          alert("Gagal menyimpan data: " + error.message);
+          return;
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById("inputHarianModal")).hide();
+        document.getElementById("formHarian").reset();
+        document.getElementById("fTanggal").value = toDateKey(new Date());
+        await loadAll();
+      });
+
+      document.getElementById("formSetting").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const payload = {
+          id: 1,
+          investasi_awal: Number(document.getElementById("sInvestasiAwal").value || 0),
+          jumlah_ayam_awal: Number(document.getElementById("sJumlahAyamAwal").value || 0),
+          kapasitas_kandang: Number(document.getElementById("sKapasitasKandang").value || 0),
+          harga_telur_per_butir: Number(document.getElementById("sHargaTelur").value || 0),
+          harga_pakan_per_kg: Number(document.getElementById("sHargaPakan").value || 0),
+          target_rasio_bertelur: Number(document.getElementById("sTargetRasio").value || 0) / 100
+        };
+
+        const { error } = await window.ovanaSupabase.from("ayam_setting").upsert(payload, { onConflict: "id" });
+        if (error) {
+          alert("Gagal menyimpan pengaturan: " + error.message);
+          return;
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById("settingAyamModal")).hide();
+        await loadAll();
+      });
+    </script>
+  </body>
+</html>
