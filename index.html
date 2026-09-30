@@ -459,6 +459,16 @@
         }
         .small-box-breakdown .bd-sep { display: none; }
       }
+
+      /* Bagi Hasil Profit */
+      .share-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
+      .share-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+      .share-summary > div { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: 8px; text-align: center; }
+      .share-summary small { display: block; color: #667085; font-size: 11px; }
+      .share-summary strong { font-size: 13px; }
+      .share-table-wrap { max-height: 260px; overflow-y: auto; }
+      .share-table { font-size: 12px; margin: 0; }
+      .share-table th { position: sticky; top: 0; background: #fff; }
     </style>
   </head>
   <body>
@@ -608,6 +618,28 @@
                 </div>
                 <div id="profit-chart"></div>
                 <div id="profit-empty" class="chart-empty">Belum ada data profit untuk periode ini.</div>
+
+                <div class="share-box">
+                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                    <strong class="small"><i class="bi bi-people-fill me-1"></i>Bagi Hasil Profit (Owner 25% · Karyawan 75%)</strong>
+                    <div class="chart-tools">
+                      <button class="chart-range-btn active" type="button" data-share="harian">Harian</button>
+                      <button class="chart-range-btn" type="button" data-share="mingguan">Mingguan</button>
+                      <button class="chart-range-btn" type="button" data-share="bulanan">Bulanan</button>
+                    </div>
+                  </div>
+                  <div class="share-summary">
+                    <div><small>Total Profit</small><strong id="shareTotal">Rp 0</strong></div>
+                    <div><small>Bagian Kamu (25%)</small><strong id="shareOwner" class="text-success">Rp 0</strong></div>
+                    <div><small>Bagian Karyawan (75%)</small><strong id="shareStaff" class="text-primary">Rp 0</strong></div>
+                  </div>
+                  <div class="share-table-wrap">
+                    <table class="table table-sm share-table">
+                      <thead><tr><th>Periode</th><th class="text-end">Profit</th><th class="text-end">Kamu</th><th class="text-end">Karyawan</th></tr></thead>
+                      <tbody id="shareBody"></tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -848,6 +880,61 @@
         };
       }
 
+      // ===== Bagi Hasil Profit =====
+      const SHARE_OWNER = 0.25;   // ubah di sini kalau persentase berubah
+      const SHARE_STAFF = 0.75;
+      let activeShareView = "harian";
+      let lastShareRows = [];
+
+      function getWeekStart(dateKey) {
+        const d = new Date(`${dateKey}T00:00:00`);
+        d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // minggu mulai Senin
+        return toDateKey(d);
+      }
+
+      function renderProfitShare(rows) {
+        if (rows) lastShareRows = rows;
+        document.querySelectorAll("[data-share]").forEach((b) =>
+          b.classList.toggle("active", b.dataset.share === activeShareView));
+
+        const groups = {};
+        lastShareRows.forEach((r) => {
+          let key, label;
+          if (activeShareView === "harian") {
+            key = r.dateKey;
+            label = formatTanggalPendek(r.dateKey);
+          } else if (activeShareView === "mingguan") {
+            key = getWeekStart(r.dateKey);
+            const end = new Date(`${key}T00:00:00`);
+            end.setDate(end.getDate() + 6);
+            label = `${formatTanggalPendek(key)} - ${formatTanggalPendek(toDateKey(end))}`;
+          } else {
+            key = r.dateKey.slice(0, 7);
+            label = new Date(`${key}-01T00:00:00`).toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+          }
+          if (!groups[key]) groups[key] = { label, profit: 0 };
+          groups[key].profit += r.profit;
+        });
+
+        const list = Object.keys(groups).sort().reverse().map((k) => groups[k]); // terbaru di atas
+        const total = list.reduce((s, g) => s + g.profit, 0);
+
+        document.getElementById("shareTotal").innerText = formatRupiah(total);
+        document.getElementById("shareOwner").innerText = formatRupiah(total * SHARE_OWNER);
+        document.getElementById("shareStaff").innerText = formatRupiah(total * SHARE_STAFF);
+        document.getElementById("shareBody").innerHTML = list.length
+          ? list.map((g) => `<tr>
+              <td>${g.label}</td>
+              <td class="text-end">${formatRupiah(g.profit)}</td>
+              <td class="text-end text-success">${formatRupiah(g.profit * SHARE_OWNER)}</td>
+              <td class="text-end text-primary">${formatRupiah(g.profit * SHARE_STAFF)}</td>
+            </tr>`).join("")
+          : `<tr><td colspan="4" class="text-center text-muted">Belum ada data</td></tr>`;
+      }
+
+      document.querySelectorAll("[data-share]").forEach((b) =>
+        b.addEventListener("click", () => { activeShareView = b.dataset.share; renderProfitShare(); }));
+
       function renderDashboardCharts(targetPenjualan, targetProfit) {
         const rows = getVisibleRows();
         const categories = rows.map(row => row.label);
@@ -874,6 +961,7 @@
         document.getElementById("profit-empty").classList.toggle("show", rows.length === 0);
         document.getElementById("revenue-chart").style.display = rows.length ? "block" : "none";
         document.getElementById("profit-chart").style.display = rows.length ? "block" : "none";
+        renderProfitShare(rows);
         if (!rows.length) return;
 
         const revenueOptions = buildAreaChartOptions(
