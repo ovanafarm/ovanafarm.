@@ -460,15 +460,104 @@
         .small-box-breakdown .bd-sep { display: none; }
       }
 
-      /* Bagi Hasil Profit */
-      .share-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
-      .share-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
-      .share-summary > div { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: 8px; text-align: center; }
-      .share-summary small { display: block; color: #667085; font-size: 11px; }
-      .share-summary strong { font-size: 13px; }
-      .share-table-wrap { max-height: 260px; overflow-y: auto; }
-      .share-table { font-size: 12px; margin: 0; }
-      .share-table th { position: sticky; top: 0; background: #fff; }
+      /* Bagi hasil: panel mandiri tepat di bawah area Grafik Profit. */
+      .profit-share-card { overflow: hidden; }
+      .profit-share-card .card-header { padding: 16px 18px; }
+      .profit-share-heading { display: flex; align-items: center; gap: 12px; }
+      .profit-share-icon {
+        display: grid; place-items: center; width: 40px; height: 40px;
+        border: 1px solid #d8eade; border-radius: 12px;
+        background: #edf7f0; color: #237349; flex-shrink: 0; font-size: 20px;
+      }
+      .profit-share-title { margin: 0; font-size: 15px; font-weight: 700; color: #20262d; }
+      .profit-share-subtitle { margin: 3px 0 0; color: #667085; font-size: 12px; }
+      .profit-share-card .profit-share-tools {
+        display: grid; width: auto; grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px; flex-shrink: 0;
+      }
+      .profit-share-tools .chart-range-btn { padding: 9px 16px; min-height: 34px; }
+      .profit-share-tools .chart-range-btn.active { background: #237349; }
+      .profit-share-toolbar {
+        display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: 12px; margin-bottom: 16px;
+      }
+      .profit-share-period-nav { display: flex; align-items: center; gap: 8px; min-width: 0; }
+      .profit-share-nav-btn {
+        width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--line);
+        background: #fff; color: #344054; display: inline-grid; place-items: center; flex-shrink: 0;
+      }
+      .profit-share-nav-btn:hover:not(:disabled) { background: #f0f6f2; border-color: #bcd6c5; }
+      .profit-share-nav-btn:disabled { opacity: .35; cursor: not-allowed; }
+      .profit-share-period-copy { min-width: 170px; padding: 0 2px; }
+      .profit-share-period-copy strong { display: block; font-size: 13px; color: #344054; }
+      .profit-share-period-copy small { display: block; font-size: 11px; color: #667085; margin-top: 2px; }
+      .profit-share-calendar { display: flex; align-items: center; gap: 10px; }
+      .profit-share-date-label { margin: 0; display: flex; align-items: center; gap: 8px; color: #667085; font-size: 12px; }
+      .profit-share-date-label input {
+        border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px;
+        font-size: 12px; color: #344054; background: #fff; min-height: 34px; max-width: 168px;
+      }
+      .profit-share-today {
+        border: 1px solid #d8eade; background: #edf7f0; border-radius: 8px;
+        padding: 7px 11px; color: #237349; font-size: 12px; font-weight: 600;
+        min-height: 34px; white-space: nowrap;
+      }
+      .profit-share-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+      .profit-share-stat { border-radius: 12px; padding: 17px 18px; min-width: 0; border: 1px solid var(--line); }
+      .profit-share-stat-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 600; }
+      .profit-share-stat-label i { margin-right: 5px; }
+      .profit-share-stat-value { display: block; margin-top: 8px; font-size: clamp(19px, 1.8vw, 28px); font-weight: 750; line-height: 1.25; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+      .profit-share-stat small { display: block; margin-top: 7px; font-size: 11px; opacity: .8; }
+      .profit-share-total { background: #242b31; border-color: #242b31; color: #fff; }
+      .profit-share-owner { background: #f0f5ff; border-color: #dde7fb; color: #2357a3; }
+      .profit-share-employee { background: #edf7f0; border-color: #d8eade; color: #237349; }
+      .profit-share-percent { padding: 3px 8px; border-radius: 20px; background: #fff; font-size: 11px; }
+      .profit-share-current { color: #d9e8de; border: 1px solid #536559; border-radius: 20px; padding: 3px 8px; font-size: 10px; font-weight: 500; }
+      .profit-share-ratio { display: flex; height: 7px; gap: 3px; overflow: hidden; border-radius: 4px; margin: 16px 0 9px; }
+      .profit-share-ratio-owner { flex: 25; background: #4e7fcb; }
+      .profit-share-ratio-employee { flex: 75; background: #3f8f5f; }
+      .profit-share-footnote { color: #667085; font-size: 12px; line-height: 1.6; margin: 0; }
+      .profit-share-notice { border-radius: 8px; border: 1px solid #e6eaf0; background: #f8fafc; color: #596579; padding: 10px 12px; margin-top: 12px; font-size: 12px; }
+      .profit-share-notice[data-tone="warning"] { background: #fff8ec; color: #865600; border-color: #f2dfb9; }
+      .profit-share-notice[data-tone="error"] { background: #fff1f2; color: #a93243; border-color: #f1ccd1; }
+      .profit-share-retry { border: 0; background: none; padding: 0; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; margin-left: 6px; }
+      .profit-share-details { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+      .profit-share-details summary { color: #344054; font-size: 12px; font-weight: 600; cursor: pointer; }
+      .profit-share-detail-help { margin: 10px 0 12px; color: #667085; font-size: 12px; line-height: 1.6; }
+      .profit-share-table-wrap { overflow-x: auto; max-height: 325px; border: 1px solid var(--line); border-radius: 8px; }
+      .profit-share-table { width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap; }
+      .profit-share-table th, .profit-share-table td { padding: 9px 12px; border-bottom: 1px solid var(--line); }
+      .profit-share-table thead th { position: sticky; top: 0; background: #f8fafc; color: #667085; font-weight: 600; }
+      .profit-share-table tfoot th { background: #f3f6f4; color: #344054; border-bottom: 0; }
+      .profit-share-table th:not(:first-child), .profit-share-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+      .profit-share-table .profit-share-loss { color: #ba394a; }
+      .profit-share-table .profit-share-no-activity { color: #98a2b3; }
+      .profit-share-card button:focus-visible, .profit-share-card input:focus-visible, .profit-share-details summary:focus-visible {
+        outline: 3px solid #91b4dd; outline-offset: 3px;
+      }
+      @media (max-width: 900px) {
+        .profit-share-card .card-header { align-items: center; }
+        .profit-share-card .profit-share-tools { width: auto; }
+        .profit-share-calendar { flex-wrap: wrap; }
+        .profit-share-stat { padding: 14px; }
+      }
+      @media (max-width: 575px) {
+        .profit-share-card .card-header { padding: 14px; }
+        .profit-share-card .profit-share-tools { width: 100%; }
+        .profit-share-toolbar { gap: 12px; }
+        .profit-share-period-nav { width: 100%; }
+        .profit-share-period-copy { flex: 1; text-align: center; min-width: 0; }
+        .profit-share-calendar { width: 100%; justify-content: space-between; gap: 6px; }
+        .profit-share-date-label { gap: 5px; font-size: 11px; }
+        .profit-share-date-label input { max-width: 144px; padding: 6px; }
+        .profit-share-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+        .profit-share-total { grid-column: 1 / -1; }
+        .profit-share-stat-label { align-items: flex-start; gap: 5px; }
+        .profit-share-stat-label i { display: none; }
+        .profit-share-stat-value { font-size: 19px; }
+        .profit-share-total .profit-share-stat-value { font-size: 26px; }
+        .profit-share-stat small { font-size: 10px; }
+      }
     </style>
   </head>
   <body>
@@ -618,30 +707,85 @@
                 </div>
                 <div id="profit-chart"></div>
                 <div id="profit-empty" class="chart-empty">Belum ada data profit untuk periode ini.</div>
-
-                <div class="share-box">
-                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-                    <strong class="small"><i class="bi bi-people-fill me-1"></i>Bagi Hasil Profit (Owner 25% · Karyawan 75%)</strong>
-                    <div class="chart-tools">
-                      <button class="chart-range-btn active" type="button" data-share="harian">Harian</button>
-                      <button class="chart-range-btn" type="button" data-share="mingguan">Mingguan</button>
-                      <button class="chart-range-btn" type="button" data-share="bulanan">Bulanan</button>
-                    </div>
-                  </div>
-                  <div class="share-summary">
-                    <div><small>Total Profit</small><strong id="shareTotal">Rp 0</strong></div>
-                    <div><small>Bagian Kamu (25%)</small><strong id="shareOwner" class="text-success">Rp 0</strong></div>
-                    <div><small>Bagian Karyawan (75%)</small><strong id="shareStaff" class="text-primary">Rp 0</strong></div>
-                  </div>
-                  <div class="share-table-wrap">
-                    <table class="table table-sm share-table">
-                      <thead><tr><th>Periode</th><th class="text-end">Profit</th><th class="text-end">Kamu</th><th class="text-end">Karyawan</th></tr></thead>
-                      <tbody id="shareBody"></tbody>
-                    </table>
-                  </div>
-                </div>
               </div>
             </div>
+          </div>
+          <!-- Panel ini memakai seluruh data profit; periodenya mandiri dari filter grafik. -->
+          <div class="col-12">
+            <section class="card chart-card profit-share-card shadow-sm mb-4" aria-labelledby="profitShareTitle">
+              <div class="card-header">
+                <div class="profit-share-heading">
+                  <span class="profit-share-icon" aria-hidden="true"><i class="bi bi-diagram-2"></i></span>
+                  <div>
+                    <h6 class="profit-share-title" id="profitShareTitle">Bagi Hasil Profit</h6>
+                    <p class="profit-share-subtitle">Saya / pemilik 25% &middot; Karyawan 75%</p>
+                  </div>
+                </div>
+                <div class="chart-tools profit-share-tools" role="group" aria-label="Periode bagi hasil">
+                  <button class="chart-range-btn active" type="button" data-profit-share-period="daily" aria-pressed="true" title="Per hari kalender">Daily</button>
+                  <button class="chart-range-btn" type="button" data-profit-share-period="weekly" aria-pressed="false" title="Per minggu, Senin sampai Minggu">Weekly</button>
+                  <button class="chart-range-btn" type="button" data-profit-share-period="monthly" aria-pressed="false" title="Per bulan kalender">Monthly</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="profit-share-toolbar">
+                  <div class="profit-share-period-nav">
+                    <button type="button" class="profit-share-nav-btn" id="profitSharePrev" aria-label="Periode sebelumnya" title="Periode sebelumnya"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
+                    <div class="profit-share-period-copy">
+                      <strong id="profitSharePeriodLabel">Memuat periode...</strong>
+                      <small id="profitSharePeriodMeta">Periode kalender</small>
+                    </div>
+                    <button type="button" class="profit-share-nav-btn" id="profitShareNext" aria-label="Periode berikutnya" title="Periode berikutnya"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+                  </div>
+                  <div class="profit-share-calendar">
+                    <label class="profit-share-date-label" for="profitShareDate">
+                      <span id="profitShareDateLabel">Pilih tanggal</span>
+                      <input type="date" id="profitShareDate">
+                    </label>
+                    <button class="profit-share-today" type="button" id="profitShareToday">Hari ini</button>
+                  </div>
+                </div>
+
+                <div class="profit-share-stats" id="profitShareStats" aria-busy="true">
+                  <div class="profit-share-stat profit-share-total">
+                    <div class="profit-share-stat-label"><span>Profit Periode</span><span class="profit-share-current" id="profitSharePeriodBadge">Memuat</span></div>
+                    <strong class="profit-share-stat-value" id="profitShareTotal">&mdash;</strong>
+                    <small id="profitShareTransactionCount">Mengambil data penjualan...</small>
+                  </div>
+                  <div class="profit-share-stat profit-share-owner">
+                    <div class="profit-share-stat-label"><span><i class="bi bi-person" aria-hidden="true"></i>Bagian Saya</span><span class="profit-share-percent">25%</span></div>
+                    <strong class="profit-share-stat-value" id="profitShareOwner">&mdash;</strong>
+                    <small>Pemilik usaha</small>
+                  </div>
+                  <div class="profit-share-stat profit-share-employee">
+                    <div class="profit-share-stat-label"><span><i class="bi bi-people" aria-hidden="true"></i>Karyawan</span><span class="profit-share-percent">75%</span></div>
+                    <strong class="profit-share-stat-value" id="profitShareEmployee">&mdash;</strong>
+                    <small>Bagian karyawan</small>
+                  </div>
+                </div>
+                <div class="profit-share-ratio" role="img" aria-label="Rasio bagi hasil: pemilik 25 persen, karyawan 75 persen">
+                  <span class="profit-share-ratio-owner"></span><span class="profit-share-ratio-employee"></span>
+                </div>
+                <p class="profit-share-footnote">Dasar: profit penjualan (harga jual &minus; modal) &times; jumlah barang, <strong>sebelum pengeluaran operasional</strong>. Periode bagi hasil terpisah dari filter grafik di atas.</p>
+                <div id="profitShareNotice" class="profit-share-notice" hidden>
+                  <span id="profitShareNoticeText"></span><button type="button" id="profitShareRetry" class="profit-share-retry" hidden>Coba lagi</button>
+                </div>
+                <details class="profit-share-details" id="profitShareDetails">
+                  <summary>Rincian harian &amp; cara perhitungan</summary>
+                  <p class="profit-share-detail-help">Profit dijumlahkan dalam periode yang dipilih, termasuk profit negatif. Jika total periode nol atau negatif, kedua bagian Rp 0; kerugian tidak dibagi otomatis. Nominal dibulatkan ke rupiah dan sisa pembulatan masuk ke bagian karyawan agar jumlah keduanya tepat sama dengan profit yang dibagikan. Ini adalah perhitungan bagi hasil, bukan catatan pembayaran.</p>
+                  <div class="profit-share-table-wrap">
+                    <table class="profit-share-table">
+                      <caption class="visually-hidden" id="profitShareTableCaption">Rincian profit harian untuk periode terpilih</caption>
+                      <thead><tr><th scope="col">Tanggal</th><th scope="col">Transaksi</th><th scope="col">Profit</th></tr></thead>
+                      <tbody id="profitShareTableBody"><tr><td colspan="3">Memuat data...</td></tr></tbody>
+                      <tfoot><tr><th scope="row">Total periode</th><th id="profitShareTableTransactions">&mdash;</th><th id="profitShareTableTotal">&mdash;</th></tr></tfoot>
+                    </table>
+                  </div>
+                  <p class="profit-share-footnote mt-2">Hari tanpa transaksi bernilai Rp 0. Periode berjalan hanya memuat data sampai hari ini. Tanggal mengikuti zona waktu perangkat, sama seperti Grafik Profit.</p>
+                </details>
+                <div class="visually-hidden" id="profitShareAnnouncement" role="status" aria-live="polite" aria-atomic="true"></div>
+              </div>
+            </section>
           </div>
         </div>
 
@@ -762,6 +906,12 @@
       let rawSalesForProducts = [];
       let barangList = [];
 
+      // Rasio tetap: pemilik 25%, karyawan 75%. Tidak mengubah saldo/pengeluaran.
+      const PROFIT_SHARE_OWNER_RATE = 0.25;
+      let selectedProfitSharePeriod = "daily";
+      let profitShareAnchorDate = toDateKey(new Date());
+      let profitShareLoadState = "loading";
+
       function formatRupiah(value) {
         return "Rp " + Math.round(Number(value || 0)).toLocaleString("id-ID");
       }
@@ -843,6 +993,233 @@
         if (!customEndDate && selectedChartRange !== "custom") endInput.value = "";
       }
 
+
+      // Gunakan tanggal lokal seperti Grafik Profit. Jangan parse YYYY-MM-DD
+      // dengan new Date(dateKey), karena itu dianggap UTC oleh JavaScript.
+      function parseProfitShareDate(dateKey) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey || "")) return null;
+        const [year, month, day] = dateKey.split("-").map(Number);
+        const date = new Date(year, month - 1, day, 12, 0, 0);
+        if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+        return date;
+      }
+
+      function getProfitSharePeriodBounds(period, anchorDate) {
+        const anchor = parseProfitShareDate(anchorDate);
+        if (!anchor) throw new Error("Tanggal bagi hasil tidak valid.");
+        const start = new Date(anchor);
+        const end = new Date(anchor);
+        if (period === "weekly") {
+          start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+          end.setTime(start.getTime());
+          end.setDate(end.getDate() + 6);
+        } else if (period === "monthly") {
+          start.setDate(1);
+          end.setMonth(end.getMonth() + 1, 0);
+        } else if (period !== "daily") {
+          throw new Error("Periode bagi hasil tidak dikenal.");
+        }
+        return { start: toDateKey(start), end: toDateKey(end) };
+      }
+
+      function shiftProfitShareAnchor(anchorDate, period, direction) {
+        const date = parseProfitShareDate(anchorDate);
+        if (!date) return toDateKey(new Date());
+        if (period === "monthly") {
+          date.setDate(1); // Hindari 31 Januari melompat ke Maret.
+          date.setMonth(date.getMonth() + direction);
+        } else {
+          date.setDate(date.getDate() + direction * (period === "weekly" ? 7 : 1));
+        }
+        return toDateKey(date);
+      }
+
+      function formatProfitShareDate(dateKey, options = {}) {
+        const date = parseProfitShareDate(dateKey);
+        return date ? date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric", ...options }) : "-";
+      }
+
+      function formatProfitSharePeriod(period, bounds) {
+        if (period === "monthly") {
+          return parseProfitShareDate(bounds.start).toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+        }
+        if (period === "daily") return formatProfitShareDate(bounds.start);
+        return `${formatProfitShareDate(bounds.start)} - ${formatProfitShareDate(bounds.end)}`;
+      }
+
+      function calculateProfitShare(rows, period, anchorDate, today = toDateKey(new Date())) {
+        const bounds = getProfitSharePeriodBounds(period, anchorDate);
+        const visible = rows.filter(row => row.dateKey >= bounds.start && row.dateKey <= bounds.end && row.dateKey <= today);
+        const rawProfit = visible.reduce((sum, row) => sum + Number(row.profit || 0), 0);
+        const transactions = visible.reduce((sum, row) => sum + Number(row.transaksi || 0), 0);
+        if (!Number.isFinite(rawProfit) || !Number.isFinite(transactions)) throw new Error("Data profit tidak valid.");
+        const profit = Math.round(rawProfit);
+        if (!Number.isSafeInteger(profit)) throw new Error("Nilai profit melebihi batas perhitungan yang aman.");
+        const distributable = Math.max(0, profit);
+        const owner = Math.round(distributable * PROFIT_SHARE_OWNER_RATE);
+        // Jangan bulatkan kedua bagian secara terpisah: bisa berselisih Rp 1.
+        const employee = distributable - owner;
+        const byDate = new Map();
+        visible.forEach(row => {
+          const existing = byDate.get(row.dateKey) || { profit: 0, transaksi: 0 };
+          byDate.set(row.dateKey, {
+            profit: existing.profit + Number(row.profit || 0),
+            transaksi: existing.transaksi + Number(row.transaksi || 0)
+          });
+        });
+        const details = [];
+        const day = parseProfitShareDate(bounds.start);
+        const detailEnd = bounds.end < today ? bounds.end : today;
+        // Maksimal 31 baris untuk satu periode; tampilkan juga hari tanpa transaksi.
+        for (let i = 0; i < 32 && toDateKey(day) <= detailEnd; i++, day.setDate(day.getDate() + 1)) {
+          const dateKey = toDateKey(day);
+          const entry = byDate.get(dateKey) || { profit: 0, transaksi: 0 };
+          details.push({ dateKey, profit: entry.profit, transaksi: entry.transaksi });
+        }
+        return { ...bounds, profit, rawProfit, distributable, owner, employee, transactions, details, dataDays: visible.length };
+      }
+
+      function showProfitShareNotice(text, tone = "info", retry = false) {
+        const notice = document.getElementById("profitShareNotice");
+        notice.hidden = !text;
+        notice.dataset.tone = tone;
+        document.getElementById("profitShareNoticeText").textContent = text;
+        document.getElementById("profitShareRetry").hidden = !retry;
+      }
+
+      function renderProfitShareTable(result) {
+        const tbody = document.getElementById("profitShareTableBody");
+        tbody.replaceChildren();
+        if (!result) {
+          const tr = document.createElement("tr");
+          const cell = document.createElement("td");
+          cell.colSpan = 3;
+          cell.textContent = profitShareLoadState === "loading" ? "Memuat data..." : "Data belum tersedia. Coba muat ulang.";
+          tr.append(cell);
+          tbody.append(tr);
+          document.getElementById("profitShareTableTransactions").textContent = "\u2014";
+          document.getElementById("profitShareTableTotal").textContent = "\u2014";
+          return;
+        }
+        result.details.forEach(row => {
+          const tr = document.createElement("tr");
+          if (!row.transaksi) tr.className = "profit-share-no-activity";
+          [formatProfitShareDate(row.dateKey), row.transaksi.toLocaleString("id-ID"), formatRupiah(row.profit)].forEach((value, index) => {
+            const td = document.createElement("td");
+            td.textContent = value;
+            if (index === 2 && row.profit < 0) td.className = "profit-share-loss";
+            tr.append(td);
+          });
+          tbody.append(tr);
+        });
+        document.getElementById("profitShareTableTransactions").textContent = result.transactions.toLocaleString("id-ID");
+        document.getElementById("profitShareTableTotal").textContent = formatRupiah(result.profit);
+      }
+
+      function renderProfitShare() {
+        const today = toDateKey(new Date());
+        if (!parseProfitShareDate(profitShareAnchorDate) || profitShareAnchorDate > today) profitShareAnchorDate = today;
+        const bounds = getProfitSharePeriodBounds(selectedProfitSharePeriod, profitShareAnchorDate);
+        const current = today >= bounds.start && today <= bounds.end;
+        const labels = { daily: "Hari ini", weekly: "Minggu ini", monthly: "Bulan ini" };
+        const dateLabels = { daily: "Pilih tanggal", weekly: "Pilih tanggal", monthly: "Pilih bulan" };
+        const periodLabel = formatProfitSharePeriod(selectedProfitSharePeriod, bounds);
+        const meta = selectedProfitSharePeriod === "weekly" ? "Senin - Minggu" : selectedProfitSharePeriod === "monthly" ? "Bulan kalender" : "Harian";
+        document.querySelectorAll("[data-profit-share-period]").forEach(button => {
+          const active = button.dataset.profitSharePeriod === selectedProfitSharePeriod;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", String(active));
+        });
+        document.getElementById("profitSharePeriodLabel").textContent = periodLabel;
+        document.getElementById("profitSharePeriodMeta").textContent = meta + (current ? " \u00b7 Periode berjalan" : " \u00b7 Riwayat");
+        document.getElementById("profitShareToday").textContent = labels[selectedProfitSharePeriod];
+        document.getElementById("profitShareDateLabel").textContent = dateLabels[selectedProfitSharePeriod];
+        const input = document.getElementById("profitShareDate");
+        input.type = selectedProfitSharePeriod === "monthly" ? "month" : "date";
+        input.max = selectedProfitSharePeriod === "monthly" ? today.slice(0, 7) : today;
+        input.value = selectedProfitSharePeriod === "monthly" ? profitShareAnchorDate.slice(0, 7) : profitShareAnchorDate;
+        input.title = selectedProfitSharePeriod === "weekly" ? "Pilih tanggal mana pun dalam minggu yang ingin dilihat" : "Pilih periode yang ingin dilihat";
+        const nextAnchor = shiftProfitShareAnchor(profitShareAnchorDate, selectedProfitSharePeriod, 1);
+        const nextBounds = getProfitSharePeriodBounds(selectedProfitSharePeriod, nextAnchor);
+        document.getElementById("profitShareNext").disabled = nextBounds.start > today;
+        document.getElementById("profitShareTableCaption").textContent = "Rincian profit harian: " + periodLabel;
+        document.getElementById("profitShareStats").setAttribute("aria-busy", String(profitShareLoadState === "loading"));
+        const badge = document.getElementById("profitSharePeriodBadge");
+        const ids = ["profitShareTotal", "profitShareOwner", "profitShareEmployee"];
+        const announcement = document.getElementById("profitShareAnnouncement");
+        if (profitShareLoadState !== "ready") {
+          ids.forEach(id => { document.getElementById(id).textContent = "\u2014"; });
+          badge.textContent = profitShareLoadState === "loading" ? "Memuat" : "Data gagal";
+          document.getElementById("profitShareTransactionCount").textContent = profitShareLoadState === "loading" ? "Mengambil data penjualan..." : "Perhitungan belum tersedia";
+          const message = profitShareLoadState === "error" ? "Data penjualan gagal dimuat. Bagi hasil belum dapat dihitung, bukan Rp 0." : "";
+          showProfitShareNotice(message, "error", profitShareLoadState === "error");
+          announcement.textContent = message || "Memuat data bagi hasil.";
+          renderProfitShareTable(null);
+          return;
+        }
+        let result;
+        try {
+          result = calculateProfitShare(dashboardChartRows, selectedProfitSharePeriod, profitShareAnchorDate, today);
+        } catch (error) {
+          console.error("Perhitungan bagi hasil:", error);
+          profitShareLoadState = "error";
+          renderProfitShare();
+          return;
+        }
+        badge.textContent = current ? "Berjalan" : "Riwayat";
+        document.getElementById("profitShareTotal").textContent = formatRupiah(result.profit);
+        document.getElementById("profitShareOwner").textContent = formatRupiah(result.owner);
+        document.getElementById("profitShareEmployee").textContent = formatRupiah(result.employee);
+        document.getElementById("profitShareTransactionCount").textContent = `${result.transactions.toLocaleString("id-ID")} transaksi dalam periode ini`;
+        if (result.rawProfit < 0) {
+          showProfitShareNotice("Total profit periode negatif. Bagi hasil Rp 0; kerugian tidak dibagi otomatis.", "warning");
+        } else if (!result.transactions) {
+          showProfitShareNotice("Belum ada transaksi pada periode ini. Bagi hasil ditampilkan Rp 0.");
+        } else if (!result.distributable) {
+          showProfitShareNotice("Total profit periode Rp 0. Belum ada profit yang dapat dibagikan.");
+        } else {
+          showProfitShareNotice("");
+        }
+        renderProfitShareTable(result);
+        announcement.textContent = `${periodLabel}. Profit ${formatRupiah(result.profit)}. Bagian saya 25 persen: ${formatRupiah(result.owner)}. Karyawan 75 persen: ${formatRupiah(result.employee)}.`;
+      }
+
+      document.querySelectorAll("[data-profit-share-period]").forEach(button => {
+        button.addEventListener("click", () => {
+          selectedProfitSharePeriod = button.dataset.profitSharePeriod;
+          renderProfitShare();
+        });
+      });
+      document.getElementById("profitShareDate").addEventListener("change", event => {
+        const value = event.target.value;
+        const dateKey = selectedProfitSharePeriod === "monthly" ? value + "-01" : value;
+        profitShareAnchorDate = parseProfitShareDate(dateKey) ? dateKey : toDateKey(new Date());
+        renderProfitShare();
+      });
+      document.getElementById("profitSharePrev").addEventListener("click", () => {
+        profitShareAnchorDate = shiftProfitShareAnchor(profitShareAnchorDate, selectedProfitSharePeriod, -1);
+        renderProfitShare();
+      });
+      document.getElementById("profitShareNext").addEventListener("click", () => {
+        const today = toDateKey(new Date());
+        const next = shiftProfitShareAnchor(profitShareAnchorDate, selectedProfitSharePeriod, 1);
+        profitShareAnchorDate = next > today ? today : next;
+        renderProfitShare();
+      });
+      document.getElementById("profitShareToday").addEventListener("click", () => {
+        profitShareAnchorDate = toDateKey(new Date());
+        renderProfitShare();
+      });
+      document.getElementById("profitShareRetry").addEventListener("click", () => {
+        loadDashboard().catch(handleProfitShareLoadFailure);
+      });
+      function handleProfitShareLoadFailure(error) {
+        console.error("Gagal memuat dashboard:", error);
+        profitShareLoadState = "error";
+        renderProfitShare();
+      }
+      renderProfitShare();
+
       function buildAreaChartOptions(series, colors, categories, maxValue) {
         return {
           series,
@@ -880,61 +1257,6 @@
         };
       }
 
-      // ===== Bagi Hasil Profit =====
-      const SHARE_OWNER = 0.25;   // ubah di sini kalau persentase berubah
-      const SHARE_STAFF = 0.75;
-      let activeShareView = "harian";
-      let lastShareRows = [];
-
-      function getWeekStart(dateKey) {
-        const d = new Date(`${dateKey}T00:00:00`);
-        d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // minggu mulai Senin
-        return toDateKey(d);
-      }
-
-      function renderProfitShare(rows) {
-        if (rows) lastShareRows = rows;
-        document.querySelectorAll("[data-share]").forEach((b) =>
-          b.classList.toggle("active", b.dataset.share === activeShareView));
-
-        const groups = {};
-        lastShareRows.forEach((r) => {
-          let key, label;
-          if (activeShareView === "harian") {
-            key = r.dateKey;
-            label = formatTanggalPendek(r.dateKey);
-          } else if (activeShareView === "mingguan") {
-            key = getWeekStart(r.dateKey);
-            const end = new Date(`${key}T00:00:00`);
-            end.setDate(end.getDate() + 6);
-            label = `${formatTanggalPendek(key)} - ${formatTanggalPendek(toDateKey(end))}`;
-          } else {
-            key = r.dateKey.slice(0, 7);
-            label = new Date(`${key}-01T00:00:00`).toLocaleDateString("id-ID", { month: "long", year: "numeric" });
-          }
-          if (!groups[key]) groups[key] = { label, profit: 0 };
-          groups[key].profit += r.profit;
-        });
-
-        const list = Object.keys(groups).sort().reverse().map((k) => groups[k]); // terbaru di atas
-        const total = list.reduce((s, g) => s + g.profit, 0);
-
-        document.getElementById("shareTotal").innerText = formatRupiah(total);
-        document.getElementById("shareOwner").innerText = formatRupiah(total * SHARE_OWNER);
-        document.getElementById("shareStaff").innerText = formatRupiah(total * SHARE_STAFF);
-        document.getElementById("shareBody").innerHTML = list.length
-          ? list.map((g) => `<tr>
-              <td>${g.label}</td>
-              <td class="text-end">${formatRupiah(g.profit)}</td>
-              <td class="text-end text-success">${formatRupiah(g.profit * SHARE_OWNER)}</td>
-              <td class="text-end text-primary">${formatRupiah(g.profit * SHARE_STAFF)}</td>
-            </tr>`).join("")
-          : `<tr><td colspan="4" class="text-center text-muted">Belum ada data</td></tr>`;
-      }
-
-      document.querySelectorAll("[data-share]").forEach((b) =>
-        b.addEventListener("click", () => { activeShareView = b.dataset.share; renderProfitShare(); }));
-
       function renderDashboardCharts(targetPenjualan, targetProfit) {
         const rows = getVisibleRows();
         const categories = rows.map(row => row.label);
@@ -961,7 +1283,6 @@
         document.getElementById("profit-empty").classList.toggle("show", rows.length === 0);
         document.getElementById("revenue-chart").style.display = rows.length ? "block" : "none";
         document.getElementById("profit-chart").style.display = rows.length ? "block" : "none";
-        renderProfitShare(rows);
         if (!rows.length) return;
 
         const revenueOptions = buildAreaChartOptions(
@@ -1036,7 +1357,9 @@
       }
 
       async function loadDashboard() {
-        const { data: penjualan } = await window.ovanaSupabase.from("penjualan").select("*");
+        profitShareLoadState = "loading";
+        renderProfitShare();
+        const { data: penjualan, error: penjualanError } = await window.ovanaSupabase.from("penjualan").select("*");
         const { data: pengeluaran } = await window.ovanaSupabase.from("pengeluaran").select("*");
         const { data: setting } = await window.ovanaSupabase.from("setting").select("target_penjualan, target_profit").eq("id", 1).single();
         const { data: barang } = await window.ovanaSupabase.from("barang").select("nama");
@@ -1108,6 +1431,8 @@
           }));
 
         totalProfitChart = totalProfit;
+        profitShareLoadState = penjualanError || !Array.isArray(penjualan) ? "error" : "ready";
+        renderProfitShare();
 
         const saldoCash = totalPenjualanCash - totalPengeluaranCash;
         const saldoQris = totalPenjualanQris - totalPengeluaranQris;
@@ -1309,7 +1634,9 @@
         renderProductTrends(activeProductView);
       });
 
-      window.addEventListener("DOMContentLoaded", loadDashboard);
+      window.addEventListener("DOMContentLoaded", () => {
+        loadDashboard().catch(handleProfitShareLoadFailure);
+      });
     </script>
   </body>
 </html>
