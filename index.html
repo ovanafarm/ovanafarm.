@@ -472,10 +472,10 @@
       .profit-share-title { margin: 0; font-size: 15px; font-weight: 700; color: #20262d; }
       .profit-share-subtitle { margin: 3px 0 0; color: #667085; font-size: 12px; }
       .profit-share-card .profit-share-tools {
-        display: grid; width: auto; grid-template-columns: repeat(3, minmax(0, 1fr));
+        display: grid; width: auto; grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 4px; flex-shrink: 0;
       }
-      .profit-share-tools .chart-range-btn { padding: 9px 16px; min-height: 34px; }
+      .profit-share-tools .chart-range-btn { padding: 9px 16px; min-height: 34px; white-space: nowrap; }
       .profit-share-tools .chart-range-btn.active { background: #237349; }
       .profit-share-toolbar {
         display: flex; align-items: center; justify-content: space-between;
@@ -491,17 +491,26 @@
       .profit-share-period-copy { min-width: 170px; padding: 0 2px; }
       .profit-share-period-copy strong { display: block; font-size: 13px; color: #344054; }
       .profit-share-period-copy small { display: block; font-size: 11px; color: #667085; margin-top: 2px; }
-      .profit-share-calendar { display: flex; align-items: center; gap: 10px; }
-      .profit-share-date-label { margin: 0; display: flex; align-items: center; gap: 8px; color: #667085; font-size: 12px; }
+      .profit-share-calendar { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 8px; margin: 0; }
+      .profit-share-date-label { margin: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; color: #667085; font-size: 12px; min-width: 0; }
       .profit-share-date-label input {
         border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px;
-        font-size: 12px; color: #344054; background: #fff; min-height: 34px; max-width: 168px;
+        font-size: 12px; color: #344054; background: #fff; min-height: 36px; width: 148px; max-width: 100%; min-width: 0;
       }
       .profit-share-today {
         border: 1px solid #d8eade; background: #edf7f0; border-radius: 8px;
         padding: 7px 11px; color: #237349; font-size: 12px; font-weight: 600;
         min-height: 34px; white-space: nowrap;
       }
+      .profit-share-apply {
+        border: 1px solid #237349; border-radius: 8px; background: #237349; color: #fff;
+        min-height: 36px; padding: 7px 12px; font-size: 12px; font-weight: 600;
+      }
+      .profit-share-apply:hover { background: #1c5e3c; }
+      .profit-share-range-feedback { margin: -4px 0 14px; font-size: 12px; color: #596579; }
+      .profit-share-range-feedback[data-tone="error"] { color: #a93243; }
+      .profit-share-date-label input[aria-invalid="true"] { border-color: #c34e5e; }
+      .profit-share-nav-btn[hidden] { display: none; }
       .profit-share-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
       .profit-share-stat { border-radius: 12px; padding: 17px 18px; min-width: 0; border: 1px solid var(--line); }
       .profit-share-stat-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 600; }
@@ -544,12 +553,13 @@
       @media (max-width: 575px) {
         .profit-share-card .card-header { padding: 14px; }
         .profit-share-card .profit-share-tools { width: 100%; }
+        .profit-share-tools .chart-range-btn { padding: 9px 4px; font-size: 11px; }
         .profit-share-toolbar { gap: 12px; }
         .profit-share-period-nav { width: 100%; }
         .profit-share-period-copy { flex: 1; text-align: center; min-width: 0; }
-        .profit-share-calendar { width: 100%; justify-content: space-between; gap: 6px; }
+        .profit-share-calendar { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
         .profit-share-date-label { gap: 5px; font-size: 11px; }
-        .profit-share-date-label input { max-width: 144px; padding: 6px; }
+        .profit-share-date-label input { width: 100%; max-width: 100%; padding: 6px; }
         .profit-share-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
         .profit-share-total { grid-column: 1 / -1; }
         .profit-share-stat-label { align-items: flex-start; gap: 5px; }
@@ -718,13 +728,14 @@
                   <span class="profit-share-icon" aria-hidden="true"><i class="bi bi-diagram-2"></i></span>
                   <div>
                     <h6 class="profit-share-title" id="profitShareTitle">Bagi Hasil Profit</h6>
-                    <p class="profit-share-subtitle">Saya / pemilik 25% &middot; Karyawan 75%</p>
+                    <p class="profit-share-subtitle">Owner 25% &middot; Karyawan 75%</p>
                   </div>
                 </div>
                 <div class="chart-tools profit-share-tools" role="group" aria-label="Periode bagi hasil">
                   <button class="chart-range-btn active" type="button" data-profit-share-period="daily" aria-pressed="true" title="Per hari kalender">Daily</button>
                   <button class="chart-range-btn" type="button" data-profit-share-period="weekly" aria-pressed="false" title="Per minggu, Senin sampai Minggu">Weekly</button>
                   <button class="chart-range-btn" type="button" data-profit-share-period="monthly" aria-pressed="false" title="Per bulan kalender">Monthly</button>
+                  <button class="chart-range-btn" type="button" data-profit-share-period="custom" aria-pressed="false" title="Tentukan tanggal awal dan tanggal akhir">Periode</button>
                 </div>
               </div>
               <div class="card-body">
@@ -737,14 +748,20 @@
                     </div>
                     <button type="button" class="profit-share-nav-btn" id="profitShareNext" aria-label="Periode berikutnya" title="Periode berikutnya"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
                   </div>
-                  <div class="profit-share-calendar">
-                    <label class="profit-share-date-label" for="profitShareDate">
-                      <span id="profitShareDateLabel">Pilih tanggal</span>
-                      <input type="date" id="profitShareDate">
+                  <form class="profit-share-calendar" id="profitShareRangeForm" aria-label="Pilih rentang tanggal bagi hasil" novalidate>
+                    <label class="profit-share-date-label" for="profitShareStartDate">
+                      <span>Dari</span>
+                      <input type="date" id="profitShareStartDate" aria-describedby="profitShareRangeFeedback" required>
                     </label>
+                    <label class="profit-share-date-label" for="profitShareEndDate">
+                      <span>Sampai</span>
+                      <input type="date" id="profitShareEndDate" aria-describedby="profitShareRangeFeedback" required>
+                    </label>
+                    <button class="profit-share-apply" type="submit" id="profitShareApply">Terapkan</button>
                     <button class="profit-share-today" type="button" id="profitShareToday">Hari ini</button>
-                  </div>
+                  </form>
                 </div>
+                <p class="profit-share-range-feedback" id="profitShareRangeFeedback" role="status" aria-live="polite" hidden></p>
 
                 <div class="profit-share-stats" id="profitShareStats" aria-busy="true">
                   <div class="profit-share-stat profit-share-total">
@@ -753,9 +770,9 @@
                     <small id="profitShareTransactionCount">Mengambil data penjualan...</small>
                   </div>
                   <div class="profit-share-stat profit-share-owner">
-                    <div class="profit-share-stat-label"><span><i class="bi bi-person" aria-hidden="true"></i>Bagian Saya</span><span class="profit-share-percent">25%</span></div>
+                    <div class="profit-share-stat-label"><span><i class="bi bi-person" aria-hidden="true"></i>Owner</span><span class="profit-share-percent">25%</span></div>
                     <strong class="profit-share-stat-value" id="profitShareOwner">&mdash;</strong>
-                    <small>Pemilik usaha</small>
+                    <small>Bagian owner</small>
                   </div>
                   <div class="profit-share-stat profit-share-employee">
                     <div class="profit-share-stat-label"><span><i class="bi bi-people" aria-hidden="true"></i>Karyawan</span><span class="profit-share-percent">75%</span></div>
@@ -763,7 +780,7 @@
                     <small>Bagian karyawan</small>
                   </div>
                 </div>
-                <div class="profit-share-ratio" role="img" aria-label="Rasio bagi hasil: pemilik 25 persen, karyawan 75 persen">
+                <div class="profit-share-ratio" role="img" aria-label="Rasio bagi hasil: owner 25 persen, karyawan 75 persen">
                   <span class="profit-share-ratio-owner"></span><span class="profit-share-ratio-employee"></span>
                 </div>
                 <p class="profit-share-footnote">Dasar: profit penjualan (harga jual &minus; modal) &times; jumlah barang, <strong>sebelum pengeluaran operasional</strong>. Periode bagi hasil terpisah dari filter grafik di atas.</p>
@@ -772,7 +789,7 @@
                 </div>
                 <details class="profit-share-details" id="profitShareDetails">
                   <summary>Rincian harian &amp; cara perhitungan</summary>
-                  <p class="profit-share-detail-help">Profit dijumlahkan dalam periode yang dipilih, termasuk profit negatif. Jika total periode nol atau negatif, kedua bagian Rp 0; kerugian tidak dibagi otomatis. Nominal dibulatkan ke rupiah dan sisa pembulatan masuk ke bagian karyawan agar jumlah keduanya tepat sama dengan profit yang dibagikan. Ini adalah perhitungan bagi hasil, bukan catatan pembayaran.</p>
+                  <p class="profit-share-detail-help">Profit dijumlahkan dalam periode yang dipilih, termasuk tanggal awal, tanggal akhir, dan profit negatif. Jika total periode nol atau negatif, kedua bagian Rp 0; kerugian tidak dibagi otomatis. Nominal dibulatkan ke rupiah dan sisa pembulatan masuk ke bagian karyawan agar jumlah keduanya tepat sama dengan profit yang dibagikan. Ini adalah perhitungan bagi hasil, bukan catatan pembayaran.</p>
                   <div class="profit-share-table-wrap">
                     <table class="profit-share-table">
                       <caption class="visually-hidden" id="profitShareTableCaption">Rincian profit harian untuk periode terpilih</caption>
@@ -906,10 +923,12 @@
       let rawSalesForProducts = [];
       let barangList = [];
 
-      // Rasio tetap: pemilik 25%, karyawan 75%. Tidak mengubah saldo/pengeluaran.
+      // Rasio tetap: owner 25%, karyawan 75%. Tidak mengubah saldo/pengeluaran.
       const PROFIT_SHARE_OWNER_RATE = 0.25;
       let selectedProfitSharePeriod = "daily";
       let profitShareAnchorDate = toDateKey(new Date());
+      let profitShareCustomEndDate = profitShareAnchorDate;
+      let profitShareRangeDirty = false;
       let profitShareLoadState = "loading";
 
       function formatRupiah(value) {
@@ -1004,9 +1023,14 @@
         return date;
       }
 
-      function getProfitSharePeriodBounds(period, anchorDate) {
+      function getProfitSharePeriodBounds(period, anchorDate, customEndDate = anchorDate) {
         const anchor = parseProfitShareDate(anchorDate);
         if (!anchor) throw new Error("Tanggal bagi hasil tidak valid.");
+        if (period === "custom") {
+          if (!parseProfitShareDate(customEndDate)) throw new Error("Tanggal akhir tidak valid.");
+          if (anchorDate > customEndDate) throw new Error("Tanggal awal tidak boleh melewati tanggal akhir.");
+          return { start: anchorDate, end: customEndDate };
+        }
         const start = new Date(anchor);
         const end = new Date(anchor);
         if (period === "weekly") {
@@ -1039,6 +1063,15 @@
         return date ? date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric", ...options }) : "-";
       }
 
+      function countProfitShareDays(startKey, endKey) {
+        const start = parseProfitShareDate(startKey);
+        const end = parseProfitShareDate(endKey);
+        if (!start || !end) return 0;
+        const firstDay = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+        const lastDay = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+        return Math.round((lastDay - firstDay) / 86400000) + 1;
+      }
+
       function formatProfitSharePeriod(period, bounds) {
         if (period === "monthly") {
           return parseProfitShareDate(bounds.start).toLocaleDateString("id-ID", { month: "long", year: "numeric" });
@@ -1047,8 +1080,8 @@
         return `${formatProfitShareDate(bounds.start)} - ${formatProfitShareDate(bounds.end)}`;
       }
 
-      function calculateProfitShare(rows, period, anchorDate, today = toDateKey(new Date())) {
-        const bounds = getProfitSharePeriodBounds(period, anchorDate);
+      function calculateProfitShare(rows, period, anchorDate, today = toDateKey(new Date()), customEndDate = anchorDate) {
+        const bounds = getProfitSharePeriodBounds(period, anchorDate, customEndDate);
         const visible = rows.filter(row => row.dateKey >= bounds.start && row.dateKey <= bounds.end && row.dateKey <= today);
         const rawProfit = visible.reduce((sum, row) => sum + Number(row.profit || 0), 0);
         const transactions = visible.reduce((sum, row) => sum + Number(row.transaksi || 0), 0);
@@ -1070,8 +1103,9 @@
         const details = [];
         const day = parseProfitShareDate(bounds.start);
         const detailEnd = bounds.end < today ? bounds.end : today;
-        // Maksimal 31 baris untuk satu periode; tampilkan juga hari tanpa transaksi.
-        for (let i = 0; i < 32 && toDateKey(day) <= detailEnd; i++, day.setDate(day.getDate() + 1)) {
+        // Rentang bebas dapat melintasi bulan/tahun. Jangan batasi rincian ke 31 hari.
+        // Tampilkan juga hari tanpa transaksi, sampai tanggal akhir atau hari ini.
+        for (; toDateKey(day) <= detailEnd; day.setDate(day.getDate() + 1)) {
           const dateKey = toDateKey(day);
           const entry = byDate.get(dateKey) || { profit: 0, transaksi: 0 };
           details.push({ dateKey, profit: entry.profit, transaksi: entry.transaksi });
@@ -1101,6 +1135,7 @@
           document.getElementById("profitShareTableTotal").textContent = "\u2014";
           return;
         }
+        const fragment = document.createDocumentFragment();
         result.details.forEach(row => {
           const tr = document.createElement("tr");
           if (!row.transaksi) tr.className = "profit-share-no-activity";
@@ -1110,8 +1145,9 @@
             if (index === 2 && row.profit < 0) td.className = "profit-share-loss";
             tr.append(td);
           });
-          tbody.append(tr);
+          fragment.append(tr);
         });
+        tbody.append(fragment);
         document.getElementById("profitShareTableTransactions").textContent = result.transactions.toLocaleString("id-ID");
         document.getElementById("profitShareTableTotal").textContent = formatRupiah(result.profit);
       }
@@ -1119,12 +1155,13 @@
       function renderProfitShare() {
         const today = toDateKey(new Date());
         if (!parseProfitShareDate(profitShareAnchorDate) || profitShareAnchorDate > today) profitShareAnchorDate = today;
-        const bounds = getProfitSharePeriodBounds(selectedProfitSharePeriod, profitShareAnchorDate);
+        const isCustom = selectedProfitSharePeriod === "custom";
+        const bounds = getProfitSharePeriodBounds(selectedProfitSharePeriod, profitShareAnchorDate, profitShareCustomEndDate);
         const current = today >= bounds.start && today <= bounds.end;
-        const labels = { daily: "Hari ini", weekly: "Minggu ini", monthly: "Bulan ini" };
-        const dateLabels = { daily: "Pilih tanggal", weekly: "Pilih tanggal", monthly: "Pilih bulan" };
+        const labels = { daily: "Hari ini", weekly: "Minggu ini", monthly: "Bulan ini", custom: "Hari ini" };
         const periodLabel = formatProfitSharePeriod(selectedProfitSharePeriod, bounds);
-        const meta = selectedProfitSharePeriod === "weekly" ? "Senin - Minggu" : selectedProfitSharePeriod === "monthly" ? "Bulan kalender" : "Harian";
+        const dayCount = countProfitShareDays(bounds.start, bounds.end);
+        const meta = isCustom ? `Rentang pilihan \u00b7 ${dayCount.toLocaleString("id-ID")} hari` : selectedProfitSharePeriod === "weekly" ? "Senin - Minggu" : selectedProfitSharePeriod === "monthly" ? "Bulan kalender" : "Harian";
         document.querySelectorAll("[data-profit-share-period]").forEach(button => {
           const active = button.dataset.profitSharePeriod === selectedProfitSharePeriod;
           button.classList.toggle("active", active);
@@ -1133,15 +1170,22 @@
         document.getElementById("profitSharePeriodLabel").textContent = periodLabel;
         document.getElementById("profitSharePeriodMeta").textContent = meta + (current ? " \u00b7 Periode berjalan" : " \u00b7 Riwayat");
         document.getElementById("profitShareToday").textContent = labels[selectedProfitSharePeriod];
-        document.getElementById("profitShareDateLabel").textContent = dateLabels[selectedProfitSharePeriod];
-        const input = document.getElementById("profitShareDate");
-        input.type = selectedProfitSharePeriod === "monthly" ? "month" : "date";
-        input.max = selectedProfitSharePeriod === "monthly" ? today.slice(0, 7) : today;
-        input.value = selectedProfitSharePeriod === "monthly" ? profitShareAnchorDate.slice(0, 7) : profitShareAnchorDate;
-        input.title = selectedProfitSharePeriod === "weekly" ? "Pilih tanggal mana pun dalam minggu yang ingin dilihat" : "Pilih periode yang ingin dilihat";
-        const nextAnchor = shiftProfitShareAnchor(profitShareAnchorDate, selectedProfitSharePeriod, 1);
-        const nextBounds = getProfitSharePeriodBounds(selectedProfitSharePeriod, nextAnchor);
-        document.getElementById("profitShareNext").disabled = nextBounds.start > today;
+        const startInput = document.getElementById("profitShareStartDate");
+        const endInput = document.getElementById("profitShareEndDate");
+        startInput.max = today;
+        endInput.max = today;
+        if (!profitShareRangeDirty) {
+          startInput.value = bounds.start;
+          endInput.value = bounds.end > today ? today : bounds.end;
+        }
+        // Pada rentang bebas, perubahan periode dilakukan lewat kedua kalender.
+        document.getElementById("profitSharePrev").hidden = isCustom;
+        document.getElementById("profitShareNext").hidden = isCustom;
+        if (!isCustom) {
+          const nextAnchor = shiftProfitShareAnchor(profitShareAnchorDate, selectedProfitSharePeriod, 1);
+          const nextBounds = getProfitSharePeriodBounds(selectedProfitSharePeriod, nextAnchor);
+          document.getElementById("profitShareNext").disabled = nextBounds.start > today;
+        }
         document.getElementById("profitShareTableCaption").textContent = "Rincian profit harian: " + periodLabel;
         document.getElementById("profitShareStats").setAttribute("aria-busy", String(profitShareLoadState === "loading"));
         const badge = document.getElementById("profitSharePeriodBadge");
@@ -1159,7 +1203,7 @@
         }
         let result;
         try {
-          result = calculateProfitShare(dashboardChartRows, selectedProfitSharePeriod, profitShareAnchorDate, today);
+          result = calculateProfitShare(dashboardChartRows, selectedProfitSharePeriod, profitShareAnchorDate, today, profitShareCustomEndDate);
         } catch (error) {
           console.error("Perhitungan bagi hasil:", error);
           profitShareLoadState = "error";
@@ -1181,33 +1225,94 @@
           showProfitShareNotice("");
         }
         renderProfitShareTable(result);
-        announcement.textContent = `${periodLabel}. Profit ${formatRupiah(result.profit)}. Bagian saya 25 persen: ${formatRupiah(result.owner)}. Karyawan 75 persen: ${formatRupiah(result.employee)}.`;
+        announcement.textContent = `${periodLabel}. Profit ${formatRupiah(result.profit)}. Owner 25 persen: ${formatRupiah(result.owner)}. Karyawan 75 persen: ${formatRupiah(result.employee)}.`;
+      }
+
+      function setProfitShareRangeFeedback(message = "", tone = "info", invalidIds = []) {
+        const feedback = document.getElementById("profitShareRangeFeedback");
+        feedback.textContent = message;
+        feedback.dataset.tone = tone;
+        feedback.hidden = !message;
+        ["profitShareStartDate", "profitShareEndDate"].forEach(id => {
+          document.getElementById(id).setAttribute("aria-invalid", String(invalidIds.includes(id)));
+        });
+      }
+
+      function resetProfitShareRangeDraft() {
+        profitShareRangeDirty = false;
+        setProfitShareRangeFeedback();
       }
 
       document.querySelectorAll("[data-profit-share-period]").forEach(button => {
         button.addEventListener("click", () => {
-          selectedProfitSharePeriod = button.dataset.profitSharePeriod;
+          const period = button.dataset.profitSharePeriod;
+          if (period === "custom" && selectedProfitSharePeriod !== "custom") {
+            const bounds = getProfitSharePeriodBounds(selectedProfitSharePeriod, profitShareAnchorDate);
+            profitShareAnchorDate = bounds.start;
+            const today = toDateKey(new Date());
+            profitShareCustomEndDate = bounds.end > today ? today : bounds.end;
+          }
+          selectedProfitSharePeriod = period;
+          resetProfitShareRangeDraft();
           renderProfitShare();
+          if (period === "custom") document.getElementById("profitShareStartDate").focus();
         });
       });
-      document.getElementById("profitShareDate").addEventListener("change", event => {
-        const value = event.target.value;
-        const dateKey = selectedProfitSharePeriod === "monthly" ? value + "-01" : value;
-        profitShareAnchorDate = parseProfitShareDate(dateKey) ? dateKey : toDateKey(new Date());
+      ["profitShareStartDate", "profitShareEndDate"].forEach(id => {
+        document.getElementById(id).addEventListener("input", () => {
+          profitShareRangeDirty = true;
+          setProfitShareRangeFeedback("Rentang tanggal belum diterapkan. Klik Terapkan untuk memperbarui bagi hasil.");
+        });
+      });
+      document.getElementById("profitShareRangeForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const startInput = document.getElementById("profitShareStartDate");
+        const endInput = document.getElementById("profitShareEndDate");
+        const start = startInput.value;
+        const end = endInput.value;
+        const today = toDateKey(new Date());
+        let error = "";
+        let invalidIds = [];
+        if (!parseProfitShareDate(start) || !parseProfitShareDate(end)) {
+          error = "Pilih tanggal awal dan tanggal akhir yang valid.";
+          invalidIds = [!parseProfitShareDate(start) && startInput.id, !parseProfitShareDate(end) && endInput.id].filter(Boolean);
+        } else if (start > end) {
+          error = "Tanggal awal tidak boleh melewati tanggal akhir.";
+          invalidIds = [startInput.id, endInput.id];
+        } else if (start > today || end > today) {
+          error = "Tanggal tidak boleh melewati hari ini.";
+          invalidIds = [start > today && startInput.id, end > today && endInput.id].filter(Boolean);
+        }
+        if (error) {
+          setProfitShareRangeFeedback(error + " Perhitungan tetap memakai periode sebelumnya.", "error", invalidIds);
+          document.getElementById(invalidIds[0]).focus();
+          return;
+        }
+        selectedProfitSharePeriod = "custom";
+        profitShareAnchorDate = start;
+        profitShareCustomEndDate = end;
+        resetProfitShareRangeDraft();
         renderProfitShare();
       });
       document.getElementById("profitSharePrev").addEventListener("click", () => {
+        if (selectedProfitSharePeriod === "custom") return;
         profitShareAnchorDate = shiftProfitShareAnchor(profitShareAnchorDate, selectedProfitSharePeriod, -1);
+        resetProfitShareRangeDraft();
         renderProfitShare();
       });
       document.getElementById("profitShareNext").addEventListener("click", () => {
+        if (selectedProfitSharePeriod === "custom") return;
         const today = toDateKey(new Date());
         const next = shiftProfitShareAnchor(profitShareAnchorDate, selectedProfitSharePeriod, 1);
         profitShareAnchorDate = next > today ? today : next;
+        resetProfitShareRangeDraft();
         renderProfitShare();
       });
       document.getElementById("profitShareToday").addEventListener("click", () => {
         profitShareAnchorDate = toDateKey(new Date());
+        profitShareCustomEndDate = profitShareAnchorDate;
+        if (selectedProfitSharePeriod === "custom") selectedProfitSharePeriod = "daily";
+        resetProfitShareRangeDraft();
         renderProfitShare();
       });
       document.getElementById("profitShareRetry").addEventListener("click", () => {
